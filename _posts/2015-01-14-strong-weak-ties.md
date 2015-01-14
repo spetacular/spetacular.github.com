@@ -22,9 +22,12 @@ title: 强大的弱关系
 ## 三元闭合 ##
 在图1中，“B和C很可能会认识”。直觉上，人们会把朋友介绍给另一个朋友。其实可以利用概率的知识简单说明。
 如下图，黑线代表每天的24小时。一天之内，A和B有接触时间（红色），A和C也有接触时间（黄色）。如果接触时间重合，就代表B和C遇见了，就有可能认识。
+
 ![相遇概率](http://omiga-wordpress.stor.sinaapp.com/uploads/san_yuan_gailv.jpg)
 <center>图2</center>
+
 这种现象就是三元闭合（Triadic Closure）。
+
 ![三元闭合](http://omiga-wordpress.stor.sinaapp.com/uploads/Triadic%20Closure.jpg)
 <center>图3</center>
 
