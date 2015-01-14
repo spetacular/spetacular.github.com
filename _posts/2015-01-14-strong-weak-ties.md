@@ -18,6 +18,7 @@ title: 强大的弱关系
 
 ![强关系与弱关系，来自维基百科](http://omiga-wordpress.stor.sinaapp.com/uploads/strong_and_weak_ties.jpg)
 <center>图1</center>
+
 ## 三元闭合 ##
 在图1中，“B和C很可能会认识”。直觉上，人们会把朋友介绍给另一个朋友。其实可以利用概率的知识简单说明。
 如下图，黑线代表每天的24小时。一天之内，A和B有接触时间（红色），A和C也有接触时间（黄色）。如果接触时间重合，就代表B和C遇见了，就有可能认识。
@@ -26,11 +27,13 @@ title: 强大的弱关系
 这种现象就是三元闭合（Triadic Closure）。
 ![三元闭合](http://omiga-wordpress.stor.sinaapp.com/uploads/Triadic%20Closure.jpg)
 <center>图3</center>
+
 ## 桥 ##
 常常有这种情况：你认识了一个人，然后他将你带入一个新的朋友圈。这个人就是“桥”。在下图中，B是A的桥。
 
 ![桥](http://omiga-wordpress.stor.sinaapp.com/uploads/what_is_weak_ties.jpg)
 <center>图4</center>
+
 ## 弱关系的意义 ##
 好机会总是稀少的。在图4中，如果A想获得新信息，那么机会很可能来自于由B“桥”连接的未知朋友圈。尽管A的亲密朋友很乐意帮忙，但可能他们知道的信息和A本人差不多。
 
