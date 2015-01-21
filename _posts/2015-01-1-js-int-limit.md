@@ -3,6 +3,7 @@ layout: post
 title: Javascript整型数字精度限制
 ---
 在做一个项目时，需要生成一个长整数Id，生成函数如下：
+
     `$Id = date('YmdHis') . rand(1, 100000);`
 
 按照时间加随机数的形式，可以直观地看到这个Id是何时生成的。
@@ -32,9 +33,14 @@ title: Javascript整型数字精度限制
 
 IEEE 754表示的64位双精度数据的格式如下，其中52位的Significand是无符号整数。你可以将Significand左移或右移，移动的位数保存在Exponent里，11位可以表示+(2^10 -1) ~ -(2^10 -1)的范围。Sign表示正负。
 
-| Total      |    bits  | Exponent  | Significand  |
-| :--------  | --------:| :--:      | :--:         |
-| 64         | 1        |  11       | 52           |
+<table>
+    <tr>
+        <td>Total</td><td>bits</td><td>Exponent</td><td>Significand</td>
+ 	</tr>
+ 	<tr>
+		<td>64</td><td>1</td><td>11</td><td>52</td>
+    </tr>
+</table>
 
 
 这就是说，当Exponent起作用时，精度会丢失。即：
