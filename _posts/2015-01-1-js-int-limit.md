@@ -35,7 +35,7 @@ IEEE 754表示的64位双精度数据的格式如下，其中52位的Significand
 
 <table>
     <tr>
-        <td>Total</td><td>bits</td><td>Exponent</td><td>Significand</td>
+        <th>Total</th><th>bits</th><th>Exponent</th><th>Significand</th>
  	</tr>
  	<tr>
 		<td>64</td><td>1</td><td>11</td><td>52</td>
