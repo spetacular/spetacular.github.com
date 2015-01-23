@@ -33,7 +33,7 @@ title: Javascript整型数字精度限制
 
 IEEE 754表示的64位双精度数据的格式如下，其中52位的Significand是无符号整数。你可以将Significand左移或右移，移动的位数保存在Exponent里，11位可以表示+(2^10 -1) ~ -(2^10 -1)的范围。Sign表示正负。
 
-<table>
+<table border="1">
     <tr>
         <th>Total</th><th>bits</th><th>Exponent</th><th>Significand</th>
  	</tr>
