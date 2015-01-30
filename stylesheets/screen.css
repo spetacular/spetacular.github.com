@@ -158,6 +158,10 @@ ul.posts {
     padding-top: 10px;
   }
 
+ #post img{
+  width: 600px;
+ }
+    
   #post pre {
     border: 1px solid #ddd;
     background-color: #eef;
