@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 检索每个分组的最后一条记录
+title: Mysql技巧-检索每个分组的最后一条记录
 ---
 
 
