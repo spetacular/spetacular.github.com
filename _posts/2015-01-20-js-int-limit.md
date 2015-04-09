@@ -18,7 +18,7 @@ title: Javascript整型数字精度限制
 
 但是在使用时，发现id竟然变了。
 
-![精度丢失](http://spetacular.github.io/images/js_int_lose.png)
+![精度丢失](http://spetacular.github.io/images/2015-01-20/js_int_lose.png)
  
 
 
@@ -26,7 +26,7 @@ title: Javascript整型数字精度限制
 
     var id = '<?php echo $id;?>';
 
-![用字符串处理](http://spetacular.github.io/images/js_string_int.png)
+![用字符串处理](http://spetacular.github.io/images/2015-01-20/js_string_int.png)
 
 ## 为啥动了我的数？ ##
 原来JS采用IEEE 754定义的双精度浮点数。当有效位数超过 52 位时，会存在精度丢失。
