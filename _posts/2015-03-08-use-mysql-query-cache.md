@@ -6,13 +6,13 @@ title: Mysql技巧 -- 合理利用查询缓存优化查询效率
 最近开发会员中心项目，遇到多表查询的问题，发现响应极慢，就动手查下原因，并进行一些优化。先说下成果吧，由6-7秒降到200ms以下。
 吃公鸡下的蛋之前，走道是这样的：
  
-![Mysql Join](http://spetacular.github.io/images/2015-03-08/before-optimization.png)
+![before optimization](http://spetacular.github.io/images/2015-03-08/before-optimization.png)
 
 图1
 
 吃完了之后，那家伙，再看，就成了这样：
  
-![Mysql Join](http://spetacular.github.io/images/2015-03-08/after-optimization.png)
+![after optimization](http://spetacular.github.io/images/2015-03-08/after-optimization.png)
 
 图2
 
@@ -21,11 +21,11 @@ title: Mysql技巧 -- 合理利用查询缓存优化查询效率
 # 问题 #
 我在review代码和需求时，发现用户列表页访问很慢。该页面根据图3中的查询条件，筛选出符合条件的用户记录，每页显示15条记录，显示如图4所示。
  
-![Mysql Join](http://spetacular.github.io/images/2015-03-08/filter-conditions.png)
+![filter conditions](http://spetacular.github.io/images/2015-03-08/filter-conditions.png)
 
 图3
 
-![Mysql Join](http://spetacular.github.io/images/2015-03-08/query-result.png)
+![query result](http://spetacular.github.io/images/2015-03-08/query-result.png)
 
 图4
 
