@@ -118,11 +118,11 @@ Po主最开始的方法是用group by（So Easy！）
 
 直观但低效的方法：
 
-	`select * from (select * from messages ORDER BY id DESC) AS x GROUP BY name
+	select * from (select * from messages ORDER BY id DESC) AS x GROUP BY name
 
 难懂但高效的方法：
 
-	`SELECT m1.*
+	SELECT m1.*
 	FROM messages m1 LEFT JOIN messages m2
  	ON (m1.name = m2.name AND m1.id < m2.id)
 	WHERE m2.id IS NULL;
