@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Redis Tips -- Use Sorted Set To Storage A Dynamically Changing List
+tags: [english]
 ---
 
 When I was developing an instant messenger (IM) system, I found that high concurrency is an essential feature while numerous clients are online chatting simultaneously. Therefore I use Redis to cache data in order to release pressure on database.
