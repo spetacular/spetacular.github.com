@@ -45,7 +45,7 @@ Function implement is as below:
 
 Test Cases is as below:
 	
-	var_dump(versionCompare('',''));			// =	
+	var_dump(versionCompare('',''));		// =	
 	var_dump(versionCompare('1.0','1.0'));		// =
 	var_dump(versionCompare('1.1','1.0')); 		// >
 	var_dump(versionCompare('0.9','1.0'));		// <
