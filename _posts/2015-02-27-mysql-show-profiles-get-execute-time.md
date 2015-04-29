@@ -1,6 +1,6 @@
 ---
 layout: post
-title: MySQL显示执行SQL耗时，精确到毫秒
+title: Mysql Tips -- 显示执行SQL耗时，精确到毫秒
 ---
 MySQL执行一个SQL语句时，执行时间精确到秒。如下：
 
