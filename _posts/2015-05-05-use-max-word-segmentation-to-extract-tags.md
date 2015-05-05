@@ -27,6 +27,7 @@ title: 利用正向最大匹配法分词解决自动提取标签问题
 ![中文分词最大匹配法流程图](http://spetacular.github.io/images/2015-05-05/max.png)
 
 图2
+
 ## 代码 ##
 这里定义MaxWordSegmentation类，其中的run方法返回匹配到的结果。
 
