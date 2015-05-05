@@ -133,5 +133,5 @@ title: 利用正向最大匹配法分词解决自动提取标签问题
 
 ## 代码下载 ##
 
-[http://spetacular.github.io/html/maxword.zip](http://spetacular.github.io/html/maxword.zip "点此下载")
+[点此下载](http://spetacular.github.io/html/maxword.zip "点此下载")
 
