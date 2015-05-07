@@ -43,8 +43,8 @@ title: 腾讯云操作系统镜像使用方法
 	/dev/vdb1             493G  245M  467G   1% /data
 
 但没有图3中/dev/xvda。咨询后，得到如下信息：
-/dev/xvda是xen虚拟化的系统盘
-/dev/vda是kvm虚拟化的系统盘
+	/dev/xvda是xen虚拟化的系统盘
+	/dev/vda是kvm虚拟化的系统盘
 这样系统盘就是/dev/vda1，而数据盘是/dev/vdb1
 
 经过十几分钟，在镜像管理页面可以看到已制作的镜像。
@@ -53,14 +53,18 @@ title: 腾讯云操作系统镜像使用方法
 <center>图4</center>
 
 3.	目标服务器重装操作系统
-这里腾讯云有完整的教程，不再赘述。传送门
-（http://wiki.qcloud.com/wiki/%E4%BA%91%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%AE%A1%E7%90%86#6._.E9.87.8D.E8.A3.85.E6.93.8D.E4.BD.9C.E7.B3.BB.E7.BB.9F）
+
+这里腾讯云有完整的教程，不再赘述。[传送门][1]
 
 收尾工作
+
 在目标服务器重装操作系统后，工作基本结束。不过如果服务器挂载了数据盘，还要做下最后的收尾工作。
+
 使用命令“mkdir /mydata”创建mydata目录，再通过“mount /dev/xvdb1 /mydata”命令手动挂载新分区后，用“df -h”命令查看，出现以下信息说明挂载成功，即可以查看到数据盘了。
  
 ![挂载数据盘](http://spetacular.github.io/images/2014-10-21/show_df.png)
 <center>图5</center>
 
 至此，已成功将参考服务器的镜像复制到目标服务器，Enjoy。
+
+ [1]: http://wiki.qcloud.com/wiki/%E4%BA%91%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%AE%A1%E7%90%86#6._.E9.87.8D.E8.A3.85.E6.93.8D.E4.BD.9C.E7.B3.BB.E7.BB.9F "目标服务器重装操作系统"
