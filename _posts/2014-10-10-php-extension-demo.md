@@ -69,6 +69,7 @@ title: PHP扩展开发Demo
 	        len = spprintf(&strg, 0, "Hello,%s!\n", arg);
 	        RETURN_STRINGL(strg, len, 0);
 	}
+
 保存退出。
 
 ![PHP扩展开发](http://spetacular.github.io/images/2014-10-10/say_hello_function.png)
@@ -95,25 +96,29 @@ title: PHP扩展开发Demo
 	make
 	make test
 	make install
+
 这样就会生成扩展helloyo.so了。其中helloyo.so的生成目录如下：
 
 	/data/webdev/php-5.3.10/ext/helloyo # make install
 	Installing shared extensions:     /usr/local/php5.3.10/lib/php/extensions/no-debug-non-zts-20090626/
+
 如果不知道扩展目录，可以用phpinfo命令查看extension_dir路径，如下图所示：
  
 ![PHP扩展开发](http://spetacular.github.io/images/2014-10-10/extension_dir.png)
 
 3.编辑php.ini，将扩展加入进去
+
 只要找到php.ini，在文件中加入一行配置即可：
 
 	extension=helloyo.so
+
 问题时，在某种情况下，目录中有多个php.ini存在，如下
 
 ![PHP扩展开发](http://spetacular.github.io/images/2014-10-10/find_php_ini.png)
  
-这三个php.ini哪个才是真正的配置文件呢？
-挨个试~~~~ Good Idea！
-但是，可以用phpinfo来看，一目了然。
+这三个php.ini哪个才是真正的配置文件呢？  
+挨个试~~~~ Good Idea！  
+但是，可以用phpinfo来看，一目了然。  
 
 ![PHP扩展开发](http://spetacular.github.io/images/2014-10-10/php_info_path.png)
  
@@ -127,7 +132,9 @@ title: PHP扩展开发Demo
 
 # 验证与运行 #
 1.模块是否加载
-/usr/local/php5.3.10 # ./bin/php –m
+
+	/usr/local/php5.3.10 # ./bin/php –m
+
 结果如下：
 
 ![PHP扩展开发](http://spetacular.github.io/images/2014-10-10/php_show_modules.png) 
