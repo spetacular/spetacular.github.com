@@ -3,6 +3,7 @@ layout: post
 title: PHP扩展开发Demo
 ---
 为了深入学习PHP，就从一个简单的PHP扩展开始，了解一下制作过程。
+
 # 准备工作 #
 在制作PHP扩展之前，需要两个条件：
 
@@ -11,6 +12,7 @@ title: PHP扩展开发Demo
 2.PHP源码
 
 这里我的PHP安装在/usr/local/php5.3.10目录，源码在/data/webdev/php-5.3.10
+
 # 生成扩展基本框架 #
 运行以下命令：
 
