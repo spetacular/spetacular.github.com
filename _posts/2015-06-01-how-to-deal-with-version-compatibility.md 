@@ -15,18 +15,24 @@ App的升级过程中，版本兼容是一个值得关注的问题，因为App�
 	GET api.demo.com/modify_userinfo
 
 采用GET方式提交用户输入。后来发现该接口可被CSRF攻击。
+
 这时要做两件事：
+
 第一，服务器接口要为新的“App 1.1”提供升级，需要将GET方式改为POST，并且增加Token验证。这是CSRF的一般防范方法，具体请参看 [《CSRF简单介绍及利用方法》](http://drops.wooyun.org/papers/155 "CSRF简单介绍及利用方法")
+
 第二，服务器接口要为旧的“App 1.0”版本修复漏洞。但这时App已发布，不可能修改了。这时只能服务器端来改。例如限制user-agent为"App 1.0"的请求才有效，用户通过浏览器提交的请求无效。这样在一定程度上减少了CSRF的危害。
 
 
 从上面的例子来看，版本兼容可分为两种：
+
 大版本，指版本升级，接口的输入输出可能发生变化。
+
 小版本，指版本修复，只针对某个版本修改接口，其它接口保持不变。
 
 这两种情况都很常见。App未发布时，服务器接口从1.0升级到2.0，这时App开发者可以配合一下，使用2.0的接口；但对于已发布的App版本，只能由服务器端针对特定的App版本来修复漏洞。
 
 App开发者需要配合，在请求接口时传入以下两项信息：
+
 1. App版本标识，一般包括App名称、版本、平台（Android、IOS等）、SDK版本等。一般放在user-agent里，例如微信的user-agent如下：
 
 	Mozilla/5.0 (iPhone; CPU iPhone OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B176 MicroMessenger/6.2.2
