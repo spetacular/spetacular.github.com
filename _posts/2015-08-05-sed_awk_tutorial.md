@@ -1,7 +1,6 @@
 
-    <h2 class="title">
-      <a href="https://quickleft.com/blog/command-line-tutorials-sed-awk/">Command Line Tutorials &#8211; Sed &#038; Awk</a>
-    </h2>
+Command Line Tutorials &#8211; Sed &#038; Awk
+
   <div class="post_body">
     <p>Hey everybody, welcome back to my ongoing series on mastering your command line. It&#39;s time to  command and conquer! As always, make sure you check out some of the <a href="http://quickleft.com/blog/command-line-tutorials-tips-tricks">other posts</a> in the series.</p>
 
