@@ -58,11 +58,11 @@ maxage设置cookie的生存期，默认不设置，即为session cookie，浏览
 
 mode设置cookie的模式:       
 
-insert: 在回复中本模块通过Set-Cookie头直接插入相应名称的cookie。
+&nbsp;&nbsp;&nbsp;&nbsp;insert: 在回复中本模块通过Set-Cookie头直接插入相应名称的cookie。
 
-prefix: 不会生成新的cookie，但会在响应的cookie值前面加上特定的前缀，当浏览器带着这个有特定标识的cookie再次请求时，模块在传给后端服务前先删除加入的前缀，后端服务拿到的还是原来的cookie值，这些动作对后端透明。如："Cookie: NAME=SRV~VALUE"。
+&nbsp;&nbsp;&nbsp;&nbsp;prefix: 不会生成新的cookie，但会在响应的cookie值前面加上特定的前缀，当浏览器带着这个有特定标识的cookie再次请求时，模块在传给后端服务前先删除加入的前缀，后端服务拿到的还是原来的cookie值，这些动作对后端透明。如："Cookie: NAME=SRV~VALUE"。
 
-rewrite: 使用服务端标识覆盖后端设置的用于session sticky的cookie。如果后端服务在响应头中没有设置该cookie，则认为该请求不需要进行session sticky，使用这种模式，后端服务可以控制哪些请求需要sesstion sticky，哪些请求不需要。
+&nbsp;&nbsp;&nbsp;&nbsp;rewrite: 使用服务端标识覆盖后端设置的用于session sticky的cookie。如果后端服务在响应头中没有设置该cookie，则认为该请求不需要进行session sticky，使用这种模式，后端服务可以控制哪些请求需要sesstion sticky，哪些请求不需要。
 
 option 设置用于session sticky的cookie的选项，可设置成indirect或direct。indirect不会将session sticky的cookie传送给后端服务，该cookie对后端应用完全透明。direct则与indirect相反。
 
@@ -74,17 +74,24 @@ fallback设置是否重试其他机器，当sticky的后端机器挂了以后，
 
 hash 设置cookie中server标识是用明文还是使用md5值，默认使用md5
 
+<hr/>
+
 maxage是cookie的生存期。不设置时，浏览器或App关闭后就失效。下次启动时，又会随机分配后端服务器。所以如果希望该客户端的请求长期落在同一台后端服务器上，可以设置maxage。
+
 hash不论是明文还是hash值，都有固定的数目。因为hash是server的标识，所以有多少个server，就有等同数量的hash值。
 
-#一些例外
-##同一客户端的请求，有可能落在不同的后端服务器上
+#一些例外#
+
+##同一客户端的请求，有可能落在不同的后端服务器上##
+
 如果客户端启动时同时发起多个请求。由于这些请求都没带cookie，所以服务器会随机选择后端服务器，返回不同的cookie。当这些请求中的最后一个请求返回时，客户端的cookie才会稳定下来，值以最后返回的cookie为准。
 
-##cookie不一定生效
+##cookie不一定生效##
+
 由于cookie最初由服务器端下发，如果客户端禁用cookie，则cookie不会生效。
 
-##客户端可能不带cookie
+##客户端可能不带cookie##
+S
 Android客户端发送请求时，一般不会带上所有的cookie，需要明确指定哪些cookie会带上。如果希望用sticky做负载均衡，请对Android开发说加上cookie。
 
 #注意事项
