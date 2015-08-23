@@ -13,9 +13,13 @@ ul{
     <div id="disqus_thread"></div>
 <link rel="stylesheet" type="text/css" href="http://spetacular.github.io/javascript/colorbox/colorbox.css">
 <script type="text/javascript" src="http://cdn.staticfile.org/jquery/1.9.1/jquery.min.js"></script>
+<script src="http://spetacular.github.io/javascript/jquery.lazyload.js?v=1.9.1"></script>
 <script src="http://spetacular.github.io/javascript/colorbox/jquery.colorbox-min.js"></script>
 
 		<script>
+		$(function() {
+     $("img").lazyload();
+  });
 			$(document).ready(function(){
 				//Examples of how to assign the Colorbox event to elements
 				$(".gallery").colorbox({rel:'gallery',width:"90%"});
