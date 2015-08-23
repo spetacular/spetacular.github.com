@@ -16,15 +16,17 @@ ul{
 <script src="http://spetacular.github.io/javascript/jquery.lazyload.js?v=1.9.1"></script>
 <script src="http://spetacular.github.io/javascript/colorbox/jquery.colorbox-min.js"></script>
 
-		<script>
-		$(function() {
+<script>
+$(function() {
      $("img").lazyload();
-  });
-			$(document).ready(function(){
-				//Examples of how to assign the Colorbox event to elements
-				$(".gallery").colorbox({rel:'gallery',width:"90%"});
-			});
-		</script>
+});
+$(document).ready(function(){
+	//Examples of how to assign the Colorbox event to elements
+	$(".gallery").colorbox({rel:'gallery',width:"90%"});
+
+	$('.gallery').each(function(index,e){console.log(e);});
+});
+</script>
 <script type="text/javascript">
     /* * * CONFIGURATION VARIABLES * * */
     var disqus_shortname = 'davidblogs';
