@@ -30,7 +30,7 @@ $(document).ready(function(){
 
 	$('.gallery').each(function(index,e){
 		var title = e.getAttribute('title');
-		$( e ).append('<h2 class="title">'+title+'</h2>');
+		$( e ).after('<h2 class="title">'+title+'</h2>');
 		//e.outerHTML = e.outerHTML + '<h2 class="title">'+title+'</h2>'
 	});
 
