@@ -24,44 +24,37 @@ po主初学Swift，遇到不少细节知识的缺失，只好请教Google大神�
     }
 
 ##创建alert
-创建Alert的代码：
+创建Alert的代码。[原文链接](http://stackoverflow.com/questions/24272006/how-to-add-action-to-uialertview-in-swift-ios-7 "原文链接")
 
 <code>
-import UIKit
+func showAlert(){
+    var createAccountErrorAlert: UIAlertView = UIAlertView()
 
-class ViewController: UIViewController, UIAlertViewDelegate {
+    createAccountErrorAlert.delegate = self
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-    }
+    createAccountErrorAlert.title = "Oops"
+    createAccountErrorAlert.message = "Could not create account!"
+    createAccountErrorAlert.addButtonWithTitle("Dismiss")
+    createAccountErrorAlert.addButtonWithTitle("Retry")
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
+    createAccountErrorAlert.show()
+}
 
-    @IBAction func buttonPressed(sender : AnyObject) {
-        var createAccountErrorAlert: UIAlertView = UIAlertView()
+func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 
-        createAccountErrorAlert.delegate = self
+    switch buttonIndex{
 
-        createAccountErrorAlert.title = "Oops"
-        createAccountErrorAlert.message = "Could not create account!"
-        createAccountErrorAlert.addButtonWithTitle("Dismiss")
-        createAccountErrorAlert.addButtonWithTitle("Retry")
+    case 1:
+        NSLog("Retry");
+    break;
+    case 0:
+        NSLog("Dismiss");
+        break;
+    default:
+        NSLog("Default");
+        break;
+        //Some code here..
 
-        createAccountErrorAlert.show()
-    }
-
-    func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int) {
-
-        switch buttonIndex {
-
-        default:
-            println("alertView \(buttonIndex) clicked")
-
-        }
     }
 }
 </code>
