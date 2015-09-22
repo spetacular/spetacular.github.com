@@ -83,7 +83,7 @@ JB :
   comments :
     provider : disqus
     disqus :
-      short_name : david
+      short_name : davidblogs
     livefyre :
       site_id : 123
     intensedebate :
