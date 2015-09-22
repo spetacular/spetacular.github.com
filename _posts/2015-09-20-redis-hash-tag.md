@@ -7,9 +7,13 @@ twitter的[twemproxy](https://github.com/twitter/twemproxy)是一个Redis的代�
 
 但从Redis单实例切换到twemproxy集群时，还是有些需要注意的地方：
 
-不支持的方法：KEYS,MIGRATE,SCAN等
+不支持的方法：
 
-支持但需特殊处理的方法：MSET,SINTERSTORE,SUNIONSTORE,ZINTERSTORE,ZUNIONSTORE等
+KEYS,MIGRATE,SCAN等
+
+支持但需特殊处理的方法：
+
+MSET,SINTERSTORE,SUNIONSTORE,ZINTERSTORE,ZUNIONSTORE等
 
 全部请查看[Redis命令列表](https://github.com/twitter/twemproxy/blob/master/notes/redis.md).
 
@@ -26,7 +30,7 @@ twitter的[twemproxy](https://github.com/twitter/twemproxy)是一个Redis的代�
 
 这就是分片技术的矛盾之处：
 
-即要求key尽可能地分散到不同机器，又要求某些相关联的key分配到相同机器。
+**即要求key尽可能地分散到不同机器，又要求某些相关联的key分配到相同机器。**
 
 ## Hash Tags
 解铃还需系铃人。解决方法还是从分片技术的原理上找。
@@ -39,10 +43,10 @@ twitter的[twemproxy](https://github.com/twitter/twemproxy)是一个Redis的代�
 
 仔细观察user:user1:ids和user:user1:tweets，两个key其实有相同的地方，即user1。能不能拿这一部分去计算hash呢？
 
-这就是Hash Tag[Hash Tag](https://github.com/twitter/twemproxy/blob/master/notes/recommendation.md#hash-tags)。允许用key的部分字符串来计算hash。
+这就是[Hash Tag](https://github.com/twitter/twemproxy/blob/master/notes/recommendation.md#hash-tags)。允许用key的部分字符串来计算hash。
 
 
-当一个key包含 {} 的时候，就不对整个key做hash，而仅对 {} 包括的字符串做hash。
+**当一个key包含 {} 的时候，就不对整个key做hash，而仅对 {} 包括的字符串做hash。**
 
 假设hash算法为sha1。对user:{user1}:ids和user:{user1}:tweets，其hash值都等同于sha1(user1)。
 
