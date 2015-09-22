@@ -7,11 +7,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<title>Mysql Tips -- 显示执行SQL耗时，精确到毫秒</title>
+	<title>Restful接口设计：如何做版本兼容</title>
 	<meta name="author" content="David">
 	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
 	<link href='/assets/themes/the-program/css/style.css' rel="stylesheet" media="all">
-	<link href="http://feeds.feedburner.com/" rel="alternate" title="Mysql Tips -- 显示执行SQL耗时，精确到毫秒" type="application/atom+xml">
+	<link href="http://feeds.feedburner.com/" rel="alternate" title="Restful接口设计：如何做版本兼容" type="application/atom+xml">
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.0.6/modernizr.min.js"></script>
 </head>
 <body>
@@ -43,50 +43,65 @@
 			<header>
 				<div class="unit-head">
 					<div class="unit-inner unit-head-inner">
-						<h1 class="h2 entry-title">Mysql Tips -- 显示执行SQL耗时，精确到毫秒</h1>
+						<h1 class="h2 entry-title">Restful接口设计：如何做版本兼容</h1>
 					</div><!-- unit-inner -->
 				</div><!-- unit-head -->
 			</header>
 
 			<div class="bd">
 				<div class="entry-content">
-					<p>MySQL执行一个SQL语句时，执行时间精确到秒。如下：</p>
+					<p>现在App大多采用Restful接口，与服务器完成资源交换。这种实现方式隐藏了服务器端的具体实现，做到了对App端的透明服务。服务器端如何变更，甚至换一种语言实现，只要对外接口不变，App依然不受影响。</p>
 
-<pre><code>mysql&gt; select * from test
-+----+-------+
-| id | name  |
-+----+-------+
-|  1 | david |
-+----+-------+
-1 row in set (0.00 sec)
+<p>App的升级过程中，版本兼容是一个值得关注的问题，因为App要升级，服务器端的Restful接口也要进化，于是版本兼容要同时兼顾App和服务器端。</p>
+
+<h1 id="section">一个例子</h1>
+<p>版本兼容是向下兼容。接口升级后要保证低版本App能正常工作。</p>
+
+<p>例如“App 1.0”使用了下面接口完成修改用户信息功能。</p>
+
+<pre><code>GET api.demo.com/modify_userinfo
 </code></pre>
 
-<p>如何精确到毫秒呢？MySQL有个内置语句<a href="http://dev.mysql.com/doc/refman/5.5/en/show-profile.html" title="(show profile)">(show profile)</a>可以查看执行耗时。</p>
+<p>采用GET方式提交用户输入。后来发现该接口可被CSRF攻击。</p>
 
-<pre><code>mysql&gt; set profiling=1;
-Query OK, 0 rows affected (0.00 sec)
-</code></pre>
+<p>这时要做两件事：</p>
 
-<p>然后执行查询语句。
-使用show profiles就可以看到执行时间了。</p>
+<p>第一，服务器接口要为新的“App 1.1”提供升级，需要将GET方式改为POST，并且增加Token验证。这是CSRF的一般防范方法，具体请参看 <a href="http://drops.wooyun.org/papers/155" title="CSRF简单介绍及利用方法">《CSRF简单介绍及利用方法》</a></p>
 
-<pre><code>mysql&gt; show profiles;
-+----------+------------+--------------------+
-| Query_ID | Duration   | Query              |
-+----------+------------+--------------------+
-|        1 | 0.00034500 | select * from test |
-+----------+------------+--------------------+
-1 row in set (0.04 sec)
-</code></pre>
+<p>第二，服务器接口要为旧的“App 1.0”版本修复漏洞。但这时App已发布，不可能修改了。这时只能服务器端来改。例如限制user-agent为”App 1.0”的请求才有效，用户通过浏览器提交的请求无效。这样在一定程度上减少了CSRF的危害。</p>
 
-<p>Duration就是该SQL的执行时间，将其乘以1000就是毫秒数了。</p>
+<h1 id="section-1">版本兼容的两种情况</h1>
+<p>从上面的例子来看，版本兼容可分为两种：</p>
+
+<p>大版本，指版本升级，接口的输入输出可能发生变化。</p>
+
+<p>小版本，指版本修复，只针对某个版本修改接口，其它接口保持不变。</p>
+
+<p>这两种情况都很常见。App未发布时，服务器接口从1.0升级到2.0，这时App开发者可以配合一下，使用2.0的接口；但对于已发布的App版本，只能由服务器端针对特定的App版本来修复漏洞。</p>
+
+<h1 id="section-2">如何做</h1>
+<p>App开发者需要配合，在请求接口时传入以下两项信息：</p>
+
+<ol>
+  <li>
+    <p>App版本标识，一般包括App名称、版本、平台（Android、IOS等）、SDK版本等。一般放在user-agent里，例如微信的user-agent如下：</p>
+
+    <p>Mozilla/5.0 (iPhone; CPU iPhone OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B176 MicroMessenger/6.2.2</p>
+  </li>
+  <li>
+    <p>接口版本标识，指采用接口的版本，例如可以在Request Header里加入majarversion=2.0，表明使用的是2.0的接口。</p>
+  </li>
+</ol>
+
+<p>服务器端开发者需要根据App版本和接口版本标识，来提供向下兼容</p>
+
 
 					<div class="meta">
 						<p class="date-publish">
 							Published: 
-							<date class="date-pub" title="2015-02-27T00:00:00+08:00" datetime="2015-02-27T00:00:00+08:00" pubdate>
-							<span class="month"><abbr>February</abbr></span>
-							<span class="day">27</span>
+							<date class="date-pub" title="2015-06-01T00:00:00+08:00" datetime="2015-06-01T00:00:00+08:00" pubdate>
+							<span class="month"><abbr>June</abbr></span>
+							<span class="day">01</span>
 							<span class="year">2015</span>
 							</date>
 						</p>
@@ -98,8 +113,8 @@ Query OK, 0 rows affected (0.00 sec)
 
   
      
-    	<li><a href="/categories.html#mysql-ref">
-    		mysql <span>3</span>
+    	<li><a href="/categories.html#接口-ref">
+    		接口 <span>1</span>
     	</a></li>
     
   
@@ -114,7 +129,11 @@ Query OK, 0 rows affected (0.00 sec)
 
   
      
-    	<li><a href="/tags.html#mysql-ref">mysql <span>2</span></a></li>
+    	<li><a href="/tags.html#接口-ref">接口 <span>1</span></a></li>
+     
+    	<li><a href="/tags.html#api-ref">api <span>1</span></a></li>
+     
+    	<li><a href="/tags.html#版本控制-ref">版本控制 <span>2</span></a></li>
     
   
 
@@ -161,13 +180,13 @@ Query OK, 0 rows affected (0.00 sec)
 					<nav class="pagination">
 						<ul>
 							
-							<li class="prev"><a class="internal" rel="prev"  href="/2015/01/30/http-code-416-and-download" title="View HTTP 416错误与断点续传">&laquo; HTTP 416错误与断点续传</a></li>
+							<li class="prev"><a class="internal" rel="prev"  href="/2015/05/05/use-max-word-segmentation-to-extract-tags.html" title="View 利用中文分词正向最大匹配法解决自动提取标签问题">&laquo; 利用中文分词正向最大匹配法解决自动提取标签问题</a></li>
 							
 							
 							<li class="pipe"> | </li>
 							
 							
-							<li class="next"><a class="internal" rel="next"  href="/2015/03/08/use-mysql-query-cache" title="View Mysql Tips -- 合理利用查询缓存优化查询效率">Mysql Tips -- 合理利用查询缓存优化查询效率 &raquo;</a></li>
+							<li class="next"><a class="internal" rel="next"  href="/2015/06/20/japan-tokyo-journey.html" title="View 日本东京之旅">日本东京之旅 &raquo;</a></li>
 							
 						</ul>
 					</nav>
@@ -216,7 +235,7 @@ Query OK, 0 rows affected (0.00 sec)
 		};
 	load('//platform.twitter.com/widgets.js', 'tweetjs');
 	// load('https://apis.google.com/js/plusone.js', 'gplus1js'); // Checkout http://j.mp/ApDgMr for usage html for this is <div class="g-plusone" data-size="medium"></div>
-	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2015/02/27/mysql-show-profiles-get-execute-time" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
+	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2015/06/01/how-to-deal-with-version-compatibility.html" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
 	}(document, 'script'));
 </script>
 <script>

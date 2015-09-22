@@ -5,8 +5,8 @@
         <description>David&#39;s World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Tue, 22 Sep 2015 23:23:31 +0800</lastBuildDate>
-        <pubDate>Tue, 22 Sep 2015 23:23:31 +0800</pubDate>
+        <lastBuildDate>Tue, 22 Sep 2015 23:25:38 +0800</lastBuildDate>
+        <pubDate>Tue, 22 Sep 2015 23:25:38 +0800</pubDate>
         <ttl>60</ttl>
 
 
@@ -78,7 +78,7 @@
    - 127.0.0.1:6383:1 server4
 &lt;/code&gt;&lt;/pre&gt;
 </description>
-                <link>http://spetacular.github.io/2015/09/20/redis-hash-tag</link>
+                <link>http://spetacular.github.io/2015/09/20/redis-hash-tag.html</link>
                 <guid>http://spetacular.github.io/2015/09/20/redis-hash-tag</guid>
                 <pubDate>Sun, 20 Sep 2015 00:00:00 +0800</pubDate>
         </item>
@@ -147,7 +147,7 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 &lt;/code&gt;
 &lt;/pre&gt;
 </description>
-                <link>http://spetacular.github.io/2015/09/12/swift-records</link>
+                <link>http://spetacular.github.io/2015/09/12/swift-records.html</link>
                 <guid>http://spetacular.github.io/2015/09/12/swift-records</guid>
                 <pubDate>Sat, 12 Sep 2015 00:00:00 +0800</pubDate>
         </item>
@@ -249,7 +249,7 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
   &lt;li&gt;客户端发的第一个请求是不带cookie的。服务器下发的cookie，在客户端下一次请求时才能生效。&lt;/li&gt;
 &lt;/ul&gt;
 </description>
-                <link>http://spetacular.github.io/2015/08/01/nginx-sticky-problem</link>
+                <link>http://spetacular.github.io/2015/08/01/nginx-sticky-problem.html</link>
                 <guid>http://spetacular.github.io/2015/08/01/nginx-sticky-problem</guid>
                 <pubDate>Sat, 01 Aug 2015 00:00:00 +0800</pubDate>
         </item>
@@ -379,7 +379,7 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 &lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/IMG_0153.JPG&quot; title=&quot;手办&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/IMG_0153.JPG&quot;&gt;&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
-                <link>http://spetacular.github.io/2015/06/20/japan-tokyo-journey</link>
+                <link>http://spetacular.github.io/2015/06/20/japan-tokyo-journey.html</link>
                 <guid>http://spetacular.github.io/2015/06/20/japan-tokyo-journey</guid>
                 <pubDate>Sat, 20 Jun 2015 00:00:00 +0800</pubDate>
         </item>
@@ -432,7 +432,7 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 &lt;p&gt;服务器端开发者需要根据App版本和接口版本标识，来提供向下兼容&lt;/p&gt;
 
 </description>
-                <link>http://spetacular.github.io/2015/06/01/how-to-deal-with-version-compatibility</link>
+                <link>http://spetacular.github.io/2015/06/01/how-to-deal-with-version-compatibility.html</link>
                 <guid>http://spetacular.github.io/2015/06/01/how-to-deal-with-version-compatibility</guid>
                 <pubDate>Mon, 01 Jun 2015 00:00:00 +0800</pubDate>
         </item>
@@ -572,7 +572,7 @@ var_dump($ret);
 &lt;p&gt;&lt;a href=&quot;http://spetacular.github.io/html/maxword.zip&quot; title=&quot;点此下载&quot;&gt;点此下载&lt;/a&gt;&lt;/p&gt;
 
 </description>
-                <link>http://spetacular.github.io/2015/05/05/use-max-word-segmentation-to-extract-tags</link>
+                <link>http://spetacular.github.io/2015/05/05/use-max-word-segmentation-to-extract-tags.html</link>
                 <guid>http://spetacular.github.io/2015/05/05/use-max-word-segmentation-to-extract-tags</guid>
                 <pubDate>Tue, 05 May 2015 00:00:00 +0800</pubDate>
         </item>
@@ -722,7 +722,7 @@ Output completed (0 sec consumed) - Normal Termination
 
 &lt;p&gt;这段话来自《士兵突击》团长王庆瑞。&lt;/p&gt;
 </description>
-                <link>http://spetacular.github.io/2015/04/10/ad-position-disappear-in-midnight</link>
+                <link>http://spetacular.github.io/2015/04/10/ad-position-disappear-in-midnight.html</link>
                 <guid>http://spetacular.github.io/2015/04/10/ad-position-disappear-in-midnight</guid>
                 <pubDate>Fri, 10 Apr 2015 00:00:00 +0800</pubDate>
         </item>
@@ -825,7 +825,7 @@ msgs = mGet(indexes)
 &lt;/code&gt;&lt;/pre&gt;
 
 </description>
-                <link>http://spetacular.github.io/2015/04/09/use-sorted-set-to-storage-dynamically-changing-list</link>
+                <link>http://spetacular.github.io/2015/04/09/use-sorted-set-to-storage-dynamically-changing-list.html</link>
                 <guid>http://spetacular.github.io/2015/04/09/use-sorted-set-to-storage-dynamically-changing-list</guid>
                 <pubDate>Thu, 09 Apr 2015 00:00:00 +0800</pubDate>
         </item>
@@ -964,7 +964,7 @@ WHERE m2.id IS NULL;
 &lt;/code&gt;&lt;/pre&gt;
 
 </description>
-                <link>http://spetacular.github.io/2015/04/03/retrieve-the-last-record-in-each-group</link>
+                <link>http://spetacular.github.io/2015/04/03/retrieve-the-last-record-in-each-group.html</link>
                 <guid>http://spetacular.github.io/2015/04/03/retrieve-the-last-record-in-each-group</guid>
                 <pubDate>Fri, 03 Apr 2015 00:00:00 +0800</pubDate>
         </item>
@@ -982,7 +982,7 @@ WHERE m2.id IS NULL;
 &lt;p&gt;最终结果是，“长空格”不见了，文字变得紧凑。
 &lt;img src=&quot;http://spetacular.github.io/images/2015-03-17/no_big_space.png&quot; alt=&quot;去掉“长空格”&quot; /&gt;&lt;/p&gt;
 </description>
-                <link>http://spetacular.github.io/2015/03/17/office-url-not-break</link>
+                <link>http://spetacular.github.io/2015/03/17/office-url-not-break.html</link>
                 <guid>http://spetacular.github.io/2015/03/17/office-url-not-break</guid>
                 <pubDate>Tue, 17 Mar 2015 00:00:00 +0800</pubDate>
         </item>
@@ -1109,7 +1109,7 @@ Query OK, 0 rows affected, 1 warning (0.00 sec)
 &lt;p&gt;利用查询缓存来优化查询，能将访问速度减少到200ms以下，能满足当前需求。但是最终的解决之道是对耗时较多、冗余的SQL语句进行优化。
 所以，革命尚未成功，同志仍需努力！&lt;/p&gt;
 </description>
-                <link>http://spetacular.github.io/2015/03/08/use-mysql-query-cache</link>
+                <link>http://spetacular.github.io/2015/03/08/use-mysql-query-cache.html</link>
                 <guid>http://spetacular.github.io/2015/03/08/use-mysql-query-cache</guid>
                 <pubDate>Sun, 08 Mar 2015 00:00:00 +0800</pubDate>
         </item>
@@ -1147,7 +1147,7 @@ Query OK, 0 rows affected (0.00 sec)
 
 &lt;p&gt;Duration就是该SQL的执行时间，将其乘以1000就是毫秒数了。&lt;/p&gt;
 </description>
-                <link>http://spetacular.github.io/2015/02/27/mysql-show-profiles-get-execute-time</link>
+                <link>http://spetacular.github.io/2015/02/27/mysql-show-profiles-get-execute-time.html</link>
                 <guid>http://spetacular.github.io/2015/02/27/mysql-show-profiles-get-execute-time</guid>
                 <pubDate>Fri, 27 Feb 2015 00:00:00 +0800</pubDate>
         </item>
@@ -1245,7 +1245,7 @@ httpConnection.setRequestProperty(&quot;RANGE&quot;, &quot;bytes=1024-&quot;);
 
 &lt;p&gt;&lt;a href=&quot;http://www.pureweber.com/article/resumable-download/&quot;&gt;http://www.pureweber.com/article/resumable-download/&lt;/a&gt;&lt;/p&gt;
 </description>
-                <link>http://spetacular.github.io/2015/01/30/http-code-416-and-download</link>
+                <link>http://spetacular.github.io/2015/01/30/http-code-416-and-download.html</link>
                 <guid>http://spetacular.github.io/2015/01/30/http-code-416-and-download</guid>
                 <pubDate>Fri, 30 Jan 2015 00:00:00 +0800</pubDate>
         </item>
@@ -1267,7 +1267,7 @@ httpConnection.setRequestProperty(&quot;RANGE&quot;, &quot;bytes=1024-&quot;);
 &lt;p&gt;奇迹般地好了！
 原因不明，如果网友刚好也遇到这样的问题，不妨一试。&lt;/p&gt;
 </description>
-                <link>http://spetacular.github.io/2015/01/29/fiddler-can-not-drag-session-to-composer</link>
+                <link>http://spetacular.github.io/2015/01/29/fiddler-can-not-drag-session-to-composer.html</link>
                 <guid>http://spetacular.github.io/2015/01/29/fiddler-can-not-drag-session-to-composer</guid>
                 <pubDate>Thu, 29 Jan 2015 00:00:00 +0800</pubDate>
         </item>
@@ -1318,7 +1318,7 @@ httpConnection.setRequestProperty(&quot;RANGE&quot;, &quot;bytes=1024-&quot;);
 
 &lt;p&gt;参考资料：http://www.cnblogs.com/jamesbd/p/3567682.html&lt;/p&gt;
 </description>
-                <link>http://spetacular.github.io/2015/01/25/cgi-and-fastcgi</link>
+                <link>http://spetacular.github.io/2015/01/25/cgi-and-fastcgi.html</link>
                 <guid>http://spetacular.github.io/2015/01/25/cgi-and-fastcgi</guid>
                 <pubDate>Sun, 25 Jan 2015 00:00:00 +0800</pubDate>
         </item>
@@ -1385,7 +1385,7 @@ httpConnection.setRequestProperty(&quot;RANGE&quot;, &quot;bytes=1024-&quot;);
 
 &lt;p&gt;&lt;a href=&quot;http://lifesinger.wordpress.com/2011/03/07/js-precision/&quot;&gt;http://lifesinger.wordpress.com/2011/03/07/js-precision/&lt;/a&gt;&lt;/p&gt;
 </description>
-                <link>http://spetacular.github.io/2015/01/20/js-int-limit</link>
+                <link>http://spetacular.github.io/2015/01/20/js-int-limit.html</link>
                 <guid>http://spetacular.github.io/2015/01/20/js-int-limit</guid>
                 <pubDate>Tue, 20 Jan 2015 00:00:00 +0800</pubDate>
         </item>
@@ -1444,7 +1444,7 @@ httpConnection.setRequestProperty(&quot;RANGE&quot;, &quot;bytes=1024-&quot;);
 &lt;/ol&gt;
 
 </description>
-                <link>http://spetacular.github.io/2015/01/14/strong-weak-ties</link>
+                <link>http://spetacular.github.io/2015/01/14/strong-weak-ties.html</link>
                 <guid>http://spetacular.github.io/2015/01/14/strong-weak-ties</guid>
                 <pubDate>Wed, 14 Jan 2015 00:00:00 +0800</pubDate>
         </item>
@@ -1503,7 +1503,7 @@ var_dump(versionCompare(&#39;1.0.1&#39;,&#39;1.0&#39;));	// &amp;gt;
 var_dump(versionCompare(&#39;1.0.1&#39;,&#39;1.0.2&#39;));	// &amp;lt;
 &lt;/code&gt;&lt;/pre&gt;
 </description>
-                <link>http://spetacular.github.io/2014/12/20/version-compare-function</link>
+                <link>http://spetacular.github.io/2014/12/20/version-compare-function.html</link>
                 <guid>http://spetacular.github.io/2014/12/20/version-compare-function</guid>
                 <pubDate>Sat, 20 Dec 2014 00:00:00 +0800</pubDate>
         </item>
@@ -1586,7 +1586,7 @@ udev                  7.9G  148K  7.9G   1% /dev
 &lt;p&gt;至此，已成功将参考服务器的镜像复制到目标服务器，Enjoy。&lt;/p&gt;
 
 </description>
-                <link>http://spetacular.github.io/2014/10/21/operation-system-image-in-tencent-cloud</link>
+                <link>http://spetacular.github.io/2014/10/21/operation-system-image-in-tencent-cloud.html</link>
                 <guid>http://spetacular.github.io/2014/10/21/operation-system-image-in-tencent-cloud</guid>
                 <pubDate>Tue, 21 Oct 2014 00:00:00 +0800</pubDate>
         </item>
@@ -1779,7 +1779,7 @@ echo say_hello($name);
 &lt;h1 id=&quot;section-4&quot;&gt;小结&lt;/h1&gt;
 &lt;p&gt;通过step by step的操作，了解了php扩展的开发方法。由易而难，以后遇到扩展需要开发时，就知道从何下手了。&lt;/p&gt;
 </description>
-                <link>http://spetacular.github.io/2014/10/10/php-extension-demo</link>
+                <link>http://spetacular.github.io/2014/10/10/php-extension-demo.html</link>
                 <guid>http://spetacular.github.io/2014/10/10/php-extension-demo</guid>
                 <pubDate>Fri, 10 Oct 2014 00:00:00 +0800</pubDate>
         </item>

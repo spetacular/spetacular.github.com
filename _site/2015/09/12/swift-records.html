@@ -7,11 +7,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<title>Javascript整型数字精度限制</title>
+	<title>Swift知识点纪录</title>
 	<meta name="author" content="David">
 	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
 	<link href='/assets/themes/the-program/css/style.css' rel="stylesheet" media="all">
-	<link href="http://feeds.feedburner.com/" rel="alternate" title="Javascript整型数字精度限制" type="application/atom+xml">
+	<link href="http://feeds.feedburner.com/" rel="alternate" title="Swift知识点纪录" type="application/atom+xml">
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.0.6/modernizr.min.js"></script>
 </head>
 <body>
@@ -43,79 +43,81 @@
 			<header>
 				<div class="unit-head">
 					<div class="unit-inner unit-head-inner">
-						<h1 class="h2 entry-title">Javascript整型数字精度限制</h1>
+						<h1 class="h2 entry-title">Swift知识点纪录</h1>
 					</div><!-- unit-inner -->
 				</div><!-- unit-head -->
 			</header>
 
 			<div class="bd">
 				<div class="entry-content">
-					<p>在做一个项目时，需要生成一个长整数Id，生成函数如下：</p>
+					<p>po主初学Swift，遇到不少细节知识的缺失，只好请教Google大神。这篇文就是Google的结果，纪录一下。</p>
 
-<pre><code>`$Id = date('YmdHis') . rand(1, 100000);`
+<h2 id="unix">获取UNIX时间戳</h2>
+<p>即获得到某个时间点到1970年1月1日0点0分0秒的秒数。</p>
+
+<p>返回字符串格式：</p>
+
+<pre><code> var Timestamp: String {
+    return "\(NSDate().timeIntervalSince1970)"
+}
 </code></pre>
 
-<p>按照时间加随机数的形式，可以直观地看到这个Id是何时生成的。</p>
+<p>输出时，可以这样调用：</p>
 
-<p>这样，我用PHP生成了这样一个数</p>
-
-<pre><code>$id = '2014112010185143423';
+<pre><code>println("Timestamp: \(Timestamp)")
 </code></pre>
 
-<p>然后将值传给JS变量</p>
+<p>如果希望返回NSTimeInterval，则：</p>
 
-<pre><code>var id = &lt;?php echo $id;?&gt;;
+<pre><code>var Timestamp: NSTimeInterval {
+    return NSDate().timeIntervalSince1970
+}
 </code></pre>
 
-<p>但是在使用时，发现id竟然变了。</p>
+<h2 id="alert">创建alert</h2>
+<p>创建Alert的代码。<a href="http://stackoverflow.com/questions/24272006/how-to-add-action-to-uialertview-in-swift-ios-7" title="原文链接">原文链接</a></p>
 
-<p><img src="http://spetacular.github.io/images/2015-01-20/js_int_lose.png" alt="精度丢失" /></p>
+<pre>
+<code>
+func showAlert(){
+    var createAccountErrorAlert: UIAlertView = UIAlertView()
 
-<p>猜想可能是溢出，把dialogid给换成字符串，一切就OK了。</p>
+    createAccountErrorAlert.delegate = self
 
-<pre><code>var id = '&lt;?php echo $id;?&gt;';
-</code></pre>
+    createAccountErrorAlert.title = "Oops"
+    createAccountErrorAlert.message = "Could not create account!"
+    createAccountErrorAlert.addButtonWithTitle("Dismiss")
+    createAccountErrorAlert.addButtonWithTitle("Retry")
 
-<p><img src="http://spetacular.github.io/images/2015-01-20/js_string_int.png" alt="用字符串处理" /></p>
+    createAccountErrorAlert.show()
+}
 
-<h2 id="section">为啥动了我的数？</h2>
-<p>原来JS采用IEEE 754定义的双精度浮点数。当有效位数超过 52 位时，会存在精度丢失。</p>
+func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 
-<p>IEEE 754表示的64位双精度数据的格式如下，其中52位的Significand是无符号整数。你可以将Significand左移或右移，移动的位数保存在Exponent里，11位可以表示+(2^10 -1) ~ -(2^10 -1)的范围。Sign表示正负。</p>
+    switch buttonIndex{
 
-<table border="1">
-    <tr>
-        <th>Total</th><th>bits</th><th>Exponent</th><th>Significand</th>
- 	</tr>
- 	<tr>
-		<td>64</td><td>1</td><td>11</td><td>52</td>
-    </tr>
-</table>
+    case 1:
+        NSLog("Retry");
+    break;
+    case 0:
+        NSLog("Dismiss");
+        break;
+    default:
+        NSLog("Default");
+        break;
+        //Some code here..
 
-<p>这就是说，当Exponent起作用时，精度会丢失。即：
-左移时，数字末位补零；
-右移时，数字末位丢失。</p>
-
-<p>回到前面提到的数字Id，数字大于2^53-1，表示该数时，相当于将Significand左移，只能将末位补零。</p>
-
-<p>另外，js的Number提供了最大无误差的数字：</p>
-
-<blockquote>
-  <p>Number.MAX_SAFE_INTEGER is 9007199254740991 (2^53−1).</p>
-</blockquote>
-
-<p>参考资料：</p>
-
-<p><a href="http://blog.vjeux.com/2010/javascript/javascript-max_int-number-limits.html">http://blog.vjeux.com/2010/javascript/javascript-max_int-number-limits.html</a></p>
-
-<p><a href="http://lifesinger.wordpress.com/2011/03/07/js-precision/">http://lifesinger.wordpress.com/2011/03/07/js-precision/</a></p>
+    }
+}
+</code>
+</pre>
 
 					<div class="meta">
 						<p class="date-publish">
 							Published: 
-							<date class="date-pub" title="2015-01-20T00:00:00+08:00" datetime="2015-01-20T00:00:00+08:00" pubdate>
-							<span class="month"><abbr>January</abbr></span>
-							<span class="day">20</span>
+							<date class="date-pub" title="2015-09-12T00:00:00+08:00" datetime="2015-09-12T00:00:00+08:00" pubdate>
+							<span class="month"><abbr>September</abbr></span>
+							<span class="day">12</span>
 							<span class="year">2015</span>
 							</date>
 						</p>
@@ -127,8 +129,8 @@
 
   
      
-    	<li><a href="/categories.html#js-ref">
-    		js <span>1</span>
+    	<li><a href="/categories.html#swift-ref">
+    		swift <span>1</span>
     	</a></li>
     
   
@@ -143,7 +145,7 @@
 
   
      
-    	<li><a href="/tags.html#js-ref">js <span>1</span></a></li>
+    	<li><a href="/tags.html#swift-ref">swift <span>1</span></a></li>
     
   
 
@@ -190,13 +192,13 @@
 					<nav class="pagination">
 						<ul>
 							
-							<li class="prev"><a class="internal" rel="prev"  href="/2015/01/14/strong-weak-ties" title="View 强大的弱关系">&laquo; 强大的弱关系</a></li>
+							<li class="prev"><a class="internal" rel="prev"  href="/2015/08/01/nginx-sticky-problem.html" title="View Nginx Sticky的使用及踩过的坑">&laquo; Nginx Sticky的使用及踩过的坑</a></li>
 							
 							
 							<li class="pipe"> | </li>
 							
 							
-							<li class="next"><a class="internal" rel="next"  href="/2015/01/25/cgi-and-fastcgi" title="View cgi与fastcgi的区别">cgi与fastcgi的区别 &raquo;</a></li>
+							<li class="next"><a class="internal" rel="next"  href="/2015/09/20/redis-hash-tag.html" title="View Redis分片技术：Hash Tag">Redis分片技术：Hash Tag &raquo;</a></li>
 							
 						</ul>
 					</nav>
@@ -245,7 +247,7 @@
 		};
 	load('//platform.twitter.com/widgets.js', 'tweetjs');
 	// load('https://apis.google.com/js/plusone.js', 'gplus1js'); // Checkout http://j.mp/ApDgMr for usage html for this is <div class="g-plusone" data-size="medium"></div>
-	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2015/01/20/js-int-limit" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
+	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2015/09/12/swift-records.html" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
 	}(document, 'script'));
 </script>
 <script>

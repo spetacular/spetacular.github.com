@@ -7,11 +7,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<title>Restful接口设计：如何做版本兼容</title>
+	<title>Mysql Tips -- 检索每个分组的最后一条记录</title>
 	<meta name="author" content="David">
 	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
 	<link href='/assets/themes/the-program/css/style.css' rel="stylesheet" media="all">
-	<link href="http://feeds.feedburner.com/" rel="alternate" title="Restful接口设计：如何做版本兼容" type="application/atom+xml">
+	<link href="http://feeds.feedburner.com/" rel="alternate" title="Mysql Tips -- 检索每个分组的最后一条记录" type="application/atom+xml">
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.0.6/modernizr.min.js"></script>
 </head>
 <body>
@@ -43,65 +43,151 @@
 			<header>
 				<div class="unit-head">
 					<div class="unit-inner unit-head-inner">
-						<h1 class="h2 entry-title">Restful接口设计：如何做版本兼容</h1>
+						<h1 class="h2 entry-title">Mysql Tips -- 检索每个分组的最后一条记录</h1>
 					</div><!-- unit-inner -->
 				</div><!-- unit-head -->
 			</header>
 
 			<div class="bd">
 				<div class="entry-content">
-					<p>现在App大多采用Restful接口，与服务器完成资源交换。这种实现方式隐藏了服务器端的具体实现，做到了对App端的透明服务。服务器端如何变更，甚至换一种语言实现，只要对外接口不变，App依然不受影响。</p>
+					<p>有这样一类问题：</p>
 
-<p>App的升级过程中，版本兼容是一个值得关注的问题，因为App要升级，服务器端的Restful接口也要进化，于是版本兼容要同时兼顾App和服务器端。</p>
+<ul>
+  <li>
+    <p>检索论坛中某一版块所有主题的最新一条帖子</p>
+  </li>
+  <li>
+    <p>查找所有会话中最新一条消息</p>
+  </li>
+  <li>
+    <p>查找一类商品的最新报价</p>
+  </li>
+</ul>
 
-<h1 id="section">一个例子</h1>
-<p>版本兼容是向下兼容。接口升级后要保证低版本App能正常工作。</p>
+<p>这类问题的共同点是：需要按某个字段分组，且每组只能取一条记录；按某个字段倒序。</p>
 
-<p>例如“App 1.0”使用了下面接口完成修改用户信息功能。</p>
+<p>举例来说，有这样一个表：</p>
 
-<pre><code>GET api.demo.com/modify_userinfo
+<pre><code>mysql&gt; select * from t_tmp;
++-----+---------+---------------------+
+| FId | FCityId | FUpdateTime         |
++-----+---------+---------------------+
+|   1 |       1 | 2014-10-10 00:00:00 |
+|   2 |       1 | 2014-10-11 00:00:00 |
+|   3 |       2 | 2014-10-10 10:00:00 |
++-----+---------+---------------------+
 </code></pre>
 
-<p>采用GET方式提交用户输入。后来发现该接口可被CSRF攻击。</p>
+<p>表1</p>
 
-<p>这时要做两件事：</p>
+<p>希望从中找出每个FCityId的最新更新记录，即筛选出这样的结果：</p>
 
-<p>第一，服务器接口要为新的“App 1.1”提供升级，需要将GET方式改为POST，并且增加Token验证。这是CSRF的一般防范方法，具体请参看 <a href="http://drops.wooyun.org/papers/155" title="CSRF简单介绍及利用方法">《CSRF简单介绍及利用方法》</a></p>
+<pre><code>+-----+---------+---------------------+
+| FId | FCityId | FUpdateTime         |
++-----+---------+---------------------+
+|   2 |       1 | 2014-10-11 00:00:00 |
+|   3 |       2 | 2014-10-10 10:00:00 |
++-----+---------+---------------------+
+</code></pre>
 
-<p>第二，服务器接口要为旧的“App 1.0”版本修复漏洞。但这时App已发布，不可能修改了。这时只能服务器端来改。例如限制user-agent为”App 1.0”的请求才有效，用户通过浏览器提交的请求无效。这样在一定程度上减少了CSRF的危害。</p>
+<p>表2</p>
 
-<h1 id="section-1">版本兼容的两种情况</h1>
-<p>从上面的例子来看，版本兼容可分为两种：</p>
+<h1 id="group-by">Group By</h1>
+<p>Po主最开始的方法是用group by（So Easy！）</p>
 
-<p>大版本，指版本升级，接口的输入输出可能发生变化。</p>
+<pre><code>select * from t_tmp group by FCityId order by FUpdateTime desc;` 结果却是错误的！
 
-<p>小版本，指版本修复，只针对某个版本修改接口，其它接口保持不变。</p>
++-----+---------+---------------------+
+| FId | FCityId | FUpdateTime         |
++-----+---------+---------------------+
+|   3 |       2 | 2014-10-10 10:00:00 |
+|   1 |       1 | 2014-10-10 00:00:00 |
++-----+---------+---------------------+
+</code></pre>
 
-<p>这两种情况都很常见。App未发布时，服务器接口从1.0升级到2.0，这时App开发者可以配合一下，使用2.0的接口；但对于已发布的App版本，只能由服务器端针对特定的App版本来修复漏洞。</p>
+<p>表3</p>
 
-<h1 id="section-2">如何做</h1>
-<p>App开发者需要配合，在请求接口时传入以下两项信息：</p>
+<p>其原因是：Group By 要先于 Order By执行。Group By执行分组之后，记录中只剩下1和3了：</p>
 
-<ol>
-  <li>
-    <p>App版本标识，一般包括App名称、版本、平台（Android、IOS等）、SDK版本等。一般放在user-agent里，例如微信的user-agent如下：</p>
+<pre><code>mysql&gt; SELECT * FROM t_tmp GROUP BY FCityId LIMIT 0 , 30;
++-----+---------+---------------------+
+| FId | FCityId | FUpdateTime         |
++-----+---------+---------------------+
+|   1 |       1 | 2014-10-10 00:00:00 |
+|   3 |       2 | 2014-10-10 10:00:00 |
++-----+---------+---------------------+
+</code></pre>
 
-    <p>Mozilla/5.0 (iPhone; CPU iPhone OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B176 MicroMessenger/6.2.2</p>
-  </li>
-  <li>
-    <p>接口版本标识，指采用接口的版本，例如可以在Request Header里加入majarversion=2.0，表明使用的是2.0的接口。</p>
-  </li>
-</ol>
+<p>表4</p>
 
-<p>服务器端开发者需要根据App版本和接口版本标识，来提供向下兼容</p>
+<p>然后执行Order By，就变成了图3的结果。</p>
+
+<blockquote>
+  <p>TIPS：执行顺序 Where &gt; Group By &gt; Order By</p>
+</blockquote>
+
+<h1 id="sub-select">SUB SELECT</h1>
+<p>很自然的一个解决方法就是：既然Group By先于Order By改变结果，那么就在Group By之前纠正结果。方法是子查询。
+如表4，Group By从头到尾扫一遍，留下了第1和第3两条记录。如果从尾到头扫一遍，就留下3和2两条记录。然后执行Order By，就能得到期望的结果。</p>
+
+<pre><code>mysql&gt; SELECT * FROM (SELECT * FROM t_tmp ORDER BY FUpdateTime DESC)tmptable GROUP BY FCityId ORDER BY FUpdateTime DESC;
++-----+---------+---------------------+
+| FId | FCityId | FUpdateTime         |
++-----+---------+---------------------+
+|   2 |       1 | 2014-10-11 00:00:00 |
+|   3 |       2 | 2014-10-10 10:00:00 |
++-----+---------+---------------------+
+</code></pre>
+
+<p>表5</p>
+
+<p>但子查询执行效率不高，容易形成慢SQL。</p>
+
+<h1 id="left-join">LEFT JOIN</h1>
+<p>再分析整个问题，其中蕴含着组内FId从大到小排列的条件，这种表内字段的自我比较，可以用JOIN命令来做。</p>
+
+<p>如图：</p>
+
+<p><img src="http://spetacular.github.io/images/2015-04-03/mysql_join.png" alt="Mysql Join" /></p>
+
+<p>我们可以用LEFT JOIN去掉部分记录（即FId不按从大到小排列的记录）：</p>
+
+<pre><code>mysql&gt; SELECT m1. * FROM t_tmp m1 LEFT JOIN t_tmp m2 ON ( m1.FCityId = m2.FCity
+Id AND m1.FId &lt; m2.FId )  WHERE m2.FId IS NULL ORDER BY FUpdateTime DESC LIMIT 0
+, 30;
++-----+---------+---------------------+
+| FId | FCityId | FUpdateTime         |
++-----+---------+---------------------+
+|   2 |       1 | 2014-10-11 00:00:00 |
+|   3 |       2 | 2014-10-10 10:00:00 |
++-----+---------+---------------------+
+</code></pre>
+
+<p>表6</p>
+
+<h1 id="section">通用方法</h1>
+<p>经过以上的讨论，可以形成此类问题的较为通用的方法。</p>
+
+<p>直观但低效的方法：</p>
+
+<pre><code>select * from (select * from messages ORDER BY id DESC) AS x GROUP BY name
+</code></pre>
+
+<p>难懂但高效的方法：</p>
+
+<pre><code>SELECT m1.*
+FROM messages m1 LEFT JOIN messages m2
+ 	ON (m1.name = m2.name AND m1.id &lt; m2.id)
+WHERE m2.id IS NULL;
+</code></pre>
 
 
 					<div class="meta">
 						<p class="date-publish">
 							Published: 
-							<date class="date-pub" title="2015-06-01T00:00:00+08:00" datetime="2015-06-01T00:00:00+08:00" pubdate>
-							<span class="month"><abbr>June</abbr></span>
-							<span class="day">01</span>
+							<date class="date-pub" title="2015-04-03T00:00:00+08:00" datetime="2015-04-03T00:00:00+08:00" pubdate>
+							<span class="month"><abbr>April</abbr></span>
+							<span class="day">03</span>
 							<span class="year">2015</span>
 							</date>
 						</p>
@@ -113,8 +199,8 @@
 
   
      
-    	<li><a href="/categories.html#接口-ref">
-    		接口 <span>1</span>
+    	<li><a href="/categories.html#mysql-ref">
+    		mysql <span>3</span>
     	</a></li>
     
   
@@ -129,11 +215,7 @@
 
   
      
-    	<li><a href="/tags.html#接口-ref">接口 <span>1</span></a></li>
-     
-    	<li><a href="/tags.html#api-ref">api <span>1</span></a></li>
-     
-    	<li><a href="/tags.html#版本控制-ref">版本控制 <span>2</span></a></li>
+    	<li><a href="/tags.html#mysql-ref">mysql <span>2</span></a></li>
     
   
 
@@ -180,13 +262,13 @@
 					<nav class="pagination">
 						<ul>
 							
-							<li class="prev"><a class="internal" rel="prev"  href="/2015/05/05/use-max-word-segmentation-to-extract-tags" title="View 利用中文分词正向最大匹配法解决自动提取标签问题">&laquo; 利用中文分词正向最大匹配法解决自动提取标签问题</a></li>
+							<li class="prev"><a class="internal" rel="prev"  href="/2015/03/17/office-url-not-break.html" title="View Office 输入URL时单词中间出现长空格的解决办法">&laquo; Office 输入URL时单词中间出现长空格的解决办法</a></li>
 							
 							
 							<li class="pipe"> | </li>
 							
 							
-							<li class="next"><a class="internal" rel="next"  href="/2015/06/20/japan-tokyo-journey" title="View 日本东京之旅">日本东京之旅 &raquo;</a></li>
+							<li class="next"><a class="internal" rel="next"  href="/2015/04/09/use-sorted-set-to-storage-dynamically-changing-list.html" title="View Redis Tips -- Use Sorted Set To Storage A Dynamically Changing List">Redis Tips -- Use Sorted Set To Storage A Dynamically Changing List &raquo;</a></li>
 							
 						</ul>
 					</nav>
@@ -235,7 +317,7 @@
 		};
 	load('//platform.twitter.com/widgets.js', 'tweetjs');
 	// load('https://apis.google.com/js/plusone.js', 'gplus1js'); // Checkout http://j.mp/ApDgMr for usage html for this is <div class="g-plusone" data-size="medium"></div>
-	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2015/06/01/how-to-deal-with-version-compatibility" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
+	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2015/04/03/retrieve-the-last-record-in-each-group.html" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
 	}(document, 'script'));
 </script>
 <script>

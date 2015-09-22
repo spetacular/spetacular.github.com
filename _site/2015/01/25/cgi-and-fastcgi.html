@@ -7,11 +7,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<title>Swift知识点纪录</title>
+	<title>cgi与fastcgi的区别</title>
 	<meta name="author" content="David">
 	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
 	<link href='/assets/themes/the-program/css/style.css' rel="stylesheet" media="all">
-	<link href="http://feeds.feedburner.com/" rel="alternate" title="Swift知识点纪录" type="application/atom+xml">
+	<link href="http://feeds.feedburner.com/" rel="alternate" title="cgi与fastcgi的区别" type="application/atom+xml">
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.0.6/modernizr.min.js"></script>
 </head>
 <body>
@@ -43,81 +43,63 @@
 			<header>
 				<div class="unit-head">
 					<div class="unit-inner unit-head-inner">
-						<h1 class="h2 entry-title">Swift知识点纪录</h1>
+						<h1 class="h2 entry-title">cgi与fastcgi的区别</h1>
 					</div><!-- unit-inner -->
 				</div><!-- unit-head -->
 			</header>
 
 			<div class="bd">
 				<div class="entry-content">
-					<p>po主初学Swift，遇到不少细节知识的缺失，只好请教Google大神。这篇文就是Google的结果，纪录一下。</p>
+					<p>青石街有两个卖烧饼的，王大与李二。</p>
 
-<h2 id="unix">获取UNIX时间戳</h2>
-<p>即获得到某个时间点到1970年1月1日0点0分0秒的秒数。</p>
+<p>顾客很少。</p>
 
-<p>返回字符串格式：</p>
+<p>王大很闲。每次有顾客，王大就生火、和面、擀饼、下炉、出锅。不出一会儿，热腾腾的烧饼就送到顾客面前。顾客走后，王大就收拾炉子，熄火休息。</p>
 
-<pre><code> var Timestamp: String {
-    return "\(NSDate().timeIntervalSince1970)"
-}
-</code></pre>
+<p>李二却很忙。每天早晨，李二就生火、和面，等着顾客上门。白天里，顾客来，李二就擀饼、下炉、出锅，然后等下一位顾客。直到夜幕降临，李二才打烊。</p>
 
-<p>输出时，可以这样调用：</p>
+<p>后来青石街城镇化 ，人多起来，买烧饼的人也多了。</p>
 
-<pre><code>println("Timestamp: \(Timestamp)")
-</code></pre>
+<p>王大很忙。每个顾客来，都要生火、和面、熄火 ，不胜其烦；顾客的等待时间在延长，不满情绪在酝酿。</p>
 
-<p>如果希望返回NSTimeInterval，则：</p>
+<p>李二也很忙，不过还是和以前一样，不太累，顾客也满意。</p>
 
-<pre><code>var Timestamp: NSTimeInterval {
-    return NSDate().timeIntervalSince1970
-}
-</code></pre>
+<p>故事很傻，勿喷啊，讲的是cgi与fastcgi的区别。</p>
 
-<h2 id="alert">创建alert</h2>
-<p>创建Alert的代码。<a href="http://stackoverflow.com/questions/24272006/how-to-add-action-to-uialertview-in-swift-ios-7" title="原文链接">原文链接</a></p>
+<p>cgi像王大。每次请求，web服务器都会根据请求的内容，fork一个新进程来运行外部程序或解释器， 这个进程会把处理完的数据返回给web服务器，最后web服务器把内容发送给用户，刚才fork的进程也随之退出。 如果下次用户还请求该动态脚本，那么web服务器又再次fork一个新进程，周而复始的进行。</p>
 
-<pre>
-<code>
-func showAlert(){
-    var createAccountErrorAlert: UIAlertView = UIAlertView()
+<p>fastcgi像李二。web服务器启动时，就开启一个进程来等待请求。收到一个请求时，不会重新fork一个进程（因为这个进程在web服务器启动时就开启了，而且不会退出），web服务器直接把内容传递给这个进程（进程间通信，但fastcgi使用了别的方式，tcp方式通信），这个进程收到请求后进行处理，把结果返回给web服务器，最后自己接着等待下一个请求的到来，而不是退出。</p>
 
-    createAccountErrorAlert.delegate = self
+<p>总结一下：</p>
 
-    createAccountErrorAlert.title = "Oops"
-    createAccountErrorAlert.message = "Could not create account!"
-    createAccountErrorAlert.addButtonWithTitle("Dismiss")
-    createAccountErrorAlert.addButtonWithTitle("Retry")
+<p>在web服务器方面</p>
 
-    createAccountErrorAlert.show()
-}
+<blockquote>
+  <p>cgi：fork一个新的进程进行处理</p>
+</blockquote>
 
-func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
+<blockquote>
+  <p>fastcgi：用tcp方式跟远程机子上的进程或本地进程建立连接</p>
+</blockquote>
 
-    switch buttonIndex{
+<p>在对数据进行处理的进程方面</p>
 
-    case 1:
-        NSLog("Retry");
-    break;
-    case 0:
-        NSLog("Dismiss");
-        break;
-    default:
-        NSLog("Default");
-        break;
-        //Some code here..
+<blockquote>
+  <p>cgi：读取参数，处理数据，然后就结束生命期</p>
+</blockquote>
 
-    }
-}
-</code>
-</pre>
+<blockquote>
+  <p>fastcgi： 要开启tcp端口，进入循环，等待数据的到来，处理数据</p>
+</blockquote>
+
+<p>参考资料：http://www.cnblogs.com/jamesbd/p/3567682.html</p>
 
 					<div class="meta">
 						<p class="date-publish">
 							Published: 
-							<date class="date-pub" title="2015-09-12T00:00:00+08:00" datetime="2015-09-12T00:00:00+08:00" pubdate>
-							<span class="month"><abbr>September</abbr></span>
-							<span class="day">12</span>
+							<date class="date-pub" title="2015-01-25T00:00:00+08:00" datetime="2015-01-25T00:00:00+08:00" pubdate>
+							<span class="month"><abbr>January</abbr></span>
+							<span class="day">25</span>
 							<span class="year">2015</span>
 							</date>
 						</p>
@@ -129,8 +111,8 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 
   
      
-    	<li><a href="/categories.html#swift-ref">
-    		swift <span>1</span>
+    	<li><a href="/categories.html#服务器-ref">
+    		服务器 <span>3</span>
     	</a></li>
     
   
@@ -145,7 +127,9 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 
   
      
-    	<li><a href="/tags.html#swift-ref">swift <span>1</span></a></li>
+    	<li><a href="/tags.html#cgi-ref">cgi <span>1</span></a></li>
+     
+    	<li><a href="/tags.html#fastcgi-ref">fastcgi <span>1</span></a></li>
     
   
 
@@ -192,13 +176,13 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 					<nav class="pagination">
 						<ul>
 							
-							<li class="prev"><a class="internal" rel="prev"  href="/2015/08/01/nginx-sticky-problem" title="View Nginx Sticky的使用及踩过的坑">&laquo; Nginx Sticky的使用及踩过的坑</a></li>
+							<li class="prev"><a class="internal" rel="prev"  href="/2015/01/20/js-int-limit.html" title="View Javascript整型数字精度限制">&laquo; Javascript整型数字精度限制</a></li>
 							
 							
 							<li class="pipe"> | </li>
 							
 							
-							<li class="next"><a class="internal" rel="next"  href="/2015/09/20/redis-hash-tag" title="View Redis分片技术：Hash Tag">Redis分片技术：Hash Tag &raquo;</a></li>
+							<li class="next"><a class="internal" rel="next"  href="/2015/01/29/fiddler-can-not-drag-session-to-composer.html" title="View 鼠标无法拖放的解决办法">鼠标无法拖放的解决办法 &raquo;</a></li>
 							
 						</ul>
 					</nav>
@@ -247,7 +231,7 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 		};
 	load('//platform.twitter.com/widgets.js', 'tweetjs');
 	// load('https://apis.google.com/js/plusone.js', 'gplus1js'); // Checkout http://j.mp/ApDgMr for usage html for this is <div class="g-plusone" data-size="medium"></div>
-	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2015/09/12/swift-records" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
+	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2015/01/25/cgi-and-fastcgi.html" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
 	}(document, 'script'));
 </script>
 <script>

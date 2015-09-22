@@ -7,11 +7,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<title>Coding Tips -- Compare The Version Numbers Between Two Releases</title>
+	<title>Mysql Tips -- 显示执行SQL耗时，精确到毫秒</title>
 	<meta name="author" content="David">
 	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
 	<link href='/assets/themes/the-program/css/style.css' rel="stylesheet" media="all">
-	<link href="http://feeds.feedburner.com/" rel="alternate" title="Coding Tips -- Compare The Version Numbers Between Two Releases" type="application/atom+xml">
+	<link href="http://feeds.feedburner.com/" rel="alternate" title="Mysql Tips -- 显示执行SQL耗时，精确到毫秒" type="application/atom+xml">
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.0.6/modernizr.min.js"></script>
 </head>
 <body>
@@ -43,72 +43,51 @@
 			<header>
 				<div class="unit-head">
 					<div class="unit-inner unit-head-inner">
-						<h1 class="h2 entry-title">Coding Tips -- Compare The Version Numbers Between Two Releases</h1>
+						<h1 class="h2 entry-title">Mysql Tips -- 显示执行SQL耗时，精确到毫秒</h1>
 					</div><!-- unit-inner -->
 				</div><!-- unit-head -->
 			</header>
 
 			<div class="bd">
 				<div class="entry-content">
-					<p>Given two version numbers, How to check which release is newer ? For example:</p>
+					<p>MySQL执行一个SQL语句时，执行时间精确到秒。如下：</p>
 
-<p>1.1 is newer than 1.0 (1.1 &gt; 1.0);</p>
-
-<p>1.0.0 is equal to 1.0(1.0.0 = 1.0);</p>
-
-<p>0.9 is older than 1.0(0.9 &lt; 1.0).</p>
-
-<p>Function implement is as below:</p>
-
-<pre><code>/**
-* Compare two versions.
-* @param string $newVersion
-* @param string $oldVersion
-* @return int. 1 represents '&gt;',0 represents '=',-1 represents '&lt;'
-*/
-function versionCompare($newVersion,$oldVersion)
-{
-    $newArray = explode(".",$newVersion);
-    $oldArray = explode(".",$oldVersion);
-    do{
-        $v1 = array_shift($newArray);
-        $v2 = array_shift($oldArray);
-        if($v1 == NULL){
-            $v1 = 0;
-        }
-
-        if($v2 == NULL){
-            $v2 = 0;
-        }
-        if($v1 &gt; $v2){
-            return 1;
-        }else if($v1 &lt; $v2){
-            return -1;
-        }
-    }while(count($newArray) &gt; 0 || count($oldArray) &gt; 0);
-
-    return 0;
-}
+<pre><code>mysql&gt; select * from test
++----+-------+
+| id | name  |
++----+-------+
+|  1 | david |
++----+-------+
+1 row in set (0.00 sec)
 </code></pre>
 
-<p>Test Cases is as below:</p>
+<p>如何精确到毫秒呢？MySQL有个内置语句<a href="http://dev.mysql.com/doc/refman/5.5/en/show-profile.html" title="(show profile)">(show profile)</a>可以查看执行耗时。</p>
 
-<pre><code>var_dump(versionCompare('',''));		// =	
-var_dump(versionCompare('1.0','1.0'));		// =
-var_dump(versionCompare('1.1','1.0')); 		// &gt;
-var_dump(versionCompare('0.9','1.0'));		// &lt;
-var_dump(versionCompare('1.0.0','1.0'));	// =
-var_dump(versionCompare('1.0.1','1.0'));	// &gt;
-var_dump(versionCompare('1.0.1','1.0.2'));	// &lt;
+<pre><code>mysql&gt; set profiling=1;
+Query OK, 0 rows affected (0.00 sec)
 </code></pre>
+
+<p>然后执行查询语句。
+使用show profiles就可以看到执行时间了。</p>
+
+<pre><code>mysql&gt; show profiles;
++----------+------------+--------------------+
+| Query_ID | Duration   | Query              |
++----------+------------+--------------------+
+|        1 | 0.00034500 | select * from test |
++----------+------------+--------------------+
+1 row in set (0.04 sec)
+</code></pre>
+
+<p>Duration就是该SQL的执行时间，将其乘以1000就是毫秒数了。</p>
 
 					<div class="meta">
 						<p class="date-publish">
 							Published: 
-							<date class="date-pub" title="2014-12-20T00:00:00+08:00" datetime="2014-12-20T00:00:00+08:00" pubdate>
-							<span class="month"><abbr>December</abbr></span>
-							<span class="day">20</span>
-							<span class="year">2014</span>
+							<date class="date-pub" title="2015-02-27T00:00:00+08:00" datetime="2015-02-27T00:00:00+08:00" pubdate>
+							<span class="month"><abbr>February</abbr></span>
+							<span class="day">27</span>
+							<span class="year">2015</span>
 							</date>
 						</p>
 						<ul class="list-category list-linear">
@@ -119,8 +98,8 @@ var_dump(versionCompare('1.0.1','1.0.2'));	// &lt;
 
   
      
-    	<li><a href="/categories.html#php-ref">
-    		php <span>5</span>
+    	<li><a href="/categories.html#mysql-ref">
+    		mysql <span>3</span>
     	</a></li>
     
   
@@ -135,7 +114,7 @@ var_dump(versionCompare('1.0.1','1.0.2'));	// &lt;
 
   
      
-    	<li><a href="/tags.html#版本控制-ref">版本控制 <span>2</span></a></li>
+    	<li><a href="/tags.html#mysql-ref">mysql <span>2</span></a></li>
     
   
 
@@ -182,13 +161,13 @@ var_dump(versionCompare('1.0.1','1.0.2'));	// &lt;
 					<nav class="pagination">
 						<ul>
 							
-							<li class="prev"><a class="internal" rel="prev"  href="/2014/10/21/operation-system-image-in-tencent-cloud" title="View 腾讯云操作系统镜像使用方法">&laquo; 腾讯云操作系统镜像使用方法</a></li>
+							<li class="prev"><a class="internal" rel="prev"  href="/2015/01/30/http-code-416-and-download.html" title="View HTTP 416错误与断点续传">&laquo; HTTP 416错误与断点续传</a></li>
 							
 							
 							<li class="pipe"> | </li>
 							
 							
-							<li class="next"><a class="internal" rel="next"  href="/2015/01/14/strong-weak-ties" title="View 强大的弱关系">强大的弱关系 &raquo;</a></li>
+							<li class="next"><a class="internal" rel="next"  href="/2015/03/08/use-mysql-query-cache.html" title="View Mysql Tips -- 合理利用查询缓存优化查询效率">Mysql Tips -- 合理利用查询缓存优化查询效率 &raquo;</a></li>
 							
 						</ul>
 					</nav>
@@ -237,7 +216,7 @@ var_dump(versionCompare('1.0.1','1.0.2'));	// &lt;
 		};
 	load('//platform.twitter.com/widgets.js', 'tweetjs');
 	// load('https://apis.google.com/js/plusone.js', 'gplus1js'); // Checkout http://j.mp/ApDgMr for usage html for this is <div class="g-plusone" data-size="medium"></div>
-	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2014/12/20/version-compare-function" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
+	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2015/02/27/mysql-show-profiles-get-execute-time.html" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
 	}(document, 'script'));
 </script>
 <script>

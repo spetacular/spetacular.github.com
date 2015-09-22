@@ -4,7 +4,7 @@
  <title>David&#39;s World</title>
  <link href="http://spetacular.github.io/atom.xml" rel="self"/>
  <link href="http://spetacular.github.io"/>
- <updated>2015-09-22T23:23:31+08:00</updated>
+ <updated>2015-09-22T23:25:38+08:00</updated>
  <id>http://spetacular.github.io</id>
  <author>
    <name>David</name>
@@ -14,7 +14,7 @@
  
  <entry>
    <title>Redis分片技术：Hash Tag</title>
-   <link href="http://spetacular.github.io/2015/09/20/redis-hash-tag"/>
+   <link href="http://spetacular.github.io/2015/09/20/redis-hash-tag.html"/>
    <updated>2015-09-20T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2015/09/20/redis-hash-tag</id>
    <content type="html">&lt;p&gt;twitter的 &lt;a href=&quot;https://github.com/twitter/twemproxy&quot;&gt;twemproxy&lt;/a&gt; 是一个Redis的代理服务程序,能够实现key的分片。分片能使key均匀地分布到集群的机器上去，能保证数据的一致性，有着众多的优点。&lt;/p&gt;
@@ -87,7 +87,7 @@
  
  <entry>
    <title>Swift知识点纪录</title>
-   <link href="http://spetacular.github.io/2015/09/12/swift-records"/>
+   <link href="http://spetacular.github.io/2015/09/12/swift-records.html"/>
    <updated>2015-09-12T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2015/09/12/swift-records</id>
    <content type="html">&lt;p&gt;po主初学Swift，遇到不少细节知识的缺失，只好请教Google大神。这篇文就是Google的结果，纪录一下。&lt;/p&gt;
@@ -156,7 +156,7 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
  
  <entry>
    <title>Nginx Sticky的使用及踩过的坑</title>
-   <link href="http://spetacular.github.io/2015/08/01/nginx-sticky-problem"/>
+   <link href="http://spetacular.github.io/2015/08/01/nginx-sticky-problem.html"/>
    <updated>2015-08-01T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2015/08/01/nginx-sticky-problem</id>
    <content type="html">&lt;h1 id=&quot;sticky&quot;&gt;什么是Sticky？&lt;/h1&gt;
@@ -258,7 +258,7 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
  
  <entry>
    <title>日本东京之旅</title>
-   <link href="http://spetacular.github.io/2015/06/20/japan-tokyo-journey"/>
+   <link href="http://spetacular.github.io/2015/06/20/japan-tokyo-journey.html"/>
    <updated>2015-06-20T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2015/06/20/japan-tokyo-journey</id>
    <content type="html">&lt;ul&gt;
@@ -388,7 +388,7 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
  
  <entry>
    <title>Restful接口设计：如何做版本兼容</title>
-   <link href="http://spetacular.github.io/2015/06/01/how-to-deal-with-version-compatibility"/>
+   <link href="http://spetacular.github.io/2015/06/01/how-to-deal-with-version-compatibility.html"/>
    <updated>2015-06-01T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2015/06/01/how-to-deal-with-version-compatibility</id>
    <content type="html">&lt;p&gt;现在App大多采用Restful接口，与服务器完成资源交换。这种实现方式隐藏了服务器端的具体实现，做到了对App端的透明服务。服务器端如何变更，甚至换一种语言实现，只要对外接口不变，App依然不受影响。&lt;/p&gt;
@@ -441,7 +441,7 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
  
  <entry>
    <title>利用中文分词正向最大匹配法解决自动提取标签问题</title>
-   <link href="http://spetacular.github.io/2015/05/05/use-max-word-segmentation-to-extract-tags"/>
+   <link href="http://spetacular.github.io/2015/05/05/use-max-word-segmentation-to-extract-tags.html"/>
    <updated>2015-05-05T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2015/05/05/use-max-word-segmentation-to-extract-tags</id>
    <content type="html">&lt;p&gt;写文章时，会有自动提取标签的需求；写新闻时，会有查找主题或关键字的需求。如下图，就是分析新闻页面的内容，匹配相关车型。&lt;/p&gt;
@@ -581,7 +581,7 @@ var_dump($ret);
  
  <entry>
    <title>深夜中消失的广告位</title>
-   <link href="http://spetacular.github.io/2015/04/10/ad-position-disappear-in-midnight"/>
+   <link href="http://spetacular.github.io/2015/04/10/ad-position-disappear-in-midnight.html"/>
    <updated>2015-04-10T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2015/04/10/ad-position-disappear-in-midnight</id>
    <content type="html">&lt;p&gt;旧文重发。这篇博客记录了Po主在&lt;a href=&quot;http://t.qq.com&quot; title=&quot;腾讯微博&quot;&gt;腾讯微博&lt;/a&gt;时的解决的一个Bug，不是大问题，但追查的过程很有意思。也以此纪念一下。&lt;/p&gt;
@@ -731,7 +731,7 @@ Output completed (0 sec consumed) - Normal Termination
  
  <entry>
    <title>Redis Tips -- Use Sorted Set To Storage A Dynamically Changing List</title>
-   <link href="http://spetacular.github.io/2015/04/09/use-sorted-set-to-storage-dynamically-changing-list"/>
+   <link href="http://spetacular.github.io/2015/04/09/use-sorted-set-to-storage-dynamically-changing-list.html"/>
    <updated>2015-04-09T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2015/04/09/use-sorted-set-to-storage-dynamically-changing-list</id>
    <content type="html">&lt;p&gt;When I was developing an instant messenger (IM) system, I found that high concurrency is an essential feature while numerous clients are online chatting simultaneously. Therefore I use Redis to cache data in order to release pressure on database.&lt;/p&gt;
@@ -834,7 +834,7 @@ msgs = mGet(indexes)
  
  <entry>
    <title>Mysql Tips -- 检索每个分组的最后一条记录</title>
-   <link href="http://spetacular.github.io/2015/04/03/retrieve-the-last-record-in-each-group"/>
+   <link href="http://spetacular.github.io/2015/04/03/retrieve-the-last-record-in-each-group.html"/>
    <updated>2015-04-03T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2015/04/03/retrieve-the-last-record-in-each-group</id>
    <content type="html">&lt;p&gt;有这样一类问题：&lt;/p&gt;
@@ -973,7 +973,7 @@ WHERE m2.id IS NULL;
  
  <entry>
    <title>Office 输入URL时单词中间出现长空格的解决办法</title>
-   <link href="http://spetacular.github.io/2015/03/17/office-url-not-break"/>
+   <link href="http://spetacular.github.io/2015/03/17/office-url-not-break.html"/>
    <updated>2015-03-17T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2015/03/17/office-url-not-break</id>
    <content type="html">&lt;p&gt;Office在输入英文长单词时，默认不会从中间断开换行，这是很好的功能。但输入URL时也不会换行，导致出现“长空格”，如下图所示：&lt;/p&gt;
@@ -991,7 +991,7 @@ WHERE m2.id IS NULL;
  
  <entry>
    <title>Mysql Tips -- 合理利用查询缓存优化查询效率</title>
-   <link href="http://spetacular.github.io/2015/03/08/use-mysql-query-cache"/>
+   <link href="http://spetacular.github.io/2015/03/08/use-mysql-query-cache.html"/>
    <updated>2015-03-08T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2015/03/08/use-mysql-query-cache</id>
    <content type="html">&lt;p&gt;最近开发会员中心项目，遇到多表查询的问题，发现响应极慢，就动手查下原因，并进行一些优化。先说下成果吧，由6-7秒降到200ms以下。
@@ -1118,7 +1118,7 @@ Query OK, 0 rows affected, 1 warning (0.00 sec)
  
  <entry>
    <title>Mysql Tips -- 显示执行SQL耗时，精确到毫秒</title>
-   <link href="http://spetacular.github.io/2015/02/27/mysql-show-profiles-get-execute-time"/>
+   <link href="http://spetacular.github.io/2015/02/27/mysql-show-profiles-get-execute-time.html"/>
    <updated>2015-02-27T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2015/02/27/mysql-show-profiles-get-execute-time</id>
    <content type="html">&lt;p&gt;MySQL执行一个SQL语句时，执行时间精确到秒。如下：&lt;/p&gt;
@@ -1156,7 +1156,7 @@ Query OK, 0 rows affected (0.00 sec)
  
  <entry>
    <title>HTTP 416错误与断点续传</title>
-   <link href="http://spetacular.github.io/2015/01/30/http-code-416-and-download"/>
+   <link href="http://spetacular.github.io/2015/01/30/http-code-416-and-download.html"/>
    <updated>2015-01-30T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2015/01/30/http-code-416-and-download</id>
    <content type="html">&lt;p&gt;看房团 App 1.8.2更新版本时，偶然发现无法从1.8.1升级到1.8.2，于是探究一番，发现大有深意。&lt;/p&gt;
@@ -1254,7 +1254,7 @@ httpConnection.setRequestProperty(&quot;RANGE&quot;, &quot;bytes=1024-&quot;);
  
  <entry>
    <title>鼠标无法拖放的解决办法</title>
-   <link href="http://spetacular.github.io/2015/01/29/fiddler-can-not-drag-session-to-composer"/>
+   <link href="http://spetacular.github.io/2015/01/29/fiddler-can-not-drag-session-to-composer.html"/>
    <updated>2015-01-29T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2015/01/29/fiddler-can-not-drag-session-to-composer</id>
    <content type="html">&lt;p&gt;话说fiddler有个强大的功能，就是把Session请求拖到Composer里，很方便地构造请求。我偶然发现不能拖放了。&lt;/p&gt;
@@ -1276,7 +1276,7 @@ httpConnection.setRequestProperty(&quot;RANGE&quot;, &quot;bytes=1024-&quot;);
  
  <entry>
    <title>cgi与fastcgi的区别</title>
-   <link href="http://spetacular.github.io/2015/01/25/cgi-and-fastcgi"/>
+   <link href="http://spetacular.github.io/2015/01/25/cgi-and-fastcgi.html"/>
    <updated>2015-01-25T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2015/01/25/cgi-and-fastcgi</id>
    <content type="html">&lt;p&gt;青石街有两个卖烧饼的，王大与李二。&lt;/p&gt;
@@ -1327,7 +1327,7 @@ httpConnection.setRequestProperty(&quot;RANGE&quot;, &quot;bytes=1024-&quot;);
  
  <entry>
    <title>Javascript整型数字精度限制</title>
-   <link href="http://spetacular.github.io/2015/01/20/js-int-limit"/>
+   <link href="http://spetacular.github.io/2015/01/20/js-int-limit.html"/>
    <updated>2015-01-20T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2015/01/20/js-int-limit</id>
    <content type="html">&lt;p&gt;在做一个项目时，需要生成一个长整数Id，生成函数如下：&lt;/p&gt;
@@ -1394,7 +1394,7 @@ httpConnection.setRequestProperty(&quot;RANGE&quot;, &quot;bytes=1024-&quot;);
  
  <entry>
    <title>强大的弱关系</title>
-   <link href="http://spetacular.github.io/2015/01/14/strong-weak-ties"/>
+   <link href="http://spetacular.github.io/2015/01/14/strong-weak-ties.html"/>
    <updated>2015-01-14T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2015/01/14/strong-weak-ties</id>
    <content type="html">&lt;p&gt;今天看 TED &lt;a href=&quot;http://www.ted.com/talks/meg_jay_why_30_is_not_the_new_20&quot; title=&quot;Why 30 is not the new 20&quot;&gt;Why 30 is not the new 20&lt;/a&gt; 时，看到三条很有意义的话：&lt;/p&gt;
@@ -1453,7 +1453,7 @@ httpConnection.setRequestProperty(&quot;RANGE&quot;, &quot;bytes=1024-&quot;);
  
  <entry>
    <title>Coding Tips -- Compare The Version Numbers Between Two Releases</title>
-   <link href="http://spetacular.github.io/2014/12/20/version-compare-function"/>
+   <link href="http://spetacular.github.io/2014/12/20/version-compare-function.html"/>
    <updated>2014-12-20T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2014/12/20/version-compare-function</id>
    <content type="html">&lt;p&gt;Given two version numbers, How to check which release is newer ? For example:&lt;/p&gt;
@@ -1512,7 +1512,7 @@ var_dump(versionCompare(&#39;1.0.1&#39;,&#39;1.0.2&#39;));	// &amp;lt;
  
  <entry>
    <title>腾讯云操作系统镜像使用方法</title>
-   <link href="http://spetacular.github.io/2014/10/21/operation-system-image-in-tencent-cloud"/>
+   <link href="http://spetacular.github.io/2014/10/21/operation-system-image-in-tencent-cloud.html"/>
    <updated>2014-10-21T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2014/10/21/operation-system-image-in-tencent-cloud</id>
    <content type="html">&lt;p&gt;最近一个项目部署在腾讯云服务器(http://www.qcloud.com/)上，在服务器配置时使用了操作系统镜像功能，感觉很赞。因此把使用方法记录下来，供需要的同事参考。
@@ -1595,7 +1595,7 @@ udev                  7.9G  148K  7.9G   1% /dev
  
  <entry>
    <title>PHP扩展开发Demo</title>
-   <link href="http://spetacular.github.io/2014/10/10/php-extension-demo"/>
+   <link href="http://spetacular.github.io/2014/10/10/php-extension-demo.html"/>
    <updated>2014-10-10T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2014/10/10/php-extension-demo</id>
    <content type="html">&lt;p&gt;为了深入学习PHP，就从一个简单的PHP扩展开始，了解一下制作过程。&lt;/p&gt;

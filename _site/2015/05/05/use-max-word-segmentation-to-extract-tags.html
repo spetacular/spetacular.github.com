@@ -7,11 +7,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<title>强大的弱关系</title>
+	<title>利用中文分词正向最大匹配法解决自动提取标签问题</title>
 	<meta name="author" content="David">
 	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
 	<link href='/assets/themes/the-program/css/style.css' rel="stylesheet" media="all">
-	<link href="http://feeds.feedburner.com/" rel="alternate" title="强大的弱关系" type="application/atom+xml">
+	<link href="http://feeds.feedburner.com/" rel="alternate" title="利用中文分词正向最大匹配法解决自动提取标签问题" type="application/atom+xml">
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.0.6/modernizr.min.js"></script>
 </head>
 <body>
@@ -43,71 +43,152 @@
 			<header>
 				<div class="unit-head">
 					<div class="unit-inner unit-head-inner">
-						<h1 class="h2 entry-title">强大的弱关系</h1>
+						<h1 class="h2 entry-title">利用中文分词正向最大匹配法解决自动提取标签问题</h1>
 					</div><!-- unit-inner -->
 				</div><!-- unit-head -->
 			</header>
 
 			<div class="bd">
 				<div class="entry-content">
-					<p>今天看 TED <a href="http://www.ted.com/talks/meg_jay_why_30_is_not_the_new_20" title="Why 30 is not the new 20">Why 30 is not the new 20</a> 时，看到三条很有意义的话：</p>
+					<p>写文章时，会有自动提取标签的需求；写新闻时，会有查找主题或关键字的需求。如下图，就是分析新闻页面的内容，匹配相关车型。</p>
 
-<ol>
-  <li>Get some identity capital</li>
-  <li><strong>Use your weak ties</strong></li>
-  <li>Pick your family</li>
-</ol>
+<p><img src="http://spetacular.github.io/images/2015-05-05/example.png" alt="自动提取标签匹配" /></p>
 
-<p>对于第二条，演讲者Meg Jay说到，很多人靠私人联系找到工作。奇怪的是，这些私人联系更多的是熟人，而非亲近的朋友。</p>
+<p>图1</p>
 
-<p>搜了下“weak ties”，发现美国康乃尔大学有这样的研究，并有本书（<a href="http://www.cs.cornell.edu/home/kleinber/networks-book/" title="Networks, Crowds, and Markets:  Reasoning About a Highly Connected World">Networks, Crowds, and Markets:  Reasoning About a Highly Connected World</a>）。其中第三章讲了Weak Ties（<a href="http://www.cs.cornell.edu/home/kleinber/networks-book/networks-book-ch03.pdf" title="Chapter 3 Strong and Weak Ties">Chapter 3 Strong and Weak Ties</a>），看懂一些，分享出来跟大家讨论一下。</p>
+<p>解决的方法很多，最常见的是基于字典的中文分词。</p>
 
-<h2 id="section">强弱关系</h2>
-<p>社交网络中，每个人都是网络的节点，人与人之间的关系构成网络的边。
-在下图中，A认识B和C，A和B、A和C之间为强关系。B和C很可能会认识，形成弱关系。形象地说，强弱关系的区别如同朋友/熟人。</p>
+<p>为了解决自动提取标签的问题，我们需要以下几个步骤：</p>
 
-<p><img src="http://omiga-wordpress.stor.sinaapp.com/uploads/strong_and_weak_ties.jpg" alt="强关系与弱关系，来自维基百科" /></p>
-<center>图1</center>
+<p>1.制作字典。字典保存着奥迪、奔驰、宝马等车型信息</p>
 
-<h2 id="section-1">三元闭合</h2>
-<p>在图1中，“B和C很可能会认识”。直觉上，人们会把朋友介绍给另一个朋友。其实可以利用概率的知识简单说明。
-如下图，黑线代表每天的24小时。一天之内，A和B有接触时间（红色），A和C也有接触时间（黄色）。如果接触时间重合，就代表B和C遇见了，就有可能认识。</p>
+<p>2.分析新闻的正文，查看是否有字典中的词。如果有，就提取出来。</p>
 
-<p><img src="http://omiga-wordpress.stor.sinaapp.com/uploads/san_yuan_gailv.jpg" alt="相遇概率" /></p>
-<center>图2</center>
+<p>中文分词也有很多种方法，基于词典的算法有最大匹配、最小匹配、逐词匹配和最佳匹配，高大上的NLP算法有隐马尔科夫。这里采用最大匹配法。</p>
 
-<p>这种现象就是三元闭合（Triadic Closure）。</p>
+<p>最大匹配法，顾名思义，就是先匹配最长的词，再匹配较短的词。例如图1，假如字典中有“奥迪Q7”和“奥迪”两个词，最大匹配法会优先匹配“奥迪Q7”，而不会先匹配“奥迪”。</p>
 
-<p><img src="http://omiga-wordpress.stor.sinaapp.com/uploads/Triadic%20Closure.jpg" alt="三元闭合" /></p>
-<center>图3</center>
+<p>全流程如下图所示：</p>
 
-<h2 id="section-2">桥</h2>
-<p>常常有这种情况：你认识了一个人，然后他将你带入一个新的朋友圈。这个人就是“桥”。在下图中，B是A的桥。</p>
+<p><img src="http://spetacular.github.io/images/2015-05-05/max.png" alt="中文分词最大匹配法流程图" /></p>
 
-<p><img src="http://omiga-wordpress.stor.sinaapp.com/uploads/what_is_weak_ties.jpg" alt="桥" /></p>
-<center>图4</center>
+<p>图2</p>
 
-<h2 id="section-3">弱关系的意义</h2>
-<p>好机会总是稀少的。在图4中，如果A想获得新信息，那么机会很可能来自于由B“桥”连接的未知朋友圈。尽管A的亲密朋友很乐意帮忙，但可能他们知道的信息和A本人差不多。</p>
+<h2 id="section">代码</h2>
+<p>这里定义MaxWordSegmentation类，其中的run方法返回匹配到的结果。</p>
 
-<h2 id="section-4">启示</h2>
-<ol>
-  <li>利用弱关系</li>
-  <li>建立自己的弱关系网络</li>
-  <li>倾听他们的声音</li>
-  <li>帮助他们解决问题</li>
-  <li>请求他们的帮助</li>
-  <li>结识新朋友，不忘老朋友</li>
-  <li>壮大自己，争取做“桥”</li>
-</ol>
+<pre><code>class MaxWordSegmentation{
+
+	private $dict = array();//保存字典的list
+
+	function __construct($pathToDict){
+		$this-&gt;dict = $this-&gt;loadDict($pathToDict);
+	}
+	
+	//读入词典文件到内存
+	function loadDict($pathToDict){
+		if(!file_exists($pathToDict)){
+			die('Can not find dict file!');
+		}
+		$dicts = array();
+		$handle = @fopen($pathToDict, "r");
+		if ($handle) {
+			while (!feof($handle)) {
+				$word = fgets($handle, 4096);
+				//这里的词需要用trim去掉换行符
+				$word = trim($word);
+				$dicts[$word] = 1;
+			}
+			fclose($handle);
+		}
+		return $dicts;
+	}
+
+	//查看词是否在字典中
+	function inDict($word){
+		return array_key_exists($word,$this-&gt;dict);
+	}
+
+	//按照词典进行分词。正向最大匹配法
+	function run($text,$encode = 'utf-8'){
+		$minLen = 0;
+		$maxLen = 0;
+		//找出最长的单词长度及最短的单词长度
+		foreach($this-&gt;dict as $key=&gt;$value){
+			$iLen = mb_strlen($key,$encode);
+			if($minLen &gt; $iLen || $minLen == 0 ){
+				$minLen = $iLen;
+			}
+
+			if($maxLen &lt; $iLen){
+				$maxLen = $iLen;
+			}
+		}
+		
+
+		$sLen = mb_strlen($text, $encode);
+		$result = array();
+		for($start = 0;$start &lt; $sLen;$start ++){//外层正文循环	
+			for($maxLoop = $maxLen;$maxLoop &gt;= $minLen;$maxLoop --){//内层字典循环
+				$word = mb_substr ($text , $start, $maxLoop , $encode);
+				//是否匹配成功
+				if($this-&gt;inDict($word,$this-&gt;dict)){//字典查找
+					//添加到输出列表
+					if(!in_array($word,$result)){
+						$result[] = $word;
+					}
+					break;
+				}
+			}
+			
+			
+		}
+		return $result;
+	}
+}
+</code></pre>
+
+<p>使用示例：</p>
+
+<pre><code>$text = '日前，奥迪全新SQ7运动版车型的无伪装谍照出人意料的被曝光出来，该车预计今年底或者明年初发布。可以看到，新车已经有一些专属设计明显的区别于普通版的车型。';
+$file = './dict.txt';	
+$obj = new MaxWordSegmentation($file);
+$ret = $obj-&gt;run($text);
+var_dump($ret);
+/*
+结果如下：
+	array(1) {
+	  [0]=&gt;
+	  string(15) "奥迪全新SQ7"
+	}
+*/
+</code></pre>
+
+<h2 id="section-1">改进之处</h2>
+<p>由于提取标签时，标签通常不会只有一个字，比如“奥迪”、“奔驰”、“宝马”等，子串长度都为2。如果字典中最短的词长为S，那么对对剩下的字符串重新进行匹配处理，不必等到剩余字串的长度为零才结束，只要匹配到S个字符就行。</p>
+
+<h2 id="section-2">算法分析</h2>
+<p>假设字典中最短的词长为S，最长的词长为L，正文的长度为N。</p>
+
+<p>外层正文循环：N</p>
+
+<p>内层字典循环：L-S</p>
+
+<p>内层的inDict字典查找最关键，这里采用数组模拟hashtable实现了个O(1)的实现。</p>
+
+<p>所以总的循环次数是(L-S)*N，而(L-S)是个常数，所以时间复杂度是O(N)</p>
+
+<h2 id="section-3">代码下载</h2>
+
+<p><a href="http://spetacular.github.io/html/maxword.zip" title="点此下载">点此下载</a></p>
 
 
 					<div class="meta">
 						<p class="date-publish">
 							Published: 
-							<date class="date-pub" title="2015-01-14T00:00:00+08:00" datetime="2015-01-14T00:00:00+08:00" pubdate>
-							<span class="month"><abbr>January</abbr></span>
-							<span class="day">14</span>
+							<date class="date-pub" title="2015-05-05T00:00:00+08:00" datetime="2015-05-05T00:00:00+08:00" pubdate>
+							<span class="month"><abbr>May</abbr></span>
+							<span class="day">05</span>
 							<span class="year">2015</span>
 							</date>
 						</p>
@@ -119,8 +200,8 @@
 
   
      
-    	<li><a href="/categories.html#散文-ref">
-    		散文 <span>1</span>
+    	<li><a href="/categories.html#php-ref">
+    		php <span>5</span>
     	</a></li>
     
   
@@ -135,9 +216,7 @@
 
   
      
-    	<li><a href="/tags.html#弱关系-ref">弱关系 <span>1</span></a></li>
-     
-    	<li><a href="/tags.html#关系链-ref">关系链 <span>1</span></a></li>
+    	<li><a href="/tags.html#中文分词-ref">中文分词 <span>1</span></a></li>
     
   
 
@@ -184,13 +263,13 @@
 					<nav class="pagination">
 						<ul>
 							
-							<li class="prev"><a class="internal" rel="prev"  href="/2014/12/20/version-compare-function" title="View Coding Tips -- Compare The Version Numbers Between Two Releases">&laquo; Coding Tips -- Compare The Version Numbers Between Two Releases</a></li>
+							<li class="prev"><a class="internal" rel="prev"  href="/2015/04/10/ad-position-disappear-in-midnight.html" title="View 深夜中消失的广告位">&laquo; 深夜中消失的广告位</a></li>
 							
 							
 							<li class="pipe"> | </li>
 							
 							
-							<li class="next"><a class="internal" rel="next"  href="/2015/01/20/js-int-limit" title="View Javascript整型数字精度限制">Javascript整型数字精度限制 &raquo;</a></li>
+							<li class="next"><a class="internal" rel="next"  href="/2015/06/01/how-to-deal-with-version-compatibility.html" title="View Restful接口设计：如何做版本兼容">Restful接口设计：如何做版本兼容 &raquo;</a></li>
 							
 						</ul>
 					</nav>
@@ -239,7 +318,7 @@
 		};
 	load('//platform.twitter.com/widgets.js', 'tweetjs');
 	// load('https://apis.google.com/js/plusone.js', 'gplus1js'); // Checkout http://j.mp/ApDgMr for usage html for this is <div class="g-plusone" data-size="medium"></div>
-	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2015/01/14/strong-weak-ties" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
+	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2015/05/05/use-max-word-segmentation-to-extract-tags.html" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
 	}(document, 'script'));
 </script>
 <script>
