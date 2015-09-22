@@ -3,7 +3,7 @@ layout: post
 title: Redis分片技术：Hash Tag
 ---
 
-twitter的[twemproxy](https://github.com/twitter/twemproxy)是一个Redis的代理服务程序,能够实现key的分片。分片能使key均匀地分布到集群的机器上去，能保证数据的一致性，有着众多的优点。
+twitter的 [twemproxy](https://github.com/twitter/twemproxy) 是一个Redis的代理服务程序,能够实现key的分片。分片能使key均匀地分布到集群的机器上去，能保证数据的一致性，有着众多的优点。
 
 但从Redis单实例切换到twemproxy集群时，还是有些需要注意的地方：
 
@@ -15,11 +15,11 @@ KEYS,MIGRATE,SCAN等
 
 MSET,SINTERSTORE,SUNIONSTORE,ZINTERSTORE,ZUNIONSTORE等
 
-全部请查看[Redis命令列表](https://github.com/twitter/twemproxy/blob/master/notes/redis.md).
+全部请查看 [Redis命令列表](https://github.com/twitter/twemproxy/blob/master/notes/redis.md).
 
 对于不支持的方法，在使用时需要寻找替代方案。本文主要解决一下需特殊处理的方法。
 
-## MSET
+### MSET
 单实例上的MSET是一个原子性(atomic)操作，所有给定 key 都会在同一时间内被设置，某些给定 key 被更新而另一些给定 key 没有改变的情况，不可能发生。
 
 而集群上虽然也支持同时设置多个key，但不再是原子性操作。会存在某些给定 key 被更新而另外一些给定 key 没有改变的情况。其原因是需要设置的多个key可能分配到不同的机器上。
@@ -32,7 +32,7 @@ MSET,SINTERSTORE,SUNIONSTORE,ZINTERSTORE,ZUNIONSTORE等
 
 **即要求key尽可能地分散到不同机器，又要求某些相关联的key分配到相同机器。**
 
-## Hash Tags
+### Hash Tags
 解铃还需系铃人。解决方法还是从分片技术的原理上找。
 
 分片，就是一个hash的过程：对key做md5，sha1等hash算法，根据hash值分配到不同的机器上。
@@ -43,7 +43,7 @@ MSET,SINTERSTORE,SUNIONSTORE,ZINTERSTORE,ZUNIONSTORE等
 
 仔细观察user:user1:ids和user:user1:tweets，两个key其实有相同的地方，即user1。能不能拿这一部分去计算hash呢？
 
-这就是[Hash Tag](https://github.com/twitter/twemproxy/blob/master/notes/recommendation.md#hash-tags)。允许用key的部分字符串来计算hash。
+这就是 [Hash Tag](https://github.com/twitter/twemproxy/blob/master/notes/recommendation.md#hash-tags) 。允许用key的部分字符串来计算hash。
 
 
 **当一个key包含 {} 的时候，就不对整个key做hash，而仅对 {} 包括的字符串做hash。**
