@@ -1,0 +1,1789 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+        <title>David&#39;s World</title>
+        <description>David&#39;s World - David</description>
+        <link>http://username.github.io</link>
+        <atom:link href="http://username.github.io/rss.xml" rel="self" type="application/rss+xml" />
+        <lastBuildDate>Tue, 22 Sep 2015 22:45:08 +0800</lastBuildDate>
+        <pubDate>Tue, 22 Sep 2015 22:45:08 +0800</pubDate>
+        <ttl>60</ttl>
+
+
+        <item>
+                <title>Redis分片技术：Hash Tag</title>
+                <description>&lt;p&gt;twitter的 &lt;a href=&quot;https://github.com/twitter/twemproxy&quot;&gt;twemproxy&lt;/a&gt; 是一个Redis的代理服务程序,能够实现key的分片。分片能使key均匀地分布到集群的机器上去，能保证数据的一致性，有着众多的优点。&lt;/p&gt;
+
+&lt;p&gt;但从Redis单实例切换到twemproxy集群时，还是有些需要注意的地方：&lt;/p&gt;
+
+&lt;p&gt;不支持的方法：&lt;/p&gt;
+
+&lt;p&gt;KEYS,MIGRATE,SCAN等&lt;/p&gt;
+
+&lt;p&gt;支持但需特殊处理的方法：&lt;/p&gt;
+
+&lt;p&gt;MSET,SINTERSTORE,SUNIONSTORE,ZINTERSTORE,ZUNIONSTORE等&lt;/p&gt;
+
+&lt;p&gt;全部请查看 &lt;a href=&quot;https://github.com/twitter/twemproxy/blob/master/notes/redis.md&quot;&gt;Redis命令列表&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;对于不支持的方法，在使用时需要寻找替代方案。本文主要解决一下需特殊处理的方法。&lt;/p&gt;
+
+&lt;h3 id=&quot;mset&quot;&gt;MSET&lt;/h3&gt;
+&lt;p&gt;单实例上的MSET是一个原子性(atomic)操作，所有给定 key 都会在同一时间内被设置，某些给定 key 被更新而另一些给定 key 没有改变的情况，不可能发生。&lt;/p&gt;
+
+&lt;p&gt;而集群上虽然也支持同时设置多个key，但不再是原子性操作。会存在某些给定 key 被更新而另外一些给定 key 没有改变的情况。其原因是需要设置的多个key可能分配到不同的机器上。&lt;/p&gt;
+
+&lt;h2 id=&quot;sinterstoresunionstorezinterstorezunionstore&quot;&gt;SINTERSTORE,SUNIONSTORE,ZINTERSTORE,ZUNIONSTORE&lt;/h2&gt;
+
+&lt;p&gt;这四个命令属于同一类型。它们的共同之处是都需要对一组key进行运算或操作，但要求这些key都被分配到相同机器上。&lt;/p&gt;
+
+&lt;p&gt;这就是分片技术的矛盾之处：&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;即要求key尽可能地分散到不同机器，又要求某些相关联的key分配到相同机器。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;hash-tags&quot;&gt;Hash Tags&lt;/h3&gt;
+&lt;p&gt;解铃还需系铃人。解决方法还是从分片技术的原理上找。&lt;/p&gt;
+
+&lt;p&gt;分片，就是一个hash的过程：对key做md5，sha1等hash算法，根据hash值分配到不同的机器上。&lt;/p&gt;
+
+&lt;p&gt;为了实现将key分到相同机器，就需要相同的hash值，即相同的key（改变hash算法也行，但不简单）。&lt;/p&gt;
+
+&lt;p&gt;但key相同是不现实的，因为key都有不同的用途。例如user:user1:ids保存用户的tweets ID，user:user1:tweets保存tweet的具体内容，两个key不可能同名。&lt;/p&gt;
+
+&lt;p&gt;仔细观察user:user1:ids和user:user1:tweets，两个key其实有相同的地方，即user1。能不能拿这一部分去计算hash呢？&lt;/p&gt;
+
+&lt;p&gt;这就是 &lt;a href=&quot;https://github.com/twitter/twemproxy/blob/master/notes/recommendation.md#hash-tags&quot;&gt;Hash Tag&lt;/a&gt; 。允许用key的部分字符串来计算hash。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;当一个key包含 {} 的时候，就不对整个key做hash，而仅对 {} 包括的字符串做hash。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;假设hash算法为sha1。对user:{user1}:ids和user:{user1}:tweets，其hash值都等同于sha1(user1)。&lt;/p&gt;
+
+&lt;h2 id=&quot;hash-tag-&quot;&gt;Hash Tag 配置&lt;/h2&gt;
+
+&lt;p&gt;Hash Tag是用于hash的部分字符串开始和结束的标记，例如”{}”、”$$”等。
+配置时，只需更改hash_tag字段即可&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;beta:
+  listen: 127.0.0.1:22122
+  hash: fnv1a_64
+  hash_tag: &quot;{}&quot;
+  distribution: ketama
+  auto_eject_hosts: false
+  timeout: 400
+  redis: true
+  servers:
+   - 127.0.0.1:6380:1 server1
+   - 127.0.0.1:6381:1 server2
+   - 127.0.0.1:6382:1 server3
+   - 127.0.0.1:6383:1 server4
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+                <link>http://username.github.io/redis/2015/09/20/redis-hash-tag</link>
+                <guid>http://username.github.io/redis/2015/09/20/redis-hash-tag</guid>
+                <pubDate>Sun, 20 Sep 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>Swift知识点纪录</title>
+                <description>&lt;p&gt;po主初学Swift，遇到不少细节知识的缺失，只好请教Google大神。这篇文就是Google的结果，纪录一下。&lt;/p&gt;
+
+&lt;h2 id=&quot;unix&quot;&gt;获取UNIX时间戳&lt;/h2&gt;
+&lt;p&gt;即获得到某个时间点到1970年1月1日0点0分0秒的秒数。&lt;/p&gt;
+
+&lt;p&gt;返回字符串格式：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt; var Timestamp: String {
+    return &quot;\(NSDate().timeIntervalSince1970)&quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;输出时，可以这样调用：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;println(&quot;Timestamp: \(Timestamp)&quot;)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果希望返回NSTimeInterval，则：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;var Timestamp: NSTimeInterval {
+    return NSDate().timeIntervalSince1970
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;alert&quot;&gt;创建alert&lt;/h2&gt;
+&lt;p&gt;创建Alert的代码。&lt;a href=&quot;http://stackoverflow.com/questions/24272006/how-to-add-action-to-uialertview-in-swift-ios-7&quot; title=&quot;原文链接&quot;&gt;原文链接&lt;/a&gt;&lt;/p&gt;
+
+&lt;pre&gt;
+&lt;code&gt;
+func showAlert(){
+    var createAccountErrorAlert: UIAlertView = UIAlertView()
+
+    createAccountErrorAlert.delegate = self
+
+    createAccountErrorAlert.title = &quot;Oops&quot;
+    createAccountErrorAlert.message = &quot;Could not create account!&quot;
+    createAccountErrorAlert.addButtonWithTitle(&quot;Dismiss&quot;)
+    createAccountErrorAlert.addButtonWithTitle(&quot;Retry&quot;)
+
+    createAccountErrorAlert.show()
+}
+
+func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
+
+    switch buttonIndex{
+
+    case 1:
+        NSLog(&quot;Retry&quot;);
+    break;
+    case 0:
+        NSLog(&quot;Dismiss&quot;);
+        break;
+    default:
+        NSLog(&quot;Default&quot;);
+        break;
+        //Some code here..
+
+    }
+}
+&lt;/code&gt;
+&lt;/pre&gt;
+</description>
+                <link>http://username.github.io/2015/09/12/swift-records</link>
+                <guid>http://username.github.io/2015/09/12/swift-records</guid>
+                <pubDate>Sat, 12 Sep 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>Nginx Sticky的使用及踩过的坑</title>
+                <description>&lt;h1 id=&quot;sticky&quot;&gt;什么是Sticky？&lt;/h1&gt;
+&lt;p&gt;为了理解Sticky的工作原理，我们可以先考虑一个问题：负载均衡怎么做？&lt;/p&gt;
+
+&lt;p&gt;DNS解析，在域名解析时分配给不同的服务器IP；&lt;/p&gt;
+
+&lt;p&gt;IP Hash，根据客户端的IP，将请求分配到不同的服务器上；&lt;/p&gt;
+
+&lt;p&gt;cookie，服务器给客户端下发一个cookie，具有特定cookie的请求会分配给它的发行者。&lt;/p&gt;
+
+&lt;p&gt;Sticky就是基于cookie的一种负载均衡解决方案，通过cookie实现客户端与后端服务器的会话保持, 在一定条件下可以保证同一个客户端访问的都是同一个后端服务器。请求来了，服务器发个cookie，并说：下次来带上，直接来找我。&lt;/p&gt;
+
+&lt;p&gt;为方便叙述，文中的cookie都指sticky使用的cookie。&lt;/p&gt;
+
+&lt;h1 id=&quot;sticky-1&quot;&gt;Sticky工作原理&lt;/h1&gt;
+&lt;p&gt;Sticky是nginx的一个模块,通过分发和识别cookie，来使同一个客户端的请求落在同一台服务器上。sticky的处理过程如下（假设cookie名称为route）：&lt;/p&gt;
+
+&lt;p&gt;1.客户端首次发起请求，请求头未带route的cookie。nginx接收请求，发现请求头没有route，则以轮询方式将请求分配给后端服务器。&lt;/p&gt;
+
+&lt;p&gt;2.后端服务器处理完请求，将响应头和内容返回给nginx。&lt;/p&gt;
+
+&lt;p&gt;3.nginx生成route的cookie，返回给客户端。route的值与后端服务器对应，可能是明文，也可能是md5、sha1等Hash值。&lt;/p&gt;
+
+&lt;p&gt;4.客户端接收请求，并创建route的cookie。&lt;/p&gt;
+
+&lt;p&gt;5.客户端再次发送请求时，带上route。&lt;/p&gt;
+
+&lt;p&gt;6.nginx接收到route，直接转给对应的后端服务器。&lt;/p&gt;
+
+&lt;p&gt;关于sticky的详细的配置过程在
+&lt;a href=&quot;http://nginx.org/en/docs/http/ngx_http_upstream_module.html#sticky&quot; title=&quot;nginx sticky详细配置&quot;&gt;这里&lt;/a&gt;。&lt;/p&gt;
+
+&lt;h1 id=&quot;section&quot;&gt;参数解析&lt;/h1&gt;
+
+&lt;p&gt;这里引用淘宝Tengine的文档：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;语法：session_sticky [cookie=name] [domain=your_domain] [path=your_path] [maxage=time] [mode=insert|rewrite|prefix] [option=indirect] [maxidle=time] [maxlife=time] [fallback=on|off] [hash=plain|md5]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;默认值：session_sticky cookie=route mode=insert fallback=on&lt;/p&gt;
+
+&lt;p&gt;上下文：upstream&lt;/p&gt;
+
+&lt;p&gt;说明:&lt;/p&gt;
+
+&lt;p&gt;本指令可以打开会话保持的功能，下面是具体的参数：&lt;/p&gt;
+
+&lt;p&gt;cookie设置用来记录会话的cookie名称&lt;/p&gt;
+
+&lt;p&gt;domain设置cookie作用的域名，默认不设置&lt;/p&gt;
+
+&lt;p&gt;path设置cookie作用的URL路径，默认不设置&lt;/p&gt;
+
+&lt;p&gt;maxage设置cookie的生存期，默认不设置，即为session cookie，浏览器关闭即失效&lt;/p&gt;
+
+&lt;p&gt;mode设置cookie的模式:&lt;/p&gt;
+
+&lt;p&gt;    insert: 在回复中本模块通过Set-Cookie头直接插入相应名称的cookie。&lt;/p&gt;
+
+&lt;p&gt;    prefix: 不会生成新的cookie，但会在响应的cookie值前面加上特定的前缀，当浏览器带着这个有特定标识的cookie再次请求时，模块在传给后端服务前先删除加入的前缀，后端服务拿到的还是原来的cookie值，这些动作对后端透明。如：”Cookie: NAME=SRV~VALUE”。&lt;/p&gt;
+
+&lt;p&gt;    rewrite: 使用服务端标识覆盖后端设置的用于session sticky的cookie。如果后端服务在响应头中没有设置该cookie，则认为该请求不需要进行session sticky，使用这种模式，后端服务可以控制哪些请求需要sesstion sticky，哪些请求不需要。&lt;/p&gt;
+
+&lt;p&gt;option 设置用于session sticky的cookie的选项，可设置成indirect或direct。indirect不会将session sticky的cookie传送给后端服务，该cookie对后端应用完全透明。direct则与indirect相反。&lt;/p&gt;
+
+&lt;p&gt;maxidle设置session cookie的最长空闲的超时时间&lt;/p&gt;
+
+&lt;p&gt;maxlife设置session cookie的最长生存期&lt;/p&gt;
+
+&lt;p&gt;fallback设置是否重试其他机器，当sticky的后端机器挂了以后，是否需要尝试其他机器&lt;/p&gt;
+
+&lt;p&gt;hash 设置cookie中server标识是用明文还是使用md5值，默认使用md5&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;maxage是cookie的生存期。不设置时，浏览器或App关闭后就失效。下次启动时，又会随机分配后端服务器。所以如果希望该客户端的请求长期落在同一台后端服务器上，可以设置maxage。&lt;/p&gt;
+
+&lt;p&gt;hash不论是明文还是hash值，都有固定的数目。因为hash是server的标识，所以有多少个server，就有等同数量的hash值。&lt;/p&gt;
+
+&lt;h1 id=&quot;section-1&quot;&gt;一些例外&lt;/h1&gt;
+
+&lt;h2 id=&quot;section-2&quot;&gt;同一客户端的请求，有可能落在不同的后端服务器上&lt;/h2&gt;
+&lt;p&gt;如果客户端启动时同时发起多个请求。由于这些请求都没带cookie，所以服务器会随机选择后端服务器，返回不同的cookie。当这些请求中的最后一个请求返回时，客户端的cookie才会稳定下来，值以最后返回的cookie为准。&lt;/p&gt;
+
+&lt;h2 id=&quot;cookie&quot;&gt;cookie不一定生效&lt;/h2&gt;
+&lt;p&gt;由于cookie最初由服务器端下发，如果客户端禁用cookie，则cookie不会生效。&lt;/p&gt;
+
+&lt;h2 id=&quot;cookie-1&quot;&gt;客户端可能不带cookie&lt;/h2&gt;
+&lt;p&gt;Android客户端发送请求时，一般不会带上所有的cookie，需要明确指定哪些cookie会带上。如果希望用sticky做负载均衡，请对Android开发说加上cookie。&lt;/p&gt;
+
+&lt;h1 id=&quot;section-3&quot;&gt;注意事项&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;cookie名称不要和业务使用的cookie重名。Sticky默认的cookie名称是route，可以改成任何值。但切记，不可以与业务中使用的cookie重名。&lt;/li&gt;
+  &lt;li&gt;客户端发的第一个请求是不带cookie的。服务器下发的cookie，在客户端下一次请求时才能生效。&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+                <link>http://username.github.io/2015/08/01/nginx-sticky-problem</link>
+                <guid>http://username.github.io/2015/08/01/nginx-sticky-problem</guid>
+                <pubDate>Sat, 01 Aug 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>日本东京之旅</title>
+                <description>&lt;ul&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/1.jpeg&quot; title=&quot;去的那天，北京天气不错&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/1.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/2.jpeg&quot; title=&quot;首都国际机场&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/2.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/3.jpeg&quot; title=&quot;吃了碗虾仁面，35元&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/3.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/4.jpeg&quot; title=&quot;日航的小飞机&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/4.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/5.jpeg&quot; title=&quot;看建筑都成方块了&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/5.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/6.jpeg&quot; title=&quot;飞在云彩上面&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/6.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/7.jpeg&quot; title=&quot;东京海关&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/7.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/8.jpeg&quot; title=&quot;坐火车去上野&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/8.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/9.jpeg&quot; title=&quot;车上人很少&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/9.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/10.jpeg&quot; title=&quot;初到上野&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/10.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/11.jpeg&quot; title=&quot;街道&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/11.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/12.jpeg&quot; title=&quot;大和寿司排队中&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/12.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/13.jpeg&quot; title=&quot;等了半个小时，终于可以开吃了&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/13.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/14.jpeg&quot; title=&quot;好吃的寿司&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/14.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/15.jpeg&quot; title=&quot;擦栏杆的工人，很用心的样子&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/15.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/16.jpeg&quot; title=&quot;RKK LINE&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/16.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/17.jpeg&quot; title=&quot;一个公园&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/17.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/18.jpeg&quot; title=&quot;优衣库1&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/18.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/19.jpeg&quot; title=&quot;优衣库2&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/19.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/20.jpeg&quot; title=&quot;优衣库3&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/20.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/21.jpeg&quot; title=&quot;门们&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/21.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/22.jpeg&quot; title=&quot;大桥&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/22.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/23.jpeg&quot; title=&quot;大桥夜景&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/23.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/24.jpeg&quot; title=&quot;自由女神&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/24.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/25.jpeg&quot; title=&quot;银座&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/25.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/26.jpeg&quot; title=&quot;好看的杯子&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/26.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/27.jpeg&quot; title=&quot;美食－扇贝&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/27.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/28.jpeg&quot; title=&quot;美食－寿司，生鱼片&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/28.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/29.jpeg&quot; title=&quot;美食－寿司&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/29.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/30.jpeg&quot; title=&quot;美食汇&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/30.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/31.jpeg&quot; title=&quot;干一杯&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/31.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/32.jpeg&quot; title=&quot;开吃前先拍照&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/32.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/33.jpeg&quot; title=&quot;早稻田大学－大门太小&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/33.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/34.jpeg&quot; title=&quot;早稻田大学－校园&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/34.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/35.jpeg&quot; title=&quot;近世禅画海报&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/35.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/36.jpeg&quot; title=&quot;好像与日本安保法案有关&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/36.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/37.jpeg&quot; title=&quot;手写海报&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/37.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/38.jpeg&quot; title=&quot;博物馆？&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/38.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/39.jpeg&quot; title=&quot;妹子&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/39.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/40.jpeg&quot; title=&quot;图书馆&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/40.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/41.jpeg&quot; title=&quot;教堂&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/41.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/42.jpeg&quot; title=&quot;为什么不是红十字？&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/42.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/43.jpeg&quot; title=&quot;草坪&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/43.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/44.jpeg&quot; title=&quot;前面就是日本天皇的宫殿&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/44.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/45.jpeg&quot; title=&quot;铺石子的广场&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/45.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/46.jpeg&quot; title=&quot;宫殿不让进&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/46.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/47.jpeg&quot; title=&quot;明治神宫&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/47.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/48.jpeg&quot; title=&quot;苹果店帮同事带iphone，ipad&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/48.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/1000.jpeg&quot; title=&quot;国外有个网站真有意思啊。国内啥时候有？&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/100.png&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;!--&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/.jpeg&quot; title=&quot;&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/.jpeg&quot;&gt;&lt;/a&gt;&lt;/li&gt;--&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/IMG_0085.JPG&quot; title=&quot;靖国神社&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/IMG_0085.JPG&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/IMG_0099.JPG&quot; title=&quot;公共电动车&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/IMG_0099.JPG&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/IMG_0109.JPG&quot; title=&quot;武道馆&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/IMG_0109.JPG&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/IMG_0114.JPG&quot; title=&quot;时钟&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/IMG_0114.JPG&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/IMG_0129.JPG&quot; title=&quot;东京大学&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/IMG_0129.JPG&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/IMG_0009.JPG&quot; title=&quot;挖掘机&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/IMG_0009.JPG&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/IMG_0050.JPG&quot; title=&quot;上野动物园&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/IMG_0050.JPG&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/IMG_0143.JPG&quot; title=&quot;秋叶原&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/IMG_0143.JPG&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/IMG_0153.JPG&quot; title=&quot;手办&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/IMG_0153.JPG&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+                <link>http://username.github.io/2015/06/20/japan-tokyo-journey</link>
+                <guid>http://username.github.io/2015/06/20/japan-tokyo-journey</guid>
+                <pubDate>Sat, 20 Jun 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>Restful接口设计：如何做版本兼容</title>
+                <description>&lt;p&gt;现在App大多采用Restful接口，与服务器完成资源交换。这种实现方式隐藏了服务器端的具体实现，做到了对App端的透明服务。服务器端如何变更，甚至换一种语言实现，只要对外接口不变，App依然不受影响。&lt;/p&gt;
+
+&lt;p&gt;App的升级过程中，版本兼容是一个值得关注的问题，因为App要升级，服务器端的Restful接口也要进化，于是版本兼容要同时兼顾App和服务器端。&lt;/p&gt;
+
+&lt;h1 id=&quot;section&quot;&gt;一个例子&lt;/h1&gt;
+&lt;p&gt;版本兼容是向下兼容。接口升级后要保证低版本App能正常工作。&lt;/p&gt;
+
+&lt;p&gt;例如“App 1.0”使用了下面接口完成修改用户信息功能。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;GET api.demo.com/modify_userinfo
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;采用GET方式提交用户输入。后来发现该接口可被CSRF攻击。&lt;/p&gt;
+
+&lt;p&gt;这时要做两件事：&lt;/p&gt;
+
+&lt;p&gt;第一，服务器接口要为新的“App 1.1”提供升级，需要将GET方式改为POST，并且增加Token验证。这是CSRF的一般防范方法，具体请参看 &lt;a href=&quot;http://drops.wooyun.org/papers/155&quot; title=&quot;CSRF简单介绍及利用方法&quot;&gt;《CSRF简单介绍及利用方法》&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;第二，服务器接口要为旧的“App 1.0”版本修复漏洞。但这时App已发布，不可能修改了。这时只能服务器端来改。例如限制user-agent为”App 1.0”的请求才有效，用户通过浏览器提交的请求无效。这样在一定程度上减少了CSRF的危害。&lt;/p&gt;
+
+&lt;h1 id=&quot;section-1&quot;&gt;版本兼容的两种情况&lt;/h1&gt;
+&lt;p&gt;从上面的例子来看，版本兼容可分为两种：&lt;/p&gt;
+
+&lt;p&gt;大版本，指版本升级，接口的输入输出可能发生变化。&lt;/p&gt;
+
+&lt;p&gt;小版本，指版本修复，只针对某个版本修改接口，其它接口保持不变。&lt;/p&gt;
+
+&lt;p&gt;这两种情况都很常见。App未发布时，服务器接口从1.0升级到2.0，这时App开发者可以配合一下，使用2.0的接口；但对于已发布的App版本，只能由服务器端针对特定的App版本来修复漏洞。&lt;/p&gt;
+
+&lt;h1 id=&quot;section-2&quot;&gt;如何做&lt;/h1&gt;
+&lt;p&gt;App开发者需要配合，在请求接口时传入以下两项信息：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;App版本标识，一般包括App名称、版本、平台（Android、IOS等）、SDK版本等。一般放在user-agent里，例如微信的user-agent如下：&lt;/p&gt;
+
+    &lt;p&gt;Mozilla/5.0 (iPhone; CPU iPhone OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B176 MicroMessenger/6.2.2&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;接口版本标识，指采用接口的版本，例如可以在Request Header里加入majarversion=2.0，表明使用的是2.0的接口。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;服务器端开发者需要根据App版本和接口版本标识，来提供向下兼容&lt;/p&gt;
+
+</description>
+                <link>http://username.github.io/2015/06/01/how-to-deal-with-version-compatibility</link>
+                <guid>http://username.github.io/2015/06/01/how-to-deal-with-version-compatibility</guid>
+                <pubDate>Mon, 01 Jun 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>利用中文分词正向最大匹配法解决自动提取标签问题</title>
+                <description>&lt;p&gt;写文章时，会有自动提取标签的需求；写新闻时，会有查找主题或关键字的需求。如下图，就是分析新闻页面的内容，匹配相关车型。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-05-05/example.png&quot; alt=&quot;自动提取标签匹配&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;图1&lt;/p&gt;
+
+&lt;p&gt;解决的方法很多，最常见的是基于字典的中文分词。&lt;/p&gt;
+
+&lt;p&gt;为了解决自动提取标签的问题，我们需要以下几个步骤：&lt;/p&gt;
+
+&lt;p&gt;1.制作字典。字典保存着奥迪、奔驰、宝马等车型信息&lt;/p&gt;
+
+&lt;p&gt;2.分析新闻的正文，查看是否有字典中的词。如果有，就提取出来。&lt;/p&gt;
+
+&lt;p&gt;中文分词也有很多种方法，基于词典的算法有最大匹配、最小匹配、逐词匹配和最佳匹配，高大上的NLP算法有隐马尔科夫。这里采用最大匹配法。&lt;/p&gt;
+
+&lt;p&gt;最大匹配法，顾名思义，就是先匹配最长的词，再匹配较短的词。例如图1，假如字典中有“奥迪Q7”和“奥迪”两个词，最大匹配法会优先匹配“奥迪Q7”，而不会先匹配“奥迪”。&lt;/p&gt;
+
+&lt;p&gt;全流程如下图所示：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-05-05/max.png&quot; alt=&quot;中文分词最大匹配法流程图&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;图2&lt;/p&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;代码&lt;/h2&gt;
+&lt;p&gt;这里定义MaxWordSegmentation类，其中的run方法返回匹配到的结果。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;class MaxWordSegmentation{
+
+	private $dict = array();//保存字典的list
+
+	function __construct($pathToDict){
+		$this-&amp;gt;dict = $this-&amp;gt;loadDict($pathToDict);
+	}
+	
+	//读入词典文件到内存
+	function loadDict($pathToDict){
+		if(!file_exists($pathToDict)){
+			die(&#39;Can not find dict file!&#39;);
+		}
+		$dicts = array();
+		$handle = @fopen($pathToDict, &quot;r&quot;);
+		if ($handle) {
+			while (!feof($handle)) {
+				$word = fgets($handle, 4096);
+				//这里的词需要用trim去掉换行符
+				$word = trim($word);
+				$dicts[$word] = 1;
+			}
+			fclose($handle);
+		}
+		return $dicts;
+	}
+
+	//查看词是否在字典中
+	function inDict($word){
+		return array_key_exists($word,$this-&amp;gt;dict);
+	}
+
+	//按照词典进行分词。正向最大匹配法
+	function run($text,$encode = &#39;utf-8&#39;){
+		$minLen = 0;
+		$maxLen = 0;
+		//找出最长的单词长度及最短的单词长度
+		foreach($this-&amp;gt;dict as $key=&amp;gt;$value){
+			$iLen = mb_strlen($key,$encode);
+			if($minLen &amp;gt; $iLen || $minLen == 0 ){
+				$minLen = $iLen;
+			}
+
+			if($maxLen &amp;lt; $iLen){
+				$maxLen = $iLen;
+			}
+		}
+		
+
+		$sLen = mb_strlen($text, $encode);
+		$result = array();
+		for($start = 0;$start &amp;lt; $sLen;$start ++){//外层正文循环	
+			for($maxLoop = $maxLen;$maxLoop &amp;gt;= $minLen;$maxLoop --){//内层字典循环
+				$word = mb_substr ($text , $start, $maxLoop , $encode);
+				//是否匹配成功
+				if($this-&amp;gt;inDict($word,$this-&amp;gt;dict)){//字典查找
+					//添加到输出列表
+					if(!in_array($word,$result)){
+						$result[] = $word;
+					}
+					break;
+				}
+			}
+			
+			
+		}
+		return $result;
+	}
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;使用示例：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$text = &#39;日前，奥迪全新SQ7运动版车型的无伪装谍照出人意料的被曝光出来，该车预计今年底或者明年初发布。可以看到，新车已经有一些专属设计明显的区别于普通版的车型。&#39;;
+$file = &#39;./dict.txt&#39;;	
+$obj = new MaxWordSegmentation($file);
+$ret = $obj-&amp;gt;run($text);
+var_dump($ret);
+/*
+结果如下：
+	array(1) {
+	  [0]=&amp;gt;
+	  string(15) &quot;奥迪全新SQ7&quot;
+	}
+*/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;改进之处&lt;/h2&gt;
+&lt;p&gt;由于提取标签时，标签通常不会只有一个字，比如“奥迪”、“奔驰”、“宝马”等，子串长度都为2。如果字典中最短的词长为S，那么对对剩下的字符串重新进行匹配处理，不必等到剩余字串的长度为零才结束，只要匹配到S个字符就行。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-2&quot;&gt;算法分析&lt;/h2&gt;
+&lt;p&gt;假设字典中最短的词长为S，最长的词长为L，正文的长度为N。&lt;/p&gt;
+
+&lt;p&gt;外层正文循环：N&lt;/p&gt;
+
+&lt;p&gt;内层字典循环：L-S&lt;/p&gt;
+
+&lt;p&gt;内层的inDict字典查找最关键，这里采用数组模拟hashtable实现了个O(1)的实现。&lt;/p&gt;
+
+&lt;p&gt;所以总的循环次数是(L-S)*N，而(L-S)是个常数，所以时间复杂度是O(N)&lt;/p&gt;
+
+&lt;h2 id=&quot;section-3&quot;&gt;代码下载&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://spetacular.github.io/html/maxword.zip&quot; title=&quot;点此下载&quot;&gt;点此下载&lt;/a&gt;&lt;/p&gt;
+
+</description>
+                <link>http://username.github.io/2015/05/05/use-max-word-segmentation-to-extract-tags</link>
+                <guid>http://username.github.io/2015/05/05/use-max-word-segmentation-to-extract-tags</guid>
+                <pubDate>Tue, 05 May 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>深夜中消失的广告位</title>
+                <description>&lt;p&gt;旧文重发。这篇博客记录了Po主在&lt;a href=&quot;http://t.qq.com&quot; title=&quot;腾讯微博&quot;&gt;腾讯微博&lt;/a&gt;时的解决的一个Bug，不是大问题，但追查的过程很有意思。也以此纪念一下。&lt;/p&gt;
+
+&lt;h1 id=&quot;section&quot;&gt;诡秘的空白广告位&lt;/h1&gt;
+&lt;p&gt;一碗水，放置一晚上，会发生什么呢？&lt;/p&gt;
+
+&lt;p&gt;会蒸发，会流失，可能会被小猫喝掉，或被不注意的人踢翻。&lt;/p&gt;
+
+&lt;p&gt;把一个页面打开，放置一晚上，会出现什么变化呢？&lt;/p&gt;
+
+&lt;p&gt;拿腾讯微博首页来说，每隔30秒去查看计数，隔1分钟去拉取新消息，隔3分钟去看每日任务完成了没。&lt;/p&gt;
+
+&lt;p&gt;这些都是正常的请求，但为什么好好的广告会消失了呢。&lt;/p&gt;
+
+&lt;p&gt;初始状态，正常显示广告。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-04-10/normal-ad.png&quot; alt=&quot;normal ad&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;放置一个晚上后，广告消失，剩下空白！&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-04-10/bad-ad.png&quot; alt=&quot;bad ad&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;section-1&quot;&gt;找出真凶&lt;/h1&gt;
+&lt;p&gt;广告位原先存在，后来消失，一定是有什么改动了dom结构。&lt;/p&gt;
+
+&lt;p&gt;经过观察，发现广告位消失的重现规则是这样的：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;页面加载时，正常&lt;/li&gt;
+  &lt;li&gt;白天放置一段时间，正常&lt;/li&gt;
+  &lt;li&gt;放置一个晚上，异常。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;由1和2知道，可能存在某种超时或定时操作，改变了dom结构；由3知道，这个时机发生在晚上。&lt;/p&gt;
+
+&lt;p&gt;于是我设想，在一个整晚，页面肯定通过超时或定时请求了某个js文件，而这个js文件会更改dom结构。&lt;/p&gt;
+
+&lt;h1 id=&quot;section-2&quot;&gt;抓包&lt;/h1&gt;
+&lt;p&gt;只知道发生在晚上，但具体什么时候不清楚，所以我尝试用fiddler抓包。&lt;/p&gt;
+
+&lt;p&gt;下班前，我打开腾讯微博首页和fiddler，看着一行行记录，我知道，第二天肯定会有些异常出现。&lt;/p&gt;
+
+&lt;p&gt;第二天，打开电脑，先查看腾讯微博首页。果然，广告位空白了。&lt;/p&gt;
+
+&lt;p&gt;我把fiddler的url记录导出成一个txt文件。有几千条记录，于是写了个小程序，把url分下类。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;?php
+$handle = @fopen(&quot;path/to/urls.txt&quot;, &quot;r&quot;);
+$urls = array();
+if ($handle) {
+    while (!feof($handle)) {
+        $buffer = fgets($handle, 4096);		
+		$url = getUrl($buffer);
+		if(in_array($url,$urls) || empty($url)){
+			continue;
+		}else{
+			array_push($urls,$url);
+		}
+    }
+    fclose($handle);
+}
+function getUrl($fullurl){
+	$array = parse_url($fullurl);
+	if(isset($array[&#39;host&#39;]) &amp;amp;&amp;amp; isset($array[&#39;path&#39;])){		
+		return $array[&#39;host&#39;].$array[&#39;path&#39;];
+	}else{
+		return &#39;&#39;;
+	}
+}
+
+foreach($urls as $url){
+	echo $url.&quot;\n&quot;;
+}
+?&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;结果如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;---------- PHP ----------
+pyhelp.qq.com/cgi-bin/getloc.so__
+message.t.qq.com/newMsgCount.php
+t.web2.qq.com/channel/poll
+api.t.qq.com/side/get.json
+clients2.google.com/service/update2/crx
+www.gstatic.com/chrome/crlset/1444/crl-set-10054177008346624430.crx.data__
+qos.report.qq.com/collect
+www.google.com/dl/chrome/components/recovery/recovery/win/101.3.21.140/install.crx__
+**api.t.qq.com/asyn/mysidebar_n_new.php**
+www.gstatic.com/chrome/crlset/1445/crl-set-14121586793162109453.crx.data__
+
+Output completed (0 sec consumed) - Normal Termination
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;*号标记的url恰好是控制广告出现的文件。看了下请求时间，00：01。&lt;/p&gt;
+
+&lt;p&gt;这个结果，印证了以前的判断。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-04-10/json-result.png&quot; alt=&quot;json result&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;section-3&quot;&gt;原因分析&lt;/h1&gt;
+&lt;p&gt;mysidebar_n_new.php是一个JSONP，获取数据后将值传递给回调函数mySidebar，该函数负责将数据中的dom结构加载到相应的位置。&lt;/p&gt;
+
+&lt;p&gt;广告位是app_ad和app_ad3_1。这里广告的逻辑是这样的，腾讯微博这边只输出dom结构，然后引用广告平台的一段js来填入内容。&lt;/p&gt;
+
+&lt;p&gt;而这里的app_ad和app_ad3_1，不管页面逻辑如下，强行将dom结构替换，替换的同时没有去请求广告平台的js，导致有位置没内容，就出现了空白。&lt;/p&gt;
+
+&lt;h1 id=&quot;section-4&quot;&gt;解决方案&lt;/h1&gt;
+&lt;p&gt;确定了原因是晚上0点加载了mysidebar_n_new.php但没有进行相应处理，那么可能的解决方案有以下几种：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;如果非必要，可以不加载吗？&lt;/p&gt;
+
+    &lt;p&gt;不可。跟开发该功能的同事确认，是为了解决特定问题而加载的。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;能否不进行ajax方式更新，而改为reload？&lt;/p&gt;
+
+    &lt;p&gt;不可。如果用户0点正在看，强制刷新会影响用户体验&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;更改mysidebar_n_new.php&lt;/p&gt;
+
+    &lt;p&gt;因为页面加载时也会请求这个文件，要改的话，需要判断加载的时间。不是一个优雅的解决方式。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;js在加载mysidebar_n_new.php时进行相应处理&lt;/p&gt;
+
+    &lt;p&gt;这种方式较好，解铃还需系铃人。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;section-5&quot;&gt;总结&lt;/h1&gt;
+&lt;p&gt;这件事情很简单，就是晚上0点加载了一个文件，但没有进行相应处理，引起了广告位空白。
+这使我想起一段话：&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;“蛮多复杂的事情呢，他又蛮简单，就象你在新兵连学的立正、稍息，那是最标准的。”&lt;/p&gt;
+
+  &lt;p&gt;“但是蛮多简单的事情后面呢，又蛮复杂，就象我刚才跟你一说，你连立正都找不到怎么回事了。”&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;这段话来自《士兵突击》团长王庆瑞。&lt;/p&gt;
+</description>
+                <link>http://username.github.io/2015/04/10/ad-position-disappear-in-midnight</link>
+                <guid>http://username.github.io/2015/04/10/ad-position-disappear-in-midnight</guid>
+                <pubDate>Fri, 10 Apr 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>Redis Tips -- Use Sorted Set To Storage A Dynamically Changing List</title>
+                <description>&lt;p&gt;When I was developing an instant messenger (IM) system, I found that high concurrency is an essential feature while numerous clients are online chatting simultaneously. Therefore I use Redis to cache data in order to release pressure on database.&lt;/p&gt;
+
+&lt;p&gt;A typical scene of IM is chatting with someone else, as shown in the following figure.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-04-09/im-dialog.jpg&quot; alt=&quot;chat with someone&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This conversion contains several messages , which are stored in database in ascending order of their timing. As is shown in the following table.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;+----+------------------+--------+---------------------+
+| id | content          | isread | pubtime             |
++----+------------------+--------+---------------------+
+|  1 | hello            |      1 | 2014-05-22 11:53:00 |
+|  2 | Hi!              |      1 | 2014-05-22 11:54:00 |
+|  3 | Nice to meet you |      1 | 2014-05-22 11:55:00 |
+|  4 | Me too           |      0 | 2014-05-22 11:56:00 |
++----+------------------+--------+---------------------+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The “isread” field represents whether the message is read by someone.
+# Store Data In A Key ?#
+The following figure shows how we use Redis as cache container.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-04-09/traditional-query.png&quot; alt=&quot;traditional query&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;When we need to retrieve some data , the first step is to check whether the data is in the cache container. If cache is hit, We get the data and return; If cache is missing , we query the data from database and store it in cache so that  we can get it faster next time.&lt;/p&gt;
+
+&lt;p&gt;We can store a conversion in a key, so we can get all the containing messages from cache in one attempt.&lt;/p&gt;
+
+&lt;p&gt;But this method has several disadvantages:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;When a new message arrives, the cache has to be refreshed to add latest message.&lt;/li&gt;
+  &lt;li&gt;When a message is set to Already Read status, the cache has to be destroyed to keep accuracy.&lt;/li&gt;
+  &lt;li&gt;When a message is deleted by its owner, the cache has to be refreshed again to remove that item.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The main reason for these disadvantages is that a conversion is a dynamically changing list. Each change will cause the cache out of date.&lt;/p&gt;
+
+&lt;h1 id=&quot;store-list-in-sorted-set&quot;&gt;Store List In Sorted Set&lt;/h1&gt;
+
+&lt;p&gt;What Sorted Set is ? I quote the following content from Redis official website (&lt;a href=&quot;http://redis.io/topics/data-types#sorted-sets&quot; title=&quot;Redis-sorted-sets&quot;&gt;See this&lt;/a&gt;):&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Redis Sorted Sets are, similarly to Redis Sets, non repeating collections of Strings. The difference is that every member of a Sorted Set is associated with score, that is used in order to take the sorted set ordered, from the smallest to the greatest score. While members are unique, scores may be repeated.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;We can store Ids of each message as index, and store each message separately, as shown in the following figure.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-04-09/sorted-set-query.png&quot; alt=&quot;Store List In Sorted Set&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;We deal with each case as follows:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Send Message and Receive Message. Add Id of message into the cache.&lt;/li&gt;
+  &lt;li&gt;Delete Message. Remove Id of message from the cache.&lt;/li&gt;
+  &lt;li&gt;Set Message Read. Leave the cache unchanged and Edit the corresponding message’s cache.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;code-sample&quot;&gt;Code Sample&lt;/h1&gt;
+
+&lt;p&gt;Some Useful functions:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;//Add one or more members to a sorted set, or update its score if it already exists    
+function zAdd(key, score, member)
+
+//Return a range of members in a sorted set, by index
+function zRange(key, start, stop)	
+
+//Remove one or more members from a sorted set
+function zRem(key, member)
+
+//Set multiple keys to multiple values
+function mSet(key,value, ...)
+
+//Get the values of all the given keys
+function mGet(key, ...)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Store message Id as index, and its “pubtime” as score.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;pubtimestamp = strtotime(pubtime);
+zAdd(key,pubtimestamp,id);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Store messages with mSet Command:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mSet(key,value, ...);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Retrieve messages like this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;indexes = zRange(key, start, stop)
+msgs = mGet(indexes)
+&lt;/code&gt;&lt;/pre&gt;
+
+</description>
+                <link>http://username.github.io/2015/04/09/use-sorted-set-to-storage-dynamically-changing-list</link>
+                <guid>http://username.github.io/2015/04/09/use-sorted-set-to-storage-dynamically-changing-list</guid>
+                <pubDate>Thu, 09 Apr 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>Mysql Tips -- 检索每个分组的最后一条记录</title>
+                <description>&lt;p&gt;有这样一类问题：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;检索论坛中某一版块所有主题的最新一条帖子&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;查找所有会话中最新一条消息&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;查找一类商品的最新报价&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;这类问题的共同点是：需要按某个字段分组，且每组只能取一条记录；按某个字段倒序。&lt;/p&gt;
+
+&lt;p&gt;举例来说，有这样一个表：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql&amp;gt; select * from t_tmp;
++-----+---------+---------------------+
+| FId | FCityId | FUpdateTime         |
++-----+---------+---------------------+
+|   1 |       1 | 2014-10-10 00:00:00 |
+|   2 |       1 | 2014-10-11 00:00:00 |
+|   3 |       2 | 2014-10-10 10:00:00 |
++-----+---------+---------------------+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;表1&lt;/p&gt;
+
+&lt;p&gt;希望从中找出每个FCityId的最新更新记录，即筛选出这样的结果：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;+-----+---------+---------------------+
+| FId | FCityId | FUpdateTime         |
++-----+---------+---------------------+
+|   2 |       1 | 2014-10-11 00:00:00 |
+|   3 |       2 | 2014-10-10 10:00:00 |
++-----+---------+---------------------+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;表2&lt;/p&gt;
+
+&lt;h1 id=&quot;group-by&quot;&gt;Group By&lt;/h1&gt;
+&lt;p&gt;Po主最开始的方法是用group by（So Easy！）&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;select * from t_tmp group by FCityId order by FUpdateTime desc;` 结果却是错误的！
+
++-----+---------+---------------------+
+| FId | FCityId | FUpdateTime         |
++-----+---------+---------------------+
+|   3 |       2 | 2014-10-10 10:00:00 |
+|   1 |       1 | 2014-10-10 00:00:00 |
++-----+---------+---------------------+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;表3&lt;/p&gt;
+
+&lt;p&gt;其原因是：Group By 要先于 Order By执行。Group By执行分组之后，记录中只剩下1和3了：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql&amp;gt; SELECT * FROM t_tmp GROUP BY FCityId LIMIT 0 , 30;
++-----+---------+---------------------+
+| FId | FCityId | FUpdateTime         |
++-----+---------+---------------------+
+|   1 |       1 | 2014-10-10 00:00:00 |
+|   3 |       2 | 2014-10-10 10:00:00 |
++-----+---------+---------------------+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;表4&lt;/p&gt;
+
+&lt;p&gt;然后执行Order By，就变成了图3的结果。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;TIPS：执行顺序 Where &amp;gt; Group By &amp;gt; Order By&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h1 id=&quot;sub-select&quot;&gt;SUB SELECT&lt;/h1&gt;
+&lt;p&gt;很自然的一个解决方法就是：既然Group By先于Order By改变结果，那么就在Group By之前纠正结果。方法是子查询。
+如表4，Group By从头到尾扫一遍，留下了第1和第3两条记录。如果从尾到头扫一遍，就留下3和2两条记录。然后执行Order By，就能得到期望的结果。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql&amp;gt; SELECT * FROM (SELECT * FROM t_tmp ORDER BY FUpdateTime DESC)tmptable GROUP BY FCityId ORDER BY FUpdateTime DESC;
++-----+---------+---------------------+
+| FId | FCityId | FUpdateTime         |
++-----+---------+---------------------+
+|   2 |       1 | 2014-10-11 00:00:00 |
+|   3 |       2 | 2014-10-10 10:00:00 |
++-----+---------+---------------------+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;表5&lt;/p&gt;
+
+&lt;p&gt;但子查询执行效率不高，容易形成慢SQL。&lt;/p&gt;
+
+&lt;h1 id=&quot;left-join&quot;&gt;LEFT JOIN&lt;/h1&gt;
+&lt;p&gt;再分析整个问题，其中蕴含着组内FId从大到小排列的条件，这种表内字段的自我比较，可以用JOIN命令来做。&lt;/p&gt;
+
+&lt;p&gt;如图：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-04-03/mysql_join.png&quot; alt=&quot;Mysql Join&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;我们可以用LEFT JOIN去掉部分记录（即FId不按从大到小排列的记录）：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql&amp;gt; SELECT m1. * FROM t_tmp m1 LEFT JOIN t_tmp m2 ON ( m1.FCityId = m2.FCity
+Id AND m1.FId &amp;lt; m2.FId )  WHERE m2.FId IS NULL ORDER BY FUpdateTime DESC LIMIT 0
+, 30;
++-----+---------+---------------------+
+| FId | FCityId | FUpdateTime         |
++-----+---------+---------------------+
+|   2 |       1 | 2014-10-11 00:00:00 |
+|   3 |       2 | 2014-10-10 10:00:00 |
++-----+---------+---------------------+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;表6&lt;/p&gt;
+
+&lt;h1 id=&quot;section&quot;&gt;通用方法&lt;/h1&gt;
+&lt;p&gt;经过以上的讨论，可以形成此类问题的较为通用的方法。&lt;/p&gt;
+
+&lt;p&gt;直观但低效的方法：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;select * from (select * from messages ORDER BY id DESC) AS x GROUP BY name
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;难懂但高效的方法：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;SELECT m1.*
+FROM messages m1 LEFT JOIN messages m2
+ 	ON (m1.name = m2.name AND m1.id &amp;lt; m2.id)
+WHERE m2.id IS NULL;
+&lt;/code&gt;&lt;/pre&gt;
+
+</description>
+                <link>http://username.github.io/2015/04/03/retrieve-the-last-record-in-each-group</link>
+                <guid>http://username.github.io/2015/04/03/retrieve-the-last-record-in-each-group</guid>
+                <pubDate>Fri, 03 Apr 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>Office 输入URL时单词中间出现长空格的解决办法</title>
+                <description>&lt;p&gt;Office在输入英文长单词时，默认不会从中间断开换行，这是很好的功能。但输入URL时也不会换行，导致出现“长空格”，如下图所示：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-03-17/big_space.png&quot; alt=&quot;换行导致出现长空格&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;这时，可以选中文字，进入“段落”=&amp;gt;“中文版式”，将”允许西文在单词中间换行”项打勾即可。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-03-17/duanluo_checked.png&quot; alt=&quot;勾选允许西文在单词中间换行&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;最终结果是，“长空格”不见了，文字变得紧凑。
+&lt;img src=&quot;http://spetacular.github.io/images/2015-03-17/no_big_space.png&quot; alt=&quot;去掉“长空格”&quot; /&gt;&lt;/p&gt;
+</description>
+                <link>http://username.github.io/2015/03/17/office-url-not-break</link>
+                <guid>http://username.github.io/2015/03/17/office-url-not-break</guid>
+                <pubDate>Tue, 17 Mar 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>Mysql Tips -- 合理利用查询缓存优化查询效率</title>
+                <description>&lt;p&gt;最近开发会员中心项目，遇到多表查询的问题，发现响应极慢，就动手查下原因，并进行一些优化。先说下成果吧，由6-7秒降到200ms以下。
+吃公鸡下的蛋之前，走道是这样的：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-03-08/before-optimization.png&quot; alt=&quot;before optimization&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;图1&lt;/p&gt;
+
+&lt;p&gt;吃完了之后，那家伙，再看，就成了这样：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-03-08/after-optimization.png&quot; alt=&quot;after optimization&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;图2&lt;/p&gt;
+
+&lt;p&gt;降到还可以接受的范围了。&lt;/p&gt;
+
+&lt;h1 id=&quot;section&quot;&gt;问题&lt;/h1&gt;
+&lt;p&gt;我在review代码和需求时，发现用户列表页访问很慢。该页面根据图3中的查询条件，筛选出符合条件的用户记录，每页显示15条记录，显示如图4所示。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-03-08/filter-conditions.png&quot; alt=&quot;filter conditions&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;图3&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-03-08/query-result.png&quot; alt=&quot;query result&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;图4&lt;/p&gt;
+
+&lt;p&gt;看下数据表的规模：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;select count(*) from t_uc_user;
++----------+
+| count(*) |
++----------+
+|  2001935 | 
++----------+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;200万条记录。&lt;/p&gt;
+
+&lt;h1 id=&quot;section-1&quot;&gt;定位问题&lt;/h1&gt;
+&lt;p&gt;听前辈说，解决查询问题的瓶颈，最重要的是查出瓶颈在哪。我深以为然，所以第一步就是把SQL打印出来。
+我发现的可疑点有：&lt;/p&gt;
+
+&lt;p&gt;1） 其中好几条SQL都是包含正则表达式的查询，耗时长达2秒以上。标记一下，稍后优化。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;select count(*) as num from t_uc_search_101_user where (((FStatus=&#39;1&#39;))) and ((((concat(&#39;|&#39;,FBusinessInfo, &#39;|&#39;) regexp &#39;\\|1_[[:alnum:]]*_[[:alnum:]]*_[[:alnum:]]*_[[:alnum:]]*\\|&#39;)))) and ((((concat(&#39;|&#39;,FAttributeInfo, &#39;|&#39;) regexp &#39;\\|1_-1_[[:alnum:]]*\\|&#39;))));
++-----+
+| num |
++-----+
+| 3   | 
++-----+
+1 row in set (2.18 sec)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;2） 有至少三条count(*)查询，看下存储引擎，如果是Innodb，可以考虑用MYISAM。结果是MYISAM，此路不通。&lt;/p&gt;
+
+&lt;p&gt;3） 重复执行相同的SQL语句。这些SQL语句的功能是根据查询到的用户记录ID，去取用户的详细信息。以每页15条来看，可以减少15次查询。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;select * from t_uc_records_101 where ( (FId=&#39;5878970&#39;) OR (FId=&#39;5878969&#39;) OR (FId=&#39;5880317&#39;) ) AND FStatus!=-1
+select * from t_uc_records_101 where ( (FId=&#39;5878970&#39;) OR (FId=&#39;5878969&#39;) OR (FId=&#39;5880317&#39;) ) AND FStatus!=-1
+select * from t_uc_records_101 where ( (FId=&#39;5877911&#39;) ) AND FStatus!=-1
+select * from t_uc_records_101 where ( (FId=&#39;5877911&#39;) ) AND FStatus!=-1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;4） 最大的问题是，每次以相同的查询条件加载，耗时好像没有减少。难道Mysql没有查询缓存吗？&lt;/p&gt;
+
+&lt;h1 id=&quot;section-2&quot;&gt;解决问题&lt;/h1&gt;
+
+&lt;p&gt;合理利用缓存技术，能提高网页访问速度。即便最终没能解决SQL语句的优化，也能在第二次加载时提高速度，带来良好体验。&lt;/p&gt;
+
+&lt;p&gt;1） 查询缓存是否开启？&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql&amp;gt; select @@query_cache_type;
++--------------------+
+| @@query_cache_type |
++--------------------+
+| ON                 | 
++--------------------+
+1 row in set (0.01 sec)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;已开启。&lt;/p&gt;
+
+&lt;p&gt;2） 查询缓存是否可用？&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql&amp;gt; show variables like &#39;have_query_cache&#39;;
++------------------+-------+
+| Variable_name    | Value |
++------------------+-------+
+| have_query_cache | YES   | 
++------------------+-------+
+1 row in set (0.01 sec)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;可用。&lt;/p&gt;
+
+&lt;p&gt;3） 查询缓存大小？&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql&amp;gt; select @@global.query_cache_size;
++---------------------------+
+| @@global.query_cache_size |
++---------------------------+
+|                         0 | 
++---------------------------+
+1 row in set (0.00 sec)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;分配给查询缓存内存为0，就是没分配。  没有任何效果。&lt;/p&gt;
+
+&lt;p&gt;4） 设置查询缓存大小。大约10M，不够以后再加。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql&amp;gt; set @@global.query_cache_size=10000000;
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;完成这些以后，发现第一次访问速度还是龟速。再刷新，就瞬间加载了。&lt;/p&gt;
+
+&lt;h1 id=&quot;section-3&quot;&gt;结论&lt;/h1&gt;
+&lt;p&gt;利用查询缓存来优化查询，能将访问速度减少到200ms以下，能满足当前需求。但是最终的解决之道是对耗时较多、冗余的SQL语句进行优化。
+所以，革命尚未成功，同志仍需努力！&lt;/p&gt;
+</description>
+                <link>http://username.github.io/2015/03/08/use-mysql-query-cache</link>
+                <guid>http://username.github.io/2015/03/08/use-mysql-query-cache</guid>
+                <pubDate>Sun, 08 Mar 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>Mysql Tips -- 显示执行SQL耗时，精确到毫秒</title>
+                <description>&lt;p&gt;MySQL执行一个SQL语句时，执行时间精确到秒。如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql&amp;gt; select * from test
++----+-------+
+| id | name  |
++----+-------+
+|  1 | david |
++----+-------+
+1 row in set (0.00 sec)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如何精确到毫秒呢？MySQL有个内置语句&lt;a href=&quot;http://dev.mysql.com/doc/refman/5.5/en/show-profile.html&quot; title=&quot;(show profile)&quot;&gt;(show profile)&lt;/a&gt;可以查看执行耗时。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql&amp;gt; set profiling=1;
+Query OK, 0 rows affected (0.00 sec)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然后执行查询语句。
+使用show profiles就可以看到执行时间了。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql&amp;gt; show profiles;
++----------+------------+--------------------+
+| Query_ID | Duration   | Query              |
++----------+------------+--------------------+
+|        1 | 0.00034500 | select * from test |
++----------+------------+--------------------+
+1 row in set (0.04 sec)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Duration就是该SQL的执行时间，将其乘以1000就是毫秒数了。&lt;/p&gt;
+</description>
+                <link>http://username.github.io/2015/02/27/mysql-show-profiles-get-execute-time</link>
+                <guid>http://username.github.io/2015/02/27/mysql-show-profiles-get-execute-time</guid>
+                <pubDate>Fri, 27 Feb 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>HTTP 416错误与断点续传</title>
+                <description>&lt;p&gt;看房团 App 1.8.2更新版本时，偶然发现无法从1.8.1升级到1.8.2，于是探究一番，发现大有深意。&lt;/p&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;问题&lt;/h2&gt;
+&lt;p&gt;升级，无非是下载新版软件包，再进行安装。无法更新，最直接的反应是下载链接是不是404了？&lt;/p&gt;
+
+&lt;p&gt;那抓下包吧。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-01-30/fiddler-session.jpg&quot; alt=&quot;fiddler抓包记录&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;出人意料的416。&lt;/p&gt;
+
+&lt;p&gt;把地址放到浏览器中，能成功下载；传到手机上，也能安装。说明不是下载链接的问题。&lt;/p&gt;
+
+&lt;p&gt;先看下HTTP 416错误代表什么吧？&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;所请求的范围无法满足 (Requested Range not satisfiable)&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;看了不明觉厉，因为从没遇见过。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;探索&lt;/h2&gt;
+&lt;p&gt;问了下客户端的同学，发现下载使用的是HttpURLConnection，于是Google一下，得到一些关键信息：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;HTTP response code: 416是由于读取文件时设置的Range有误造成的，具体的说就是下面这行代码有误：
+httpConnection.setRequestProperty(&quot;RANGE&quot;, &quot;bytes=1024-&quot;);
+这个RANGE显然不能超出文件的size
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;而客户端设置的RANGE为文件大小。&lt;/p&gt;
+
+&lt;p&gt;试想，文件存在远程服务器上，如何知道文件大小？&lt;/p&gt;
+
+&lt;p&gt;至少要发起两次请求。第一次请求，不需要下载整个文件，只需要获得Response的Content-Length大小；第二次请求，将Content-Length值写进RANGE，实现下载。&lt;/p&gt;
+
+&lt;p&gt;看第一次请求时，发现如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-01-30/range-bytes-zero.png&quot; alt=&quot;range bytes=0&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;这是罪魁祸首！&lt;/p&gt;
+
+&lt;p&gt;为了验证，将Range去掉，再构造请求，一切OK。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-01-30/remove-range.jpg&quot; alt=&quot;去掉Range&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;section-2&quot;&gt;结论&lt;/h2&gt;
+&lt;p&gt;造成返回码416的原因，是设置的Range有误。解决办法也很简单，将第一次请求时的Range去掉。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;   //删掉之后，整个世界都清净了！
+   conn.setRequestProperty(&quot;Range&quot;, &quot;bytes=&quot; + startPosition);// startPosition=0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;section-3&quot;&gt;启示&lt;/h2&gt;
+&lt;p&gt;解决bug并不难，难的是版本已发，鞭长莫及。这时我想到的解决办法是：用其它链接替换，或服务器做一个中转。但前者需要更换CDN提供商，后者需要接入层服务器的支持，都没有着眼于问题的本质。&lt;/p&gt;
+
+&lt;p&gt;问题的本质是，无论CDN服务器支持与否，客户端请求的方式都存在不足之处，在下一个版本中修正即可。而且从报表上看，用户自发地通过其它途径升级到了最新版本！&lt;/p&gt;
+
+&lt;p&gt;程序员感叹：不要试图用代码解决所有问题。&lt;/p&gt;
+
+&lt;p&gt;讨论
+下载地址是CDN地址，莫非CDN不支持断点续传？&lt;/p&gt;
+
+&lt;p&gt;恰好相反，416正是支持断点续传的标志。服务器得到一个Range之后，需要对它的取值进行检验，包括：&lt;/p&gt;
+
+&lt;p&gt;开始位置非负&lt;/p&gt;
+
+&lt;p&gt;结束位置需要大于开始位置&lt;/p&gt;
+
+&lt;p&gt;开始位置需要小于文件长度减一 (因为这里的位置索引是从0开始的)&lt;/p&gt;
+
+&lt;p&gt;若结束位置大于文件长度减一，则需要把它的值设置为文件长度减一&lt;/p&gt;
+
+&lt;p&gt;如果Range的取值不合法，则需要终止程序并告知浏览器：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    header(&#39;HTTP/1.1 416 Requested Range Not Satisfiable&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;在本文的例子中，CDN服务器尽职尽责地告诉客户端，你的请求错了！&lt;/p&gt;
+
+&lt;p&gt;CDN服务器没有错，但可以采用稍微柔性的处理方法。Range为0，可以啊，就从头开始下载吧。&lt;/p&gt;
+
+&lt;p&gt;七牛云存储就是这么干的。&lt;/p&gt;
+
+&lt;p&gt;PS：别问我最后一句是怎么来的，七牛给过我一顶太阳帽^_^。&lt;/p&gt;
+
+&lt;p&gt;参考网址：&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.checkupdown.com/status/E416_cn.html&quot;&gt;http://www.checkupdown.com/status/E416_cn.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://blog.csdn.net/zollty/article/details/9176829&quot;&gt;http://blog.csdn.net/zollty/article/details/9176829&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.pureweber.com/article/resumable-download/&quot;&gt;http://www.pureweber.com/article/resumable-download/&lt;/a&gt;&lt;/p&gt;
+</description>
+                <link>http://username.github.io/2015/01/30/http-code-416-and-download</link>
+                <guid>http://username.github.io/2015/01/30/http-code-416-and-download</guid>
+                <pubDate>Fri, 30 Jan 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>鼠标无法拖放的解决办法</title>
+                <description>&lt;p&gt;话说fiddler有个强大的功能，就是把Session请求拖到Composer里，很方便地构造请求。我偶然发现不能拖放了。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-01-29/fiddler-drag-to-composer.png&quot; alt=&quot;拖放&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;刚开始以为fiddler的bug，于是找了N多新旧版本，试了还是不行。后来发现不但fiddler不能拖放，连文件都不能拖放了。那就是系统的配置问题了。&lt;/p&gt;
+
+&lt;p&gt;最终的解决办法是：&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;按两下esc键&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;奇迹般地好了！
+原因不明，如果网友刚好也遇到这样的问题，不妨一试。&lt;/p&gt;
+</description>
+                <link>http://username.github.io/2015/01/29/fiddler-can-not-drag-session-to-composer</link>
+                <guid>http://username.github.io/2015/01/29/fiddler-can-not-drag-session-to-composer</guid>
+                <pubDate>Thu, 29 Jan 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>cgi与fastcgi的区别</title>
+                <description>&lt;p&gt;青石街有两个卖烧饼的，王大与李二。&lt;/p&gt;
+
+&lt;p&gt;顾客很少。&lt;/p&gt;
+
+&lt;p&gt;王大很闲。每次有顾客，王大就生火、和面、擀饼、下炉、出锅。不出一会儿，热腾腾的烧饼就送到顾客面前。顾客走后，王大就收拾炉子，熄火休息。&lt;/p&gt;
+
+&lt;p&gt;李二却很忙。每天早晨，李二就生火、和面，等着顾客上门。白天里，顾客来，李二就擀饼、下炉、出锅，然后等下一位顾客。直到夜幕降临，李二才打烊。&lt;/p&gt;
+
+&lt;p&gt;后来青石街城镇化 ，人多起来，买烧饼的人也多了。&lt;/p&gt;
+
+&lt;p&gt;王大很忙。每个顾客来，都要生火、和面、熄火 ，不胜其烦；顾客的等待时间在延长，不满情绪在酝酿。&lt;/p&gt;
+
+&lt;p&gt;李二也很忙，不过还是和以前一样，不太累，顾客也满意。&lt;/p&gt;
+
+&lt;p&gt;故事很傻，勿喷啊，讲的是cgi与fastcgi的区别。&lt;/p&gt;
+
+&lt;p&gt;cgi像王大。每次请求，web服务器都会根据请求的内容，fork一个新进程来运行外部程序或解释器， 这个进程会把处理完的数据返回给web服务器，最后web服务器把内容发送给用户，刚才fork的进程也随之退出。 如果下次用户还请求该动态脚本，那么web服务器又再次fork一个新进程，周而复始的进行。&lt;/p&gt;
+
+&lt;p&gt;fastcgi像李二。web服务器启动时，就开启一个进程来等待请求。收到一个请求时，不会重新fork一个进程（因为这个进程在web服务器启动时就开启了，而且不会退出），web服务器直接把内容传递给这个进程（进程间通信，但fastcgi使用了别的方式，tcp方式通信），这个进程收到请求后进行处理，把结果返回给web服务器，最后自己接着等待下一个请求的到来，而不是退出。&lt;/p&gt;
+
+&lt;p&gt;总结一下：&lt;/p&gt;
+
+&lt;p&gt;在web服务器方面&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;cgi：fork一个新的进程进行处理&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;fastcgi：用tcp方式跟远程机子上的进程或本地进程建立连接&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;在对数据进行处理的进程方面&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;cgi：读取参数，处理数据，然后就结束生命期&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;fastcgi： 要开启tcp端口，进入循环，等待数据的到来，处理数据&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;参考资料：http://www.cnblogs.com/jamesbd/p/3567682.html&lt;/p&gt;
+</description>
+                <link>http://username.github.io/2015/01/25/cgi-and-fastcgi</link>
+                <guid>http://username.github.io/2015/01/25/cgi-and-fastcgi</guid>
+                <pubDate>Sun, 25 Jan 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>Javascript整型数字精度限制</title>
+                <description>&lt;p&gt;在做一个项目时，需要生成一个长整数Id，生成函数如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;`$Id = date(&#39;YmdHis&#39;) . rand(1, 100000);`
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;按照时间加随机数的形式，可以直观地看到这个Id是何时生成的。&lt;/p&gt;
+
+&lt;p&gt;这样，我用PHP生成了这样一个数&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$id = &#39;2014112010185143423&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然后将值传给JS变量&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;var id = &amp;lt;?php echo $id;?&amp;gt;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;但是在使用时，发现id竟然变了。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-01-20/js_int_lose.png&quot; alt=&quot;精度丢失&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;猜想可能是溢出，把dialogid给换成字符串，一切就OK了。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;var id = &#39;&amp;lt;?php echo $id;?&amp;gt;&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-01-20/js_string_int.png&quot; alt=&quot;用字符串处理&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;为啥动了我的数？&lt;/h2&gt;
+&lt;p&gt;原来JS采用IEEE 754定义的双精度浮点数。当有效位数超过 52 位时，会存在精度丢失。&lt;/p&gt;
+
+&lt;p&gt;IEEE 754表示的64位双精度数据的格式如下，其中52位的Significand是无符号整数。你可以将Significand左移或右移，移动的位数保存在Exponent里，11位可以表示+(2^10 -1) ~ -(2^10 -1)的范围。Sign表示正负。&lt;/p&gt;
+
+&lt;table border=&quot;1&quot;&gt;
+    &lt;tr&gt;
+        &lt;th&gt;Total&lt;/th&gt;&lt;th&gt;bits&lt;/th&gt;&lt;th&gt;Exponent&lt;/th&gt;&lt;th&gt;Significand&lt;/th&gt;
+ 	&lt;/tr&gt;
+ 	&lt;tr&gt;
+		&lt;td&gt;64&lt;/td&gt;&lt;td&gt;1&lt;/td&gt;&lt;td&gt;11&lt;/td&gt;&lt;td&gt;52&lt;/td&gt;
+    &lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;p&gt;这就是说，当Exponent起作用时，精度会丢失。即：
+左移时，数字末位补零；
+右移时，数字末位丢失。&lt;/p&gt;
+
+&lt;p&gt;回到前面提到的数字Id，数字大于2^53-1，表示该数时，相当于将Significand左移，只能将末位补零。&lt;/p&gt;
+
+&lt;p&gt;另外，js的Number提供了最大无误差的数字：&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Number.MAX_SAFE_INTEGER is 9007199254740991 (2^53−1).&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;参考资料：&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://blog.vjeux.com/2010/javascript/javascript-max_int-number-limits.html&quot;&gt;http://blog.vjeux.com/2010/javascript/javascript-max_int-number-limits.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://lifesinger.wordpress.com/2011/03/07/js-precision/&quot;&gt;http://lifesinger.wordpress.com/2011/03/07/js-precision/&lt;/a&gt;&lt;/p&gt;
+</description>
+                <link>http://username.github.io/2015/01/20/js-int-limit</link>
+                <guid>http://username.github.io/2015/01/20/js-int-limit</guid>
+                <pubDate>Tue, 20 Jan 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>强大的弱关系</title>
+                <description>&lt;p&gt;今天看 TED &lt;a href=&quot;http://www.ted.com/talks/meg_jay_why_30_is_not_the_new_20&quot; title=&quot;Why 30 is not the new 20&quot;&gt;Why 30 is not the new 20&lt;/a&gt; 时，看到三条很有意义的话：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Get some identity capital&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Use your weak ties&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;Pick your family&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;对于第二条，演讲者Meg Jay说到，很多人靠私人联系找到工作。奇怪的是，这些私人联系更多的是熟人，而非亲近的朋友。&lt;/p&gt;
+
+&lt;p&gt;搜了下“weak ties”，发现美国康乃尔大学有这样的研究，并有本书（&lt;a href=&quot;http://www.cs.cornell.edu/home/kleinber/networks-book/&quot; title=&quot;Networks, Crowds, and Markets:  Reasoning About a Highly Connected World&quot;&gt;Networks, Crowds, and Markets:  Reasoning About a Highly Connected World&lt;/a&gt;）。其中第三章讲了Weak Ties（&lt;a href=&quot;http://www.cs.cornell.edu/home/kleinber/networks-book/networks-book-ch03.pdf&quot; title=&quot;Chapter 3 Strong and Weak Ties&quot;&gt;Chapter 3 Strong and Weak Ties&lt;/a&gt;），看懂一些，分享出来跟大家讨论一下。&lt;/p&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;强弱关系&lt;/h2&gt;
+&lt;p&gt;社交网络中，每个人都是网络的节点，人与人之间的关系构成网络的边。
+在下图中，A认识B和C，A和B、A和C之间为强关系。B和C很可能会认识，形成弱关系。形象地说，强弱关系的区别如同朋友/熟人。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://omiga-wordpress.stor.sinaapp.com/uploads/strong_and_weak_ties.jpg&quot; alt=&quot;强关系与弱关系，来自维基百科&quot; /&gt;&lt;/p&gt;
+&lt;center&gt;图1&lt;/center&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;三元闭合&lt;/h2&gt;
+&lt;p&gt;在图1中，“B和C很可能会认识”。直觉上，人们会把朋友介绍给另一个朋友。其实可以利用概率的知识简单说明。
+如下图，黑线代表每天的24小时。一天之内，A和B有接触时间（红色），A和C也有接触时间（黄色）。如果接触时间重合，就代表B和C遇见了，就有可能认识。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://omiga-wordpress.stor.sinaapp.com/uploads/san_yuan_gailv.jpg&quot; alt=&quot;相遇概率&quot; /&gt;&lt;/p&gt;
+&lt;center&gt;图2&lt;/center&gt;
+
+&lt;p&gt;这种现象就是三元闭合（Triadic Closure）。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://omiga-wordpress.stor.sinaapp.com/uploads/Triadic%20Closure.jpg&quot; alt=&quot;三元闭合&quot; /&gt;&lt;/p&gt;
+&lt;center&gt;图3&lt;/center&gt;
+
+&lt;h2 id=&quot;section-2&quot;&gt;桥&lt;/h2&gt;
+&lt;p&gt;常常有这种情况：你认识了一个人，然后他将你带入一个新的朋友圈。这个人就是“桥”。在下图中，B是A的桥。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://omiga-wordpress.stor.sinaapp.com/uploads/what_is_weak_ties.jpg&quot; alt=&quot;桥&quot; /&gt;&lt;/p&gt;
+&lt;center&gt;图4&lt;/center&gt;
+
+&lt;h2 id=&quot;section-3&quot;&gt;弱关系的意义&lt;/h2&gt;
+&lt;p&gt;好机会总是稀少的。在图4中，如果A想获得新信息，那么机会很可能来自于由B“桥”连接的未知朋友圈。尽管A的亲密朋友很乐意帮忙，但可能他们知道的信息和A本人差不多。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-4&quot;&gt;启示&lt;/h2&gt;
+&lt;ol&gt;
+  &lt;li&gt;利用弱关系&lt;/li&gt;
+  &lt;li&gt;建立自己的弱关系网络&lt;/li&gt;
+  &lt;li&gt;倾听他们的声音&lt;/li&gt;
+  &lt;li&gt;帮助他们解决问题&lt;/li&gt;
+  &lt;li&gt;请求他们的帮助&lt;/li&gt;
+  &lt;li&gt;结识新朋友，不忘老朋友&lt;/li&gt;
+  &lt;li&gt;壮大自己，争取做“桥”&lt;/li&gt;
+&lt;/ol&gt;
+
+</description>
+                <link>http://username.github.io/2015/01/14/strong-weak-ties</link>
+                <guid>http://username.github.io/2015/01/14/strong-weak-ties</guid>
+                <pubDate>Wed, 14 Jan 2015 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>Coding Tips -- Compare The Version Numbers Between Two Releases</title>
+                <description>&lt;p&gt;Given two version numbers, How to check which release is newer ? For example:&lt;/p&gt;
+
+&lt;p&gt;1.1 is newer than 1.0 (1.1 &amp;gt; 1.0);&lt;/p&gt;
+
+&lt;p&gt;1.0.0 is equal to 1.0(1.0.0 = 1.0);&lt;/p&gt;
+
+&lt;p&gt;0.9 is older than 1.0(0.9 &amp;lt; 1.0).&lt;/p&gt;
+
+&lt;p&gt;Function implement is as below:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/**
+* Compare two versions.
+* @param string $newVersion
+* @param string $oldVersion
+* @return int. 1 represents &#39;&amp;gt;&#39;,0 represents &#39;=&#39;,-1 represents &#39;&amp;lt;&#39;
+*/
+function versionCompare($newVersion,$oldVersion)
+{
+    $newArray = explode(&quot;.&quot;,$newVersion);
+    $oldArray = explode(&quot;.&quot;,$oldVersion);
+    do{
+        $v1 = array_shift($newArray);
+        $v2 = array_shift($oldArray);
+        if($v1 == NULL){
+            $v1 = 0;
+        }
+
+        if($v2 == NULL){
+            $v2 = 0;
+        }
+        if($v1 &amp;gt; $v2){
+            return 1;
+        }else if($v1 &amp;lt; $v2){
+            return -1;
+        }
+    }while(count($newArray) &amp;gt; 0 || count($oldArray) &amp;gt; 0);
+
+    return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Test Cases is as below:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;var_dump(versionCompare(&#39;&#39;,&#39;&#39;));		// =	
+var_dump(versionCompare(&#39;1.0&#39;,&#39;1.0&#39;));		// =
+var_dump(versionCompare(&#39;1.1&#39;,&#39;1.0&#39;)); 		// &amp;gt;
+var_dump(versionCompare(&#39;0.9&#39;,&#39;1.0&#39;));		// &amp;lt;
+var_dump(versionCompare(&#39;1.0.0&#39;,&#39;1.0&#39;));	// =
+var_dump(versionCompare(&#39;1.0.1&#39;,&#39;1.0&#39;));	// &amp;gt;
+var_dump(versionCompare(&#39;1.0.1&#39;,&#39;1.0.2&#39;));	// &amp;lt;
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+                <link>http://username.github.io/2014/12/20/version-compare-function</link>
+                <guid>http://username.github.io/2014/12/20/version-compare-function</guid>
+                <pubDate>Sat, 20 Dec 2014 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>腾讯云操作系统镜像使用方法</title>
+                <description>&lt;p&gt;最近一个项目部署在腾讯云服务器(http://www.qcloud.com/)上，在服务器配置时使用了操作系统镜像功能，感觉很赞。因此把使用方法记录下来，供需要的同事参考。
+为什么需要镜像功能
+写文档时，Ctrl C 加 Ctrl V，多方便啊。
+有需要多台服务器时，只要配置一台的各种软件及服务，其它的机器都复制过去，是不是也很省事啊？
+这就是镜像功能存在的意义。&lt;/p&gt;
+
+&lt;p&gt;使用流程
+先解释两个名词：
+1.	参考服务器。指用于制作镜像的机器，其配置将被复制到其它机器上。
+2.	目标服务器。指需要镜像的机器，将复杂参考服务器上的配置。&lt;/p&gt;
+
+&lt;p&gt;流程如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-21/work_flow.png&quot; alt=&quot;创建腾讯云操作系统镜像&quot; /&gt;&lt;/p&gt;
+&lt;center&gt;图1&lt;/center&gt;
+
+&lt;p&gt;1.配置参考服务器
+安装需要的软件，完成配置。
+2.制作参考服务器镜像
+这里需要注意两点：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;只对系统盘做镜像，数据盘需要另外处理。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;制作过程中需要关机，整个过程持续十几分钟。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;具体过程如下图所示。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-21/step_1_server_management.jpg&quot; alt=&quot;第一步：服务器管理，制作镜像&quot; /&gt;&lt;/p&gt;
+&lt;center&gt;图2&lt;/center&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-21/step_2_make_image.png&quot; alt=&quot;第二步：填写参数&quot; /&gt;&lt;/p&gt;
+&lt;center&gt;图3&lt;/center&gt;
+
+&lt;p&gt;制作镜像时，需要知道那个是系统盘：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# df -lh
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/vda1             7.9G  2.9G  4.6G  39% /
+udev                  7.9G  148K  7.9G   1% /dev
+/dev/vdb1             493G  245M  467G   1% /data
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;但没有图3中/dev/xvda。咨询后，得到如下信息：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/dev/xvda是xen虚拟化的系统盘
+/dev/vda是kvm虚拟化的系统盘
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这样系统盘就是/dev/vda1，而数据盘是/dev/vdb1&lt;/p&gt;
+
+&lt;p&gt;经过十几分钟，在镜像管理页面可以看到已制作的镜像。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-21/done.jpg&quot; alt=&quot;镜像列表&quot; /&gt;&lt;/p&gt;
+&lt;center&gt;图4&lt;/center&gt;
+
+&lt;p&gt;3.目标服务器重装操作系统&lt;/p&gt;
+
+&lt;p&gt;这里腾讯云有完整的教程，不再赘述。&lt;a href=&quot;http://wiki.qcloud.com/wiki/%E4%BA%91%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%AE%A1%E7%90%86#6._.E9.87.8D.E8.A3.85.E6.93.8D.E4.BD.9C.E7.B3.BB.E7.BB.9F&quot; title=&quot;目标服务器重装操作系统&quot;&gt;传送门&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;收尾工作&lt;/p&gt;
+
+&lt;p&gt;在目标服务器重装操作系统后，工作基本结束。不过如果服务器挂载了数据盘，还要做下最后的收尾工作。&lt;/p&gt;
+
+&lt;p&gt;使用命令“mkdir /mydata”创建mydata目录，再通过“mount /dev/xvdb1 /mydata”命令手动挂载新分区后，用“df -h”命令查看，出现以下信息说明挂载成功，即可以查看到数据盘了。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-21/show_df.png&quot; alt=&quot;挂载数据盘&quot; /&gt;&lt;/p&gt;
+&lt;center&gt;图5&lt;/center&gt;
+
+&lt;p&gt;至此，已成功将参考服务器的镜像复制到目标服务器，Enjoy。&lt;/p&gt;
+
+</description>
+                <link>http://username.github.io/2014/10/21/operation-system-image-in-tencent-cloud</link>
+                <guid>http://username.github.io/2014/10/21/operation-system-image-in-tencent-cloud</guid>
+                <pubDate>Tue, 21 Oct 2014 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>PHP扩展开发Demo</title>
+                <description>&lt;p&gt;为了深入学习PHP，就从一个简单的PHP扩展开始，了解一下制作过程。&lt;/p&gt;
+
+&lt;h1 id=&quot;section&quot;&gt;准备工作&lt;/h1&gt;
+&lt;p&gt;在制作PHP扩展之前，需要两个条件：&lt;/p&gt;
+
+&lt;p&gt;1.正常安装的PHP环境&lt;/p&gt;
+
+&lt;p&gt;2.PHP源码&lt;/p&gt;
+
+&lt;p&gt;这里我的PHP安装在/usr/local/php5.3.10目录，源码在/data/webdev/php-5.3.10&lt;/p&gt;
+
+&lt;h1 id=&quot;section-1&quot;&gt;生成扩展基本框架&lt;/h1&gt;
+&lt;p&gt;运行以下命令：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;cd /data/webdev/php-5.3.10/ext
+./ext_skel helloyo
+vi helloyo/config.m4
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;编辑文件，&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;dnl PHP_ARG_ENABLE(helloyo, whether to enable helloyo support,
+dnl Make sure that the comment is aligned:
+dnl [  --enable-helloyo           Enable helloyo support])
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;其中dnl为注释，删掉dnl及第二行，最后的效果如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;PHP_ARG_ENABLE(helloyo, whether to enable helloyo support,
+[  --enable-helloyo           Enable helloyo support])
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;保存退出。
+# 编写C代码 #
+进入helloyo目录，用ls命令看下文件列表：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/data/webdev/php-5.3.10/ext/helloyo # ls
+config.m4  config.w32  CREDITS  EXPERIMENTAL  helloyo.c  helloyo.php  php_helloyo.h  .svnignore  tests
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;编辑php_helloyo.h，加入say_hello函数入口&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;vi php_helloyo.h
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-10/vi_php_helloyo.png&quot; alt=&quot;PHP扩展开发&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;编辑helloyo.c，需要修改两处内容&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;vi helloyo.c
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;1.为保证say_hello外部可以使用，需要加入在zend_function_entry helloyo_functions数组里加入一行：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;PHP_FE(say_hello,        NULL)           /* say hello to someone. */
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-10/helloyo_function.png&quot; alt=&quot;PHP扩展开发&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;2.需要实现say_hello函数。在文件末尾加入以下代码：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;PHP_FUNCTION(say_hello)
+{
+
+        char *arg = NULL;
+        int arg_len, len;
+        char *strg;
+
+        if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, &quot;s&quot;, &amp;amp;arg, &amp;amp;arg_len) == FAILURE) {
+                return;
+        }
+
+        len = spprintf(&amp;amp;strg, 0, &quot;Hello,%s!\n&quot;, arg);
+        RETURN_STRINGL(strg, len, 0);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;保存退出。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-10/say_hello_function.png&quot; alt=&quot;PHP扩展开发&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;section-2&quot;&gt;编译安装&lt;/h1&gt;
+&lt;p&gt;1.在helloyo目录下运行phpize命令。phpize命令用来为php扩展的构建环境作准备工作。php官方文档中的说明如下：&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;The phpize command is used to prepare the build environment for a PHP extension.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;/data/webdev/php-5.3.10/ext/helloyo # /usr/local/php5.3.10/bin/phpize   
+Configuring for:   
+PHP Api Version:         20090626  
+Zend Module Api No:      20090626  
+Zend Extension Api No:   220090626  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;完成后，目录下会生成configure文件：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-10/helloyo_ls.png&quot; alt=&quot;PHP扩展开发&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;2.然后运行如下命令&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;./configure --with-php-config=/usr/local/php5.3.10/bin/php-config
+make
+make test
+make install
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这样就会生成扩展helloyo.so了。其中helloyo.so的生成目录如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/data/webdev/php-5.3.10/ext/helloyo # make install
+Installing shared extensions:     /usr/local/php5.3.10/lib/php/extensions/no-debug-non-zts-20090626/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果不知道扩展目录，可以用phpinfo命令查看extension_dir路径，如下图所示：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-10/extension_dir.png&quot; alt=&quot;PHP扩展开发&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;3.编辑php.ini，将扩展加入进去&lt;/p&gt;
+
+&lt;p&gt;只要找到php.ini，在文件中加入一行配置即可：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;extension=helloyo.so
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;问题时，在某种情况下，目录中有多个php.ini存在，如下&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-10/find_php_ini.png&quot; alt=&quot;PHP扩展开发&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;这三个php.ini哪个才是真正的配置文件呢？&lt;br /&gt;
+挨个试~~~~ Good Idea！&lt;br /&gt;
+但是，可以用phpinfo来看，一目了然。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-10/php_info_path.png&quot; alt=&quot;PHP扩展开发&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;运行以下命令，编辑php.ini：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/usr/local/php5.3.10 # vi ./etc/php.ini
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;最终效果如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-10/add_php_extension.png&quot; alt=&quot;PHP扩展开发&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;section-3&quot;&gt;验证与运行&lt;/h1&gt;
+&lt;p&gt;1.模块是否加载&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/usr/local/php5.3.10 # ./bin/php –m
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;结果如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-10/php_show_modules.png&quot; alt=&quot;PHP扩展开发&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;可以看到helloyo已经被加载了。&lt;/p&gt;
+
+&lt;p&gt;2.cli命令行
+命令如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/usr/local/php5.3.10 # ./bin/php -r &quot;echo say_hello(&#39;davidyan&#39;);&quot;
+Hello,davidyan!
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;效果如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-10/php_cli.png&quot; alt=&quot;PHP扩展开发&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;3.cgi网页
+在网页内查看，需要重启apache。在phpinfo里可以看到模块已加载了。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-10/cgi_phpinfo.png&quot; alt=&quot;PHP扩展开发&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;再写一小段程序：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;public function ActionSayHello(){
+$name = $_GET[&#39;name&#39;];
+echo say_hello($name);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;访问sayhello?name=davidyan，结果如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-10/demo.png&quot; alt=&quot;PHP扩展开发&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;section-4&quot;&gt;小结&lt;/h1&gt;
+&lt;p&gt;通过step by step的操作，了解了php扩展的开发方法。由易而难，以后遇到扩展需要开发时，就知道从何下手了。&lt;/p&gt;
+</description>
+                <link>http://username.github.io/2014/10/10/php-extension-demo</link>
+                <guid>http://username.github.io/2014/10/10/php-extension-demo</guid>
+                <pubDate>Fri, 10 Oct 2014 00:00:00 +0800</pubDate>
+        </item>
+
+
+</channel>
+</rss>

@@ -1,0 +1,286 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7 ie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8 ie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9 ie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>HTTP 416错误与断点续传</title>
+	<meta name="author" content="David">
+	<link href='/assets/themes/the-program/css/style.css' rel="stylesheet" media="all">
+	<link href="http://feeds.feedburner.com/" rel="alternate" title="HTTP 416错误与断点续传" type="application/atom+xml">
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.0.6/modernizr.min.js"></script>
+</head>
+<body>
+
+<div id="page" class="hentry">
+	<header class="the-header">
+		<div class="unit-head">
+			<div class="unit-inner unit-head-inner">
+				<nav class="nav-global">
+					<ul>
+						<li class="logo"><a href="/">David's World</a></li>
+						<li class="archive"><a href="/archive.html">archive</a></li>
+						<li class="page"><a href="/pages.html">pages</a></li>
+						<li class="category"><a href="/categories.html">categories</a></li>
+						<li class="tag"><a href="/tags.html">tags</a></li>
+					</ul>
+				</nav>
+			</div><!-- unit-inner -->
+		</div><!-- unit-head -->
+	</header>
+	<div class="body" role="main">
+		<div class="unit-body">
+			<div class="unit-inner unit-body-inner">
+				<div class="entry-content">
+					
+<article class="unit-article layout-post">
+	<div class="unit-inner unit-article-inner">
+		<div class="content">
+			<header>
+				<div class="unit-head">
+					<div class="unit-inner unit-head-inner">
+						<h1 class="h2 entry-title">HTTP 416错误与断点续传</h1>
+					</div><!-- unit-inner -->
+				</div><!-- unit-head -->
+			</header>
+
+			<div class="bd">
+				<div class="entry-content">
+					<p>看房团 App 1.8.2更新版本时，偶然发现无法从1.8.1升级到1.8.2，于是探究一番，发现大有深意。</p>
+
+<h2 id="section">问题</h2>
+<p>升级，无非是下载新版软件包，再进行安装。无法更新，最直接的反应是下载链接是不是404了？</p>
+
+<p>那抓下包吧。</p>
+
+<p><img src="http://spetacular.github.io/images/2015-01-30/fiddler-session.jpg" alt="fiddler抓包记录" /></p>
+
+<p>出人意料的416。</p>
+
+<p>把地址放到浏览器中，能成功下载；传到手机上，也能安装。说明不是下载链接的问题。</p>
+
+<p>先看下HTTP 416错误代表什么吧？</p>
+
+<p><code>所请求的范围无法满足 (Requested Range not satisfiable)</code></p>
+
+<p>看了不明觉厉，因为从没遇见过。</p>
+
+<h2 id="section-1">探索</h2>
+<p>问了下客户端的同学，发现下载使用的是HttpURLConnection，于是Google一下，得到一些关键信息：</p>
+
+<pre><code>HTTP response code: 416是由于读取文件时设置的Range有误造成的，具体的说就是下面这行代码有误：
+httpConnection.setRequestProperty("RANGE", "bytes=1024-");
+这个RANGE显然不能超出文件的size
+</code></pre>
+
+<p>而客户端设置的RANGE为文件大小。</p>
+
+<p>试想，文件存在远程服务器上，如何知道文件大小？</p>
+
+<p>至少要发起两次请求。第一次请求，不需要下载整个文件，只需要获得Response的Content-Length大小；第二次请求，将Content-Length值写进RANGE，实现下载。</p>
+
+<p>看第一次请求时，发现如下：</p>
+
+<p><img src="http://spetacular.github.io/images/2015-01-30/range-bytes-zero.png" alt="range bytes=0" /></p>
+
+<p>这是罪魁祸首！</p>
+
+<p>为了验证，将Range去掉，再构造请求，一切OK。</p>
+
+<p><img src="http://spetacular.github.io/images/2015-01-30/remove-range.jpg" alt="去掉Range" /></p>
+
+<h2 id="section-2">结论</h2>
+<p>造成返回码416的原因，是设置的Range有误。解决办法也很简单，将第一次请求时的Range去掉。</p>
+
+<pre><code>   //删掉之后，整个世界都清净了！
+   conn.setRequestProperty("Range", "bytes=" + startPosition);// startPosition=0
+</code></pre>
+
+<h2 id="section-3">启示</h2>
+<p>解决bug并不难，难的是版本已发，鞭长莫及。这时我想到的解决办法是：用其它链接替换，或服务器做一个中转。但前者需要更换CDN提供商，后者需要接入层服务器的支持，都没有着眼于问题的本质。</p>
+
+<p>问题的本质是，无论CDN服务器支持与否，客户端请求的方式都存在不足之处，在下一个版本中修正即可。而且从报表上看，用户自发地通过其它途径升级到了最新版本！</p>
+
+<p>程序员感叹：不要试图用代码解决所有问题。</p>
+
+<p>讨论
+下载地址是CDN地址，莫非CDN不支持断点续传？</p>
+
+<p>恰好相反，416正是支持断点续传的标志。服务器得到一个Range之后，需要对它的取值进行检验，包括：</p>
+
+<p>开始位置非负</p>
+
+<p>结束位置需要大于开始位置</p>
+
+<p>开始位置需要小于文件长度减一 (因为这里的位置索引是从0开始的)</p>
+
+<p>若结束位置大于文件长度减一，则需要把它的值设置为文件长度减一</p>
+
+<p>如果Range的取值不合法，则需要终止程序并告知浏览器：</p>
+
+<pre><code>    header('HTTP/1.1 416 Requested Range Not Satisfiable');
+</code></pre>
+
+<p>在本文的例子中，CDN服务器尽职尽责地告诉客户端，你的请求错了！</p>
+
+<p>CDN服务器没有错，但可以采用稍微柔性的处理方法。Range为0，可以啊，就从头开始下载吧。</p>
+
+<p>七牛云存储就是这么干的。</p>
+
+<p>PS：别问我最后一句是怎么来的，七牛给过我一顶太阳帽^_^。</p>
+
+<p>参考网址：</p>
+
+<p><a href="http://www.checkupdown.com/status/E416_cn.html">http://www.checkupdown.com/status/E416_cn.html</a></p>
+
+<p><a href="http://blog.csdn.net/zollty/article/details/9176829">http://blog.csdn.net/zollty/article/details/9176829</a></p>
+
+<p><a href="http://www.pureweber.com/article/resumable-download/">http://www.pureweber.com/article/resumable-download/</a></p>
+
+					<div class="meta">
+						<p class="date-publish">
+							Published: 
+							<date class="date-pub" title="2015-01-30T00:00:00+08:00" datetime="2015-01-30T00:00:00+08:00" pubdate>
+							<span class="month"><abbr>January</abbr></span>
+							<span class="day">30</span>
+							<span class="year">2015</span>
+							</date>
+						</p>
+						<ul class="list-category list-linear">
+							<li class="list-head">category: </li>
+							
+							
+
+
+  
+    
+  
+
+
+						</ul>
+						<ul class="list-tag list-linear">
+							<li class="list-head">tags: </li>
+							
+							
+
+
+  
+    
+  
+
+
+
+						</ul>
+					</div><!-- meta -->
+				</div><!-- entry-content -->
+				<div class="misc-content">
+					<div class="social">
+						<ul class="list-linear">
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="butbits" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/butbits" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+						</ul>
+					</div>
+					<div class="comment">
+					
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    
+    var disqus_developer = 1;
+    var disqus_shortname = 'jekyllbootstrap'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+					</div>
+				</div><!-- misc-content -->
+			</div><!-- bd -->
+			<footer class="unit-foot">
+				<div class="unit-inner unit-foot-inner">
+					<nav class="pagination">
+						<ul>
+							
+							<li class="prev"><a class="internal" rel="prev"  href="/2015/01/29/fiddler-can-not-drag-session-to-composer" title="View 鼠标无法拖放的解决办法">&laquo; 鼠标无法拖放的解决办法</a></li>
+							
+							
+							<li class="pipe"> | </li>
+							
+							
+							<li class="next"><a class="internal" rel="next"  href="/2015/02/27/mysql-show-profiles-get-execute-time" title="View Mysql Tips -- 显示执行SQL耗时，精确到毫秒">Mysql Tips -- 显示执行SQL耗时，精确到毫秒 &raquo;</a></li>
+							
+						</ul>
+					</nav>
+					<p class="gotop">
+						<a href="#page">Back to Top</a>
+					</p>
+				</div>
+			</footer>
+
+		</div><!-- content -->
+	</div><!-- unit-inner -->
+</article>
+
+
+				</div>
+			</div><!-- unit-inner -->
+		</div><!-- unit-body -->
+	</div><!-- body -->
+	<footer class="the-footer">
+		<div class="unit-foot">
+			<div class="unit-inner unit-foot-inner">
+				<div class="misc vcard">
+					<h4>about</h4>
+					<ul>
+						<li class="contact"><address><span class="author fn n">David</span> <!-- - <span class="fn email">blah@email.test</span></address></li> -->
+						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>
+						<li class="twitter"><a href="http://twitter.com/butbits/" rel="me">twitter.com/butbits</a></li>
+						<li class="twitter"><a href="http://weibo.com/mylxq/" rel="me">weibo.com/mylxq</a></li>
+						<li class="rss"><a href="/rss.xml">Subscribe to RSS Feed</a></li>
+					</ul>
+				</div><!-- misc -->
+				<p class="licence">
+					With the help of <a href="http://jekyllbootstrap.com/">Jekyll-bootstrap</a>.<br>
+					Powered by <a href="https://github.com/mojombo/jekyll">Jekyll</a>.
+				</p>
+			</div><!-- unit-foot-inner -->
+		</div><!-- unit-foot -->
+	</footer>
+</div><!-- page -->
+<script>
+	(function(d, s) {
+		var js, fjs = d.getElementsByTagName(s)[0], load = function(url, id) {
+		if (d.getElementById(id)) {return;}
+		js = d.createElement(s); js.src = url; js.id = id;
+		fjs.parentNode.insertBefore(js, fjs);
+		};
+	load('//platform.twitter.com/widgets.js', 'tweetjs');
+	// load('https://apis.google.com/js/plusone.js', 'gplus1js'); // Checkout http://j.mp/ApDgMr for usage html for this is <div class="g-plusone" data-size="medium"></div>
+	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2015/01/30/http-code-416-and-download" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
+	}(document, 'script'));
+</script>
+<script>
+/*! A fix for the iOS orientationchange zoom bug.Script by @scottjehl, rebound by @wilto. MIT License.*/
+(function(j){var i=j.document;if(!i.querySelectorAll){return}var l=i.querySelectorAll("meta[name=viewport]")[0],a=l&&l.getAttribute("content"),h=a+", maximum-scale=1.0",d=a+", maximum-scale=10.0",g=true,c=j.orientation,k=0;if(!l){return}function f(){l.setAttribute("content",d);g=true}function b(){l.setAttribute("content",h);g=false}function e(m){c=Math.abs(j.orientation);k=Math.abs(m.gamma);if(k>8&&c===0){if(g){b()}}else{if(!g){f()}}}j.addEventListener("orientationchange",f,false);j.addEventListener("deviceorientation",e,false)})(this);
+</script>
+  
+  
+
+
+
+</body>
+</html>
+

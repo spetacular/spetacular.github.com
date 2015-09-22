@@ -1,6 +1,9 @@
 ---
-layout: post
 title: Redis分片技术：Hash Tag
+layout: post
+category : redis
+tagline: "Supporting tagline"
+tags : [redis, cache, hash tag]
 ---
 
 twitter的 [twemproxy](https://github.com/twitter/twemproxy) 是一个Redis的代理服务程序,能够实现key的分片。分片能使key均匀地分布到集群的机器上去，能保证数据的一致性，有着众多的优点。
