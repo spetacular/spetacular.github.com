@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Redis分片技术：Hash Tag</title>
+   <meta name="baidu-site-verification" content="sv0RlGsBMz" />
+   <LINK rel="shortcut icon" href="http://spetacular.github.io/images/favicon.ico">
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="http://spetacular.github.io/stylesheets/syntax.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="http://spetacular.github.io/stylesheets/screen.css" type="text/css" media="screen, projection" />
+
+
+</head>
+<body>
+<div class="site">
+  <div class="title">
+    <a href="/">David's world</a>
+	<span class="about"><a href="/html/about.html">About</a></span>
+  </div>
+
+    <div id="post">
+    <h1>Redis分片技术：Hash Tag</h1>
+    <p>twitter的 <a href="https://github.com/twitter/twemproxy">twemproxy</a> 是一个Redis的代理服务程序,能够实现key的分片。分片能使key均匀地分布到集群的机器上去，能保证数据的一致性，有着众多的优点。</p>
+
+<p>但从Redis单实例切换到twemproxy集群时，还是有些需要注意的地方：</p>
+
+<p>不支持的方法：</p>
+
+<p>KEYS,MIGRATE,SCAN等</p>
+
+<p>支持但需特殊处理的方法：</p>
+
+<p>MSET,SINTERSTORE,SUNIONSTORE,ZINTERSTORE,ZUNIONSTORE等</p>
+
+<p>全部请查看 <a href="https://github.com/twitter/twemproxy/blob/master/notes/redis.md">Redis命令列表</a>.</p>
+
+<p>对于不支持的方法，在使用时需要寻找替代方案。本文主要解决一下需特殊处理的方法。</p>
+
+<h3 id="mset">MSET</h3>
+<p>单实例上的MSET是一个原子性(atomic)操作，所有给定 key 都会在同一时间内被设置，某些给定 key 被更新而另一些给定 key 没有改变的情况，不可能发生。</p>
+
+<p>而集群上虽然也支持同时设置多个key，但不再是原子性操作。会存在某些给定 key 被更新而另外一些给定 key 没有改变的情况。其原因是需要设置的多个key可能分配到不同的机器上。</p>
+
+<h2 id="sinterstoresunionstorezinterstorezunionstore">SINTERSTORE,SUNIONSTORE,ZINTERSTORE,ZUNIONSTORE</h2>
+
+<p>这四个命令属于同一类型。它们的共同之处是都需要对一组key进行运算或操作，但要求这些key都被分配到相同机器上。</p>
+
+<p>这就是分片技术的矛盾之处：</p>
+
+<p><strong>即要求key尽可能地分散到不同机器，又要求某些相关联的key分配到相同机器。</strong></p>
+
+<h3 id="hash-tags">Hash Tags</h3>
+<p>解铃还需系铃人。解决方法还是从分片技术的原理上找。</p>
+
+<p>分片，就是一个hash的过程：对key做md5，sha1等hash算法，根据hash值分配到不同的机器上。</p>
+
+<p>为了实现将key分到相同机器，就需要相同的hash值，即相同的key（改变hash算法也行，但不简单）。</p>
+
+<p>但key相同是不现实的，因为key都有不同的用途。例如user:user1:ids保存用户的tweets ID，user:user1:tweets保存tweet的具体内容，两个key不可能同名。</p>
+
+<p>仔细观察user:user1:ids和user:user1:tweets，两个key其实有相同的地方，即user1。能不能拿这一部分去计算hash呢？</p>
+
+<p>这就是 <a href="https://github.com/twitter/twemproxy/blob/master/notes/recommendation.md#hash-tags">Hash Tag</a> 。允许用key的部分字符串来计算hash。</p>
+
+<p><strong>当一个key包含 {} 的时候，就不对整个key做hash，而仅对 {} 包括的字符串做hash。</strong></p>
+
+<p>假设hash算法为sha1。对user:{user1}:ids和user:{user1}:tweets，其hash值都等同于sha1(user1)。</p>
+
+<h2 id="hash-tag-">Hash Tag 配置</h2>
+
+<p>Hash Tag是用于hash的部分字符串开始和结束的标记，例如”{}”、”$$”等。
+配置时，只需更改hash_tag字段即可</p>
+
+<pre><code>beta:
+  listen: 127.0.0.1:22122
+  hash: fnv1a_64
+  hash_tag: "{}"
+  distribution: ketama
+  auto_eject_hosts: false
+  timeout: 400
+  redis: true
+  servers:
+   - 127.0.0.1:6380:1 server1
+   - 127.0.0.1:6381:1 server2
+   - 127.0.0.1:6382:1 server3
+   - 127.0.0.1:6383:1 server4
+</code></pre>
+
+    <p>20 Sep 2015</p>
+    </div>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = 'davidblogs';
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+  
+  <div class="footer">
+    <div class="contact">
+      <p>
+        <a href="http://weibo.com/mylxq">@weibo</a>
+        <a href="https://twitter.com/butbits">@twitter</a>
+      </p>
+    </div>    
+  </div>
+</div>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-20318153-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+</body>
+</html>

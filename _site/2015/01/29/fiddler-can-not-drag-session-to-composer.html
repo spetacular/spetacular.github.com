@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>鼠标无法拖放的解决办法</title>
+   <meta name="baidu-site-verification" content="sv0RlGsBMz" />
+   <LINK rel="shortcut icon" href="http://spetacular.github.io/images/favicon.ico">
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="http://spetacular.github.io/stylesheets/syntax.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="http://spetacular.github.io/stylesheets/screen.css" type="text/css" media="screen, projection" />
+
+
+</head>
+<body>
+<div class="site">
+  <div class="title">
+    <a href="/">David's world</a>
+	<span class="about"><a href="/html/about.html">About</a></span>
+  </div>
+
+    <div id="post">
+    <h1>鼠标无法拖放的解决办法</h1>
+    <p>话说fiddler有个强大的功能，就是把Session请求拖到Composer里，很方便地构造请求。我偶然发现不能拖放了。</p>
+
+<p><img src="http://spetacular.github.io/images/2015-01-29/fiddler-drag-to-composer.png" alt="拖放" /></p>
+
+<p>刚开始以为fiddler的bug，于是找了N多新旧版本，试了还是不行。后来发现不但fiddler不能拖放，连文件都不能拖放了。那就是系统的配置问题了。</p>
+
+<p>最终的解决办法是：</p>
+
+<blockquote>
+  <p>按两下esc键</p>
+</blockquote>
+
+<p>奇迹般地好了！
+原因不明，如果网友刚好也遇到这样的问题，不妨一试。</p>
+
+    <p>29 Jan 2015</p>
+    </div>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = 'davidblogs';
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+  
+  <div class="footer">
+    <div class="contact">
+      <p>
+        <a href="http://weibo.com/mylxq">@weibo</a>
+        <a href="https://twitter.com/butbits">@twitter</a>
+      </p>
+    </div>    
+  </div>
+</div>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-20318153-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+</body>
+</html>

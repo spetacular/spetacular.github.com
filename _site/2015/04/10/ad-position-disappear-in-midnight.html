@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>深夜中消失的广告位</title>
+   <meta name="baidu-site-verification" content="sv0RlGsBMz" />
+   <LINK rel="shortcut icon" href="http://spetacular.github.io/images/favicon.ico">
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="http://spetacular.github.io/stylesheets/syntax.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="http://spetacular.github.io/stylesheets/screen.css" type="text/css" media="screen, projection" />
+
+
+</head>
+<body>
+<div class="site">
+  <div class="title">
+    <a href="/">David's world</a>
+	<span class="about"><a href="/html/about.html">About</a></span>
+  </div>
+
+    <div id="post">
+    <h1>深夜中消失的广告位</h1>
+    <p>旧文重发。这篇博客记录了Po主在<a href="http://t.qq.com" title="腾讯微博">腾讯微博</a>时的解决的一个Bug，不是大问题，但追查的过程很有意思。也以此纪念一下。</p>
+
+<h1 id="section">诡秘的空白广告位</h1>
+<p>一碗水，放置一晚上，会发生什么呢？</p>
+
+<p>会蒸发，会流失，可能会被小猫喝掉，或被不注意的人踢翻。</p>
+
+<p>把一个页面打开，放置一晚上，会出现什么变化呢？</p>
+
+<p>拿腾讯微博首页来说，每隔30秒去查看计数，隔1分钟去拉取新消息，隔3分钟去看每日任务完成了没。</p>
+
+<p>这些都是正常的请求，但为什么好好的广告会消失了呢。</p>
+
+<p>初始状态，正常显示广告。</p>
+
+<p><img src="http://spetacular.github.io/images/2015-04-10/normal-ad.png" alt="normal ad" /></p>
+
+<p>放置一个晚上后，广告消失，剩下空白！</p>
+
+<p><img src="http://spetacular.github.io/images/2015-04-10/bad-ad.png" alt="bad ad" /></p>
+
+<h1 id="section-1">找出真凶</h1>
+<p>广告位原先存在，后来消失，一定是有什么改动了dom结构。</p>
+
+<p>经过观察，发现广告位消失的重现规则是这样的：</p>
+
+<ol>
+  <li>页面加载时，正常</li>
+  <li>白天放置一段时间，正常</li>
+  <li>放置一个晚上，异常。</li>
+</ol>
+
+<p>由1和2知道，可能存在某种超时或定时操作，改变了dom结构；由3知道，这个时机发生在晚上。</p>
+
+<p>于是我设想，在一个整晚，页面肯定通过超时或定时请求了某个js文件，而这个js文件会更改dom结构。</p>
+
+<h1 id="section-2">抓包</h1>
+<p>只知道发生在晚上，但具体什么时候不清楚，所以我尝试用fiddler抓包。</p>
+
+<p>下班前，我打开腾讯微博首页和fiddler，看着一行行记录，我知道，第二天肯定会有些异常出现。</p>
+
+<p>第二天，打开电脑，先查看腾讯微博首页。果然，广告位空白了。</p>
+
+<p>我把fiddler的url记录导出成一个txt文件。有几千条记录，于是写了个小程序，把url分下类。</p>
+
+<pre><code>&lt;?php
+$handle = @fopen("path/to/urls.txt", "r");
+$urls = array();
+if ($handle) {
+    while (!feof($handle)) {
+        $buffer = fgets($handle, 4096);		
+		$url = getUrl($buffer);
+		if(in_array($url,$urls) || empty($url)){
+			continue;
+		}else{
+			array_push($urls,$url);
+		}
+    }
+    fclose($handle);
+}
+function getUrl($fullurl){
+	$array = parse_url($fullurl);
+	if(isset($array['host']) &amp;&amp; isset($array['path'])){		
+		return $array['host'].$array['path'];
+	}else{
+		return '';
+	}
+}
+
+foreach($urls as $url){
+	echo $url."\n";
+}
+?&gt;
+</code></pre>
+
+<p>结果如下：</p>
+
+<pre><code>---------- PHP ----------
+pyhelp.qq.com/cgi-bin/getloc.so__
+message.t.qq.com/newMsgCount.php
+t.web2.qq.com/channel/poll
+api.t.qq.com/side/get.json
+clients2.google.com/service/update2/crx
+www.gstatic.com/chrome/crlset/1444/crl-set-10054177008346624430.crx.data__
+qos.report.qq.com/collect
+www.google.com/dl/chrome/components/recovery/recovery/win/101.3.21.140/install.crx__
+**api.t.qq.com/asyn/mysidebar_n_new.php**
+www.gstatic.com/chrome/crlset/1445/crl-set-14121586793162109453.crx.data__
+
+Output completed (0 sec consumed) - Normal Termination
+</code></pre>
+
+<p>*号标记的url恰好是控制广告出现的文件。看了下请求时间，00：01。</p>
+
+<p>这个结果，印证了以前的判断。</p>
+
+<p><img src="http://spetacular.github.io/images/2015-04-10/json-result.png" alt="json result" /></p>
+
+<h1 id="section-3">原因分析</h1>
+<p>mysidebar_n_new.php是一个JSONP，获取数据后将值传递给回调函数mySidebar，该函数负责将数据中的dom结构加载到相应的位置。</p>
+
+<p>广告位是app_ad和app_ad3_1。这里广告的逻辑是这样的，腾讯微博这边只输出dom结构，然后引用广告平台的一段js来填入内容。</p>
+
+<p>而这里的app_ad和app_ad3_1，不管页面逻辑如下，强行将dom结构替换，替换的同时没有去请求广告平台的js，导致有位置没内容，就出现了空白。</p>
+
+<h1 id="section-4">解决方案</h1>
+<p>确定了原因是晚上0点加载了mysidebar_n_new.php但没有进行相应处理，那么可能的解决方案有以下几种：</p>
+
+<ul>
+  <li>
+    <p>如果非必要，可以不加载吗？</p>
+
+    <p>不可。跟开发该功能的同事确认，是为了解决特定问题而加载的。</p>
+  </li>
+  <li>
+    <p>能否不进行ajax方式更新，而改为reload？</p>
+
+    <p>不可。如果用户0点正在看，强制刷新会影响用户体验</p>
+  </li>
+  <li>
+    <p>更改mysidebar_n_new.php</p>
+
+    <p>因为页面加载时也会请求这个文件，要改的话，需要判断加载的时间。不是一个优雅的解决方式。</p>
+  </li>
+  <li>
+    <p>js在加载mysidebar_n_new.php时进行相应处理</p>
+
+    <p>这种方式较好，解铃还需系铃人。</p>
+  </li>
+</ul>
+
+<h1 id="section-5">总结</h1>
+<p>这件事情很简单，就是晚上0点加载了一个文件，但没有进行相应处理，引起了广告位空白。
+这使我想起一段话：</p>
+
+<blockquote>
+  <p>“蛮多复杂的事情呢，他又蛮简单，就象你在新兵连学的立正、稍息，那是最标准的。”</p>
+
+  <p>“但是蛮多简单的事情后面呢，又蛮复杂，就象我刚才跟你一说，你连立正都找不到怎么回事了。”</p>
+</blockquote>
+
+<p>这段话来自《士兵突击》团长王庆瑞。</p>
+
+    <p>10 Apr 2015</p>
+    </div>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = 'davidblogs';
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+  
+  <div class="footer">
+    <div class="contact">
+      <p>
+        <a href="http://weibo.com/mylxq">@weibo</a>
+        <a href="https://twitter.com/butbits">@twitter</a>
+      </p>
+    </div>    
+  </div>
+</div>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-20318153-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+</body>
+</html>

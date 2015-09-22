@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Mysql Tips -- 合理利用查询缓存优化查询效率</title>
+   <meta name="baidu-site-verification" content="sv0RlGsBMz" />
+   <LINK rel="shortcut icon" href="http://spetacular.github.io/images/favicon.ico">
+   <!-- syntax highlighting CSS -->
+   <link rel="stylesheet" href="http://spetacular.github.io/stylesheets/syntax.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="http://spetacular.github.io/stylesheets/screen.css" type="text/css" media="screen, projection" />
+
+
+</head>
+<body>
+<div class="site">
+  <div class="title">
+    <a href="/">David's world</a>
+	<span class="about"><a href="/html/about.html">About</a></span>
+  </div>
+
+    <div id="post">
+    <h1>Mysql Tips -- 合理利用查询缓存优化查询效率</h1>
+    <p>最近开发会员中心项目，遇到多表查询的问题，发现响应极慢，就动手查下原因，并进行一些优化。先说下成果吧，由6-7秒降到200ms以下。
+吃公鸡下的蛋之前，走道是这样的：</p>
+
+<p><img src="http://spetacular.github.io/images/2015-03-08/before-optimization.png" alt="before optimization" /></p>
+
+<p>图1</p>
+
+<p>吃完了之后，那家伙，再看，就成了这样：</p>
+
+<p><img src="http://spetacular.github.io/images/2015-03-08/after-optimization.png" alt="after optimization" /></p>
+
+<p>图2</p>
+
+<p>降到还可以接受的范围了。</p>
+
+<h1 id="section">问题</h1>
+<p>我在review代码和需求时，发现用户列表页访问很慢。该页面根据图3中的查询条件，筛选出符合条件的用户记录，每页显示15条记录，显示如图4所示。</p>
+
+<p><img src="http://spetacular.github.io/images/2015-03-08/filter-conditions.png" alt="filter conditions" /></p>
+
+<p>图3</p>
+
+<p><img src="http://spetacular.github.io/images/2015-03-08/query-result.png" alt="query result" /></p>
+
+<p>图4</p>
+
+<p>看下数据表的规模：</p>
+
+<pre><code>select count(*) from t_uc_user;
++----------+
+| count(*) |
++----------+
+|  2001935 | 
++----------+
+</code></pre>
+
+<p>200万条记录。</p>
+
+<h1 id="section-1">定位问题</h1>
+<p>听前辈说，解决查询问题的瓶颈，最重要的是查出瓶颈在哪。我深以为然，所以第一步就是把SQL打印出来。
+我发现的可疑点有：</p>
+
+<p>1） 其中好几条SQL都是包含正则表达式的查询，耗时长达2秒以上。标记一下，稍后优化。</p>
+
+<pre><code>select count(*) as num from t_uc_search_101_user where (((FStatus='1'))) and ((((concat('|',FBusinessInfo, '|') regexp '\\|1_[[:alnum:]]*_[[:alnum:]]*_[[:alnum:]]*_[[:alnum:]]*\\|')))) and ((((concat('|',FAttributeInfo, '|') regexp '\\|1_-1_[[:alnum:]]*\\|'))));
++-----+
+| num |
++-----+
+| 3   | 
++-----+
+1 row in set (2.18 sec)
+</code></pre>
+
+<p>2） 有至少三条count(*)查询，看下存储引擎，如果是Innodb，可以考虑用MYISAM。结果是MYISAM，此路不通。</p>
+
+<p>3） 重复执行相同的SQL语句。这些SQL语句的功能是根据查询到的用户记录ID，去取用户的详细信息。以每页15条来看，可以减少15次查询。</p>
+
+<pre><code>select * from t_uc_records_101 where ( (FId='5878970') OR (FId='5878969') OR (FId='5880317') ) AND FStatus!=-1
+select * from t_uc_records_101 where ( (FId='5878970') OR (FId='5878969') OR (FId='5880317') ) AND FStatus!=-1
+select * from t_uc_records_101 where ( (FId='5877911') ) AND FStatus!=-1
+select * from t_uc_records_101 where ( (FId='5877911') ) AND FStatus!=-1
+</code></pre>
+
+<p>4） 最大的问题是，每次以相同的查询条件加载，耗时好像没有减少。难道Mysql没有查询缓存吗？</p>
+
+<h1 id="section-2">解决问题</h1>
+
+<p>合理利用缓存技术，能提高网页访问速度。即便最终没能解决SQL语句的优化，也能在第二次加载时提高速度，带来良好体验。</p>
+
+<p>1） 查询缓存是否开启？</p>
+
+<pre><code>mysql&gt; select @@query_cache_type;
++--------------------+
+| @@query_cache_type |
++--------------------+
+| ON                 | 
++--------------------+
+1 row in set (0.01 sec)
+</code></pre>
+
+<p>已开启。</p>
+
+<p>2） 查询缓存是否可用？</p>
+
+<pre><code>mysql&gt; show variables like 'have_query_cache';
++------------------+-------+
+| Variable_name    | Value |
++------------------+-------+
+| have_query_cache | YES   | 
++------------------+-------+
+1 row in set (0.01 sec)
+</code></pre>
+
+<p>可用。</p>
+
+<p>3） 查询缓存大小？</p>
+
+<pre><code>mysql&gt; select @@global.query_cache_size;
++---------------------------+
+| @@global.query_cache_size |
++---------------------------+
+|                         0 | 
++---------------------------+
+1 row in set (0.00 sec)
+</code></pre>
+
+<p>分配给查询缓存内存为0，就是没分配。  没有任何效果。</p>
+
+<p>4） 设置查询缓存大小。大约10M，不够以后再加。</p>
+
+<pre><code>mysql&gt; set @@global.query_cache_size=10000000;
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+</code></pre>
+
+<p>完成这些以后，发现第一次访问速度还是龟速。再刷新，就瞬间加载了。</p>
+
+<h1 id="section-3">结论</h1>
+<p>利用查询缓存来优化查询，能将访问速度减少到200ms以下，能满足当前需求。但是最终的解决之道是对耗时较多、冗余的SQL语句进行优化。
+所以，革命尚未成功，同志仍需努力！</p>
+
+    <p>08 Mar 2015</p>
+    </div>
+
+    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = 'davidblogs';
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+  
+  <div class="footer">
+    <div class="contact">
+      <p>
+        <a href="http://weibo.com/mylxq">@weibo</a>
+        <a href="https://twitter.com/butbits">@twitter</a>
+      </p>
+    </div>    
+  </div>
+</div>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-20318153-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+</body>
+</html>
