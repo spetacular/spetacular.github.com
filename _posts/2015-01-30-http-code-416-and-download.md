@@ -1,6 +1,9 @@
 ---
 layout: post
 title: HTTP 416错误与断点续传
+category : php
+tagline: "Supporting tagline"
+tags : [http, 断点续传]
 ---
 看房团 App 1.8.2更新版本时，偶然发现无法从1.8.1升级到1.8.2，于是探究一番，发现大有深意。
 

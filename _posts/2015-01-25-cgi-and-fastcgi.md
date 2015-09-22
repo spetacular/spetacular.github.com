@@ -1,6 +1,9 @@
 ---
 layout: post
 title: cgi与fastcgi的区别
+category : 服务器
+tagline: "Supporting tagline"
+tags : [cgi, fastcgi]
 ---
 
 青石街有两个卖烧饼的，王大与李二。

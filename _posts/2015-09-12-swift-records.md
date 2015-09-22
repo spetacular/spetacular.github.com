@@ -1,6 +1,9 @@
 ---
 layout: post
 title: Swift知识点纪录
+category : swift
+tagline: "Supporting tagline"
+tags : [swift]
 ---
 po主初学Swift，遇到不少细节知识的缺失，只好请教Google大神。这篇文就是Google的结果，纪录一下。
 

@@ -1,6 +1,9 @@
 ---
 layout: post
 title: Mysql Tips -- 检索每个分组的最后一条记录
+category : mysql
+tagline: "Supporting tagline"
+tags : [mysql]
 ---
 
 

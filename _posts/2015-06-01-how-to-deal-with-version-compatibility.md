@@ -1,6 +1,9 @@
 ---
 layout: post
 title: Restful接口设计：如何做版本兼容
+category : 接口
+tagline: "Supporting tagline"
+tags : [接口, api, 版本控制]
 ---
 
 现在App大多采用Restful接口，与服务器完成资源交换。这种实现方式隐藏了服务器端的具体实现，做到了对App端的透明服务。服务器端如何变更，甚至换一种语言实现，只要对外接口不变，App依然不受影响。   

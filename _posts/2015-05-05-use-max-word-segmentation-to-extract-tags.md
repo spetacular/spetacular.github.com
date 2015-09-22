@@ -1,6 +1,9 @@
 ---
 layout: post
 title: 利用中文分词正向最大匹配法解决自动提取标签问题
+category : php
+tagline: "Supporting tagline"
+tags : [中文分词]
 ---
 
 写文章时，会有自动提取标签的需求；写新闻时，会有查找主题或关键字的需求。如下图，就是分析新闻页面的内容，匹配相关车型。

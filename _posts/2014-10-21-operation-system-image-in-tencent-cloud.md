@@ -1,6 +1,9 @@
 ---
 layout: post
 title: 腾讯云操作系统镜像使用方法
+category : 服务器
+tagline: "Supporting tagline"
+tags : [腾讯云]
 ---
 
 最近一个项目部署在腾讯云服务器(http://www.qcloud.com/)上，在服务器配置时使用了操作系统镜像功能，感觉很赞。因此把使用方法记录下来，供需要的同事参考。

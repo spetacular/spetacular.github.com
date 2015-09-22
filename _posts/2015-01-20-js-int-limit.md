@@ -1,6 +1,9 @@
 ---
 layout: post
 title: Javascript整型数字精度限制
+category : js
+tagline: "Supporting tagline"
+tags : [js]
 ---
 在做一个项目时，需要生成一个长整数Id，生成函数如下：
 

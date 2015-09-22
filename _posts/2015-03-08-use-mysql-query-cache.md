@@ -1,6 +1,9 @@
 ---
 layout: post
 title: Mysql Tips -- 合理利用查询缓存优化查询效率
+category : mysql
+tagline: "Supporting tagline"
+tags : [query cache]
 ---
 
 最近开发会员中心项目，遇到多表查询的问题，发现响应极慢，就动手查下原因，并进行一些优化。先说下成果吧，由6-7秒降到200ms以下。

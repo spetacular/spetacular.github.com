@@ -1,6 +1,9 @@
 ---
 layout: post
 title: PHP扩展开发Demo
+category : php
+tagline: "Supporting tagline"
+tags : [php扩展]
 ---
 为了深入学习PHP，就从一个简单的PHP扩展开始，了解一下制作过程。
 

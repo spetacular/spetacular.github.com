@@ -1,6 +1,9 @@
 ---
 layout: post
 title: 强大的弱关系
+category : 散文
+tagline: "Supporting tagline"
+tags : [弱关系, 关系链]
 ---
 今天看 TED [Why 30 is not the new 20][1] 时，看到三条很有意义的话：
 

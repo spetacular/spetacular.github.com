@@ -1,6 +1,9 @@
 ---
 layout: post
 title: 深夜中消失的广告位
+category : php
+tagline: "Supporting tagline"
+tags : [php, bug]
 ---
 旧文重发。这篇博客记录了Po主在[腾讯微博](http://t.qq.com "腾讯微博")时的解决的一个Bug，不是大问题，但追查的过程很有意思。也以此纪念一下。
 

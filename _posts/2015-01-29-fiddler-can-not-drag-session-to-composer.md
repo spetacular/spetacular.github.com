@@ -1,6 +1,9 @@
 ---
 layout: post
 title: 鼠标无法拖放的解决办法
+category : 桌面程序
+tagline: "Supporting tagline"
+tags : [桌面程序]
 ---
 话说fiddler有个强大的功能，就是把Session请求拖到Composer里，很方便地构造请求。我偶然发现不能拖放了。
 

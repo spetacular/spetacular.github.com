@@ -1,6 +1,9 @@
 ---
 layout: post
 title: Coding Tips -- Compare The Version Numbers Between Two Releases
+category : php
+tagline: "Supporting tagline"
+tags : [版本控制]
 ---
 
 Given two version numbers, How to check which release is newer ? For example:

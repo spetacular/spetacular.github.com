@@ -1,6 +1,9 @@
 ---
 layout: post
 title: Nginx Sticky的使用及踩过的坑
+category : 服务器
+tagline: "Supporting tagline"
+tags : [nginx, sticky, 负载均衡]
 ---
 #什么是Sticky？#
 为了理解Sticky的工作原理，我们可以先考虑一个问题：负载均衡怎么做？
