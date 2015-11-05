@@ -9,6 +9,7 @@ http://spetacular.github.io/rss.xml
 http://spetacular.github.io/sitemap.txt
 http://spetacular.github.io/tags.html
 
+http://spetacular.github.io/2015/11/01/redis-zunionstore-tip.html
 http://spetacular.github.io/2015/09/20/redis-hash-tag.html
 http://spetacular.github.io/2015/09/12/swift-records.html
 http://spetacular.github.io/2015/08/01/nginx-sticky-problem.html

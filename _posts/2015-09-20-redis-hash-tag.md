@@ -1,5 +1,5 @@
 ---
-title: Redis分片技术：Hash Tag
+title: Redis技巧：分片技术和Hash Tag
 layout: post
 category : redis
 tagline: "Supporting tagline"
