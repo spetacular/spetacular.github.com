@@ -12,6 +12,7 @@ tags : [redis]
 
 # 排序 
 假设老师需要处理期中考试的语文成绩，他做的第一件事是将学生成绩录入系统。
+
       Li Lei成绩70分
       127.0.0.1:6379> ZADD mid_test 70 "Li Lei"
       (integer) 1
@@ -47,7 +48,7 @@ tags : [redis]
 #聚合 
 有序集合，其本质是集合，当然会有交集（[ZINTERSTORE](http://redisdoc.com/sorted_set/zinterstore.html "ZINTERSTORE")）和并集（[ZUNIONSTORE](http://redisdoc.com/sorted_set/zunionstore.html "ZUNIONSTORE")）运算。
 
-![交集和并集](http://spetacular.github.io/images/2015-11-01/inter-union.jpg)
+<img src="http://spetacular.github.io/images/2015-11-01/inter-union.jpg" alt="交集和并集" width="100%"/>
 
 ###交集
 [ZINTERSTORE](http://redisdoc.com/sorted_set/zinterstore.html "ZINTERSTORE")取所有集合的并集。以两个集合A和B为例，要取交集C，是这样的逻辑：
@@ -144,7 +145,7 @@ tags : [redis]
 
 做用户的feed（timeline）时，需要将我关注的人和我自己发表的信息聚合起来。
 
-![timeline & feed](http://spetacular.github.io/images/2015-11-01/feed-timeline.jpg)
+<img src="http://spetacular.github.io/images/2015-11-01/feed-timeline.jpg" alt="timeline & feed" width="100%"/>
 
 应该用ZUNIONSTORE将所有信息聚合到一起。
 
