@@ -729,6 +729,8 @@ pre {
   display: block;
   margin-left: auto;
   margin-left: auto;
+  width: 100%;
+  text-align: center;
 }
 .unit-article img.left {
   margin-right: 16px;
