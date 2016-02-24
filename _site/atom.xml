@@ -4,13 +4,51 @@
  <title>David&#39;s World</title>
  <link href="http://spetacular.github.io/atom.xml" rel="self"/>
  <link href="http://spetacular.github.io"/>
- <updated>2015-11-06T13:12:40+08:00</updated>
+ <updated>2016-02-24T16:51:15+08:00</updated>
  <id>http://spetacular.github.io</id>
  <author>
    <name>David</name>
    <email>blah@email.test</email>
  </author>
 
+ 
+ <entry>
+   <title>Redis技巧:phpredis扩展安装与升级</title>
+   <link href="http://spetacular.github.io/2016/01/29/install-and-upgrade-phpredis-extions.html"/>
+   <updated>2016-01-29T00:00:00+08:00</updated>
+   <id>http://spetacular.github.io/2016/01/29/install-and-upgrade-phpredis-extions</id>
+   <content type="html">&lt;p&gt;为了使用zscan来处理有序集合（Sorted Set）按模式获取数据，需要将phpredis扩展从2.2.4升级到2.2.5以上（最新版本为2.2.7）。&lt;/p&gt;
+
+&lt;p&gt;安装和升级方法：&lt;/p&gt;
+
+&lt;p&gt;1.下载安装扩展&lt;/p&gt;
+
+&lt;p&gt;网址：https://pecl.php.net/package/redis&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;  wget https://pecl.php.net/get/redis-2.2.7.tgz
+  tar zxvf redis-2.2.7.tgz
+  cd redis-2.2.7
+  phpize
+  ./configure
+  make &amp;amp;&amp;amp; make install
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;2.检查：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;  php -i | grep Redis
+  Redis Support =&amp;gt; enabled
+  Redis Version =&amp;gt; 2.2.7
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;安装或升级成功。&lt;/p&gt;
+
+&lt;p&gt;3.重启php5-fpm&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;  service php5-fpm restart
+&lt;/code&gt;&lt;/pre&gt;
+
+</content>
+ </entry>
  
  <entry>
    <title>Redis技巧:Sorted Set使用</title>
@@ -210,7 +248,7 @@
  </entry>
  
  <entry>
-   <title>Redis技巧：分片技术和Hash Tag</title>
+   <title>Redis技巧:分片技术和Hash Tag</title>
    <link href="http://spetacular.github.io/2015/09/20/redis-hash-tag.html"/>
    <updated>2015-09-20T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2015/09/20/redis-hash-tag</id>
@@ -1704,89 +1742,6 @@ var_dump(versionCompare(&#39;1.0.0&#39;,&#39;1.0&#39;));	// =
 var_dump(versionCompare(&#39;1.0.1&#39;,&#39;1.0&#39;));	// &amp;gt;
 var_dump(versionCompare(&#39;1.0.1&#39;,&#39;1.0.2&#39;));	// &amp;lt;
 &lt;/code&gt;&lt;/pre&gt;
-</content>
- </entry>
- 
- <entry>
-   <title>腾讯云操作系统镜像使用方法</title>
-   <link href="http://spetacular.github.io/2014/10/21/operation-system-image-in-tencent-cloud.html"/>
-   <updated>2014-10-21T00:00:00+08:00</updated>
-   <id>http://spetacular.github.io/2014/10/21/operation-system-image-in-tencent-cloud</id>
-   <content type="html">&lt;p&gt;最近一个项目部署在腾讯云服务器(http://www.qcloud.com/)上，在服务器配置时使用了操作系统镜像功能，感觉很赞。因此把使用方法记录下来，供需要的同事参考。
-为什么需要镜像功能
-写文档时，Ctrl C 加 Ctrl V，多方便啊。
-有需要多台服务器时，只要配置一台的各种软件及服务，其它的机器都复制过去，是不是也很省事啊？
-这就是镜像功能存在的意义。&lt;/p&gt;
-
-&lt;p&gt;使用流程
-先解释两个名词：
-1.	参考服务器。指用于制作镜像的机器，其配置将被复制到其它机器上。
-2.	目标服务器。指需要镜像的机器，将复杂参考服务器上的配置。&lt;/p&gt;
-
-&lt;p&gt;流程如下：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-21/work_flow.png&quot; alt=&quot;创建腾讯云操作系统镜像&quot; /&gt;&lt;/p&gt;
-&lt;center&gt;图1&lt;/center&gt;
-
-&lt;p&gt;1.配置参考服务器
-安装需要的软件，完成配置。
-2.制作参考服务器镜像
-这里需要注意两点：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;只对系统盘做镜像，数据盘需要另外处理。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;制作过程中需要关机，整个过程持续十几分钟。&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;具体过程如下图所示。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-21/step_1_server_management.jpg&quot; alt=&quot;第一步：服务器管理，制作镜像&quot; /&gt;&lt;/p&gt;
-&lt;center&gt;图2&lt;/center&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-21/step_2_make_image.png&quot; alt=&quot;第二步：填写参数&quot; /&gt;&lt;/p&gt;
-&lt;center&gt;图3&lt;/center&gt;
-
-&lt;p&gt;制作镜像时，需要知道那个是系统盘：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;# df -lh
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/vda1             7.9G  2.9G  4.6G  39% /
-udev                  7.9G  148K  7.9G   1% /dev
-/dev/vdb1             493G  245M  467G   1% /data
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;但没有图3中/dev/xvda。咨询后，得到如下信息：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;/dev/xvda是xen虚拟化的系统盘
-/dev/vda是kvm虚拟化的系统盘
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;这样系统盘就是/dev/vda1，而数据盘是/dev/vdb1&lt;/p&gt;
-
-&lt;p&gt;经过十几分钟，在镜像管理页面可以看到已制作的镜像。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-21/done.jpg&quot; alt=&quot;镜像列表&quot; /&gt;&lt;/p&gt;
-&lt;center&gt;图4&lt;/center&gt;
-
-&lt;p&gt;3.目标服务器重装操作系统&lt;/p&gt;
-
-&lt;p&gt;这里腾讯云有完整的教程，不再赘述。&lt;a href=&quot;http://wiki.qcloud.com/wiki/%E4%BA%91%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%AE%A1%E7%90%86#6._.E9.87.8D.E8.A3.85.E6.93.8D.E4.BD.9C.E7.B3.BB.E7.BB.9F&quot; title=&quot;目标服务器重装操作系统&quot;&gt;传送门&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;收尾工作&lt;/p&gt;
-
-&lt;p&gt;在目标服务器重装操作系统后，工作基本结束。不过如果服务器挂载了数据盘，还要做下最后的收尾工作。&lt;/p&gt;
-
-&lt;p&gt;使用命令“mkdir /mydata”创建mydata目录，再通过“mount /dev/xvdb1 /mydata”命令手动挂载新分区后，用“df -h”命令查看，出现以下信息说明挂载成功，即可以查看到数据盘了。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2014-10-21/show_df.png&quot; alt=&quot;挂载数据盘&quot; /&gt;&lt;/p&gt;
-&lt;center&gt;图5&lt;/center&gt;
-
-&lt;p&gt;至此，已成功将参考服务器的镜像复制到目标服务器，Enjoy。&lt;/p&gt;
-
 </content>
  </entry>
  

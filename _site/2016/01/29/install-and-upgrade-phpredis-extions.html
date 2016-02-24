@@ -7,11 +7,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<title>David's world</title>
+	<title>Redis技巧:phpredis扩展安装与升级</title>
 	<meta name="author" content="David">
 	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
 	<link href='/assets/themes/the-program/css/style.css' rel="stylesheet" media="all">
-	<link href="http://feeds.feedburner.com/" rel="alternate" title="David's world" type="application/atom+xml">
+	<link href="http://feeds.feedburner.com/" rel="alternate" title="Redis技巧:phpredis扩展安装与升级" type="application/atom+xml">
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.0.6/modernizr.min.js"></script>
 </head>
 <body>
@@ -37,74 +37,136 @@
 			<div class="unit-inner unit-body-inner">
 				<div class="entry-content">
 					
-<article class="unit-article layout-page">
+<article class="unit-article layout-post">
 	<div class="unit-inner unit-article-inner">
 		<div class="content">
 			<header>
 				<div class="unit-head">
 					<div class="unit-inner unit-head-inner">
-						<h1 class="h2 entry-title">David's world</h1>
+						<h1 class="h2 entry-title">Redis技巧:phpredis扩展安装与升级</h1>
 					</div><!-- unit-inner -->
 				</div><!-- unit-head -->
 			</header>
 
 			<div class="bd">
 				<div class="entry-content">
-					
-<ul class="posts">
-  
-    <li><span>29 Jan 2016</span> &raquo; <a href="/2016/01/29/install-and-upgrade-phpredis-extions.html">Redis技巧:phpredis扩展安装与升级</a></li>
-  
-    <li><span>01 Nov 2015</span> &raquo; <a href="/2015/11/01/redis-zunionstore-tip.html">Redis技巧:Sorted Set使用</a></li>
-  
-    <li><span>20 Sep 2015</span> &raquo; <a href="/2015/09/20/redis-hash-tag.html">Redis技巧:分片技术和Hash Tag</a></li>
-  
-    <li><span>12 Sep 2015</span> &raquo; <a href="/2015/09/12/swift-records.html">Swift知识点纪录</a></li>
-  
-    <li><span>01 Aug 2015</span> &raquo; <a href="/2015/08/01/nginx-sticky-problem.html">Nginx Sticky的使用及踩过的坑</a></li>
-  
-    <li><span>20 Jun 2015</span> &raquo; <a href="/2015/06/20/japan-tokyo-journey.html">日本东京之旅</a></li>
-  
-    <li><span>01 Jun 2015</span> &raquo; <a href="/2015/06/01/how-to-deal-with-version-compatibility.html">Restful接口设计：如何做版本兼容</a></li>
-  
-    <li><span>05 May 2015</span> &raquo; <a href="/2015/05/05/use-max-word-segmentation-to-extract-tags.html">利用中文分词正向最大匹配法解决自动提取标签问题</a></li>
-  
-    <li><span>10 Apr 2015</span> &raquo; <a href="/2015/04/10/ad-position-disappear-in-midnight.html">深夜中消失的广告位</a></li>
-  
-    <li><span>09 Apr 2015</span> &raquo; <a href="/2015/04/09/use-sorted-set-to-storage-dynamically-changing-list.html">Redis Tips -- Use Sorted Set To Storage A Dynamically Changing List</a></li>
-  
-    <li><span>03 Apr 2015</span> &raquo; <a href="/2015/04/03/retrieve-the-last-record-in-each-group.html">Mysql Tips -- 检索每个分组的最后一条记录</a></li>
-  
-    <li><span>17 Mar 2015</span> &raquo; <a href="/2015/03/17/office-url-not-break.html">Office 输入URL时单词中间出现长空格的解决办法</a></li>
-  
-    <li><span>08 Mar 2015</span> &raquo; <a href="/2015/03/08/use-mysql-query-cache.html">Mysql Tips -- 合理利用查询缓存优化查询效率</a></li>
-  
-    <li><span>27 Feb 2015</span> &raquo; <a href="/2015/02/27/mysql-show-profiles-get-execute-time.html">Mysql Tips -- 显示执行SQL耗时，精确到毫秒</a></li>
-  
-    <li><span>30 Jan 2015</span> &raquo; <a href="/2015/01/30/http-code-416-and-download.html">HTTP 416错误与断点续传</a></li>
-  
-    <li><span>29 Jan 2015</span> &raquo; <a href="/2015/01/29/fiddler-can-not-drag-session-to-composer.html">鼠标无法拖放的解决办法</a></li>
-  
-    <li><span>25 Jan 2015</span> &raquo; <a href="/2015/01/25/cgi-and-fastcgi.html">cgi与fastcgi的区别</a></li>
-  
-    <li><span>20 Jan 2015</span> &raquo; <a href="/2015/01/20/js-int-limit.html">Javascript整型数字精度限制</a></li>
-  
-    <li><span>14 Jan 2015</span> &raquo; <a href="/2015/01/14/strong-weak-ties.html">强大的弱关系</a></li>
-  
-    <li><span>20 Dec 2014</span> &raquo; <a href="/2014/12/20/version-compare-function.html">Coding Tips -- Compare The Version Numbers Between Two Releases</a></li>
-  
-    <li><span>21 Oct 2014</span> &raquo; <a href="/2014/10/21/operation-system-image-in-tencent-cloud.html">腾讯云操作系统镜像使用方法</a></li>
-  
-    <li><span>10 Oct 2014</span> &raquo; <a href="/2014/10/10/php-extension-demo.html">PHP扩展开发Demo</a></li>
-  
-</ul>
+					<p>为了使用zscan来处理有序集合（Sorted Set）按模式获取数据，需要将phpredis扩展从2.2.4升级到2.2.5以上（最新版本为2.2.7）。</p>
+
+<p>安装和升级方法：</p>
+
+<p>1.下载安装扩展</p>
+
+<p>网址：https://pecl.php.net/package/redis</p>
+
+<pre><code>  wget https://pecl.php.net/get/redis-2.2.7.tgz
+  tar zxvf redis-2.2.7.tgz
+  cd redis-2.2.7
+  phpize
+  ./configure
+  make &amp;&amp; make install
+</code></pre>
+
+<p>2.检查：</p>
+
+<pre><code>  php -i | grep Redis
+  Redis Support =&gt; enabled
+  Redis Version =&gt; 2.2.7
+</code></pre>
+
+<p>安装或升级成功。</p>
+
+<p>3.重启php5-fpm</p>
+
+<pre><code>  service php5-fpm restart
+</code></pre>
 
 
+					<div class="meta">
+						<p class="date-publish">
+							Published: 
+							<date class="date-pub" title="2016-01-29T00:00:00+08:00" datetime="2016-01-29T00:00:00+08:00" pubdate>
+							<span class="month"><abbr>January</abbr></span>
+							<span class="day">29</span>
+							<span class="year">2016</span>
+							</date>
+						</p>
+						<ul class="list-category list-linear">
+							<li class="list-head">category: </li>
+							
+							
+
+
+  
+     
+    	<li><a href="/categories.html#redis-ref">
+    		redis <span>4</span>
+    	</a></li>
+    
+  
+
+
+						</ul>
+						<ul class="list-tag list-linear">
+							<li class="list-head">tags: </li>
+							
+							
+
+
+  
+     
+    	<li><a href="/tags.html#redis-ref">redis <span>4</span></a></li>
+    
+  
+
+
+
+						</ul>
+					</div><!-- meta -->
 				</div><!-- entry-content -->
-			</div><!-- bd -->
+				<div class="misc-content">
+					<div class="social">
+						<ul class="list-linear">
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="butbits" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/butbits" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+						</ul>
+					</div>
+					<div class="comment">
+					
 
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    
+    var disqus_developer = 1;
+    var disqus_shortname = 'davidblogs'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+					</div>
+				</div><!-- misc-content -->
+			</div><!-- bd -->
 			<footer class="unit-foot">
 				<div class="unit-inner unit-foot-inner">
+					<nav class="pagination">
+						<ul>
+							
+							<li class="prev"><a class="internal" rel="prev"  href="/2015/11/01/redis-zunionstore-tip.html" title="View Redis技巧:Sorted Set使用">&laquo; Redis技巧:Sorted Set使用</a></li>
+							
+							
+							
+						</ul>
+					</nav>
 					<p class="gotop">
 						<a href="#page">Back to Top</a>
 					</p>
@@ -150,7 +212,7 @@
 		};
 	load('//platform.twitter.com/widgets.js', 'tweetjs');
 	// load('https://apis.google.com/js/plusone.js', 'gplus1js'); // Checkout http://j.mp/ApDgMr for usage html for this is <div class="g-plusone" data-size="medium"></div>
-	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/index.html" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
+	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2016/01/29/install-and-upgrade-phpredis-extions.html" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
 	}(document, 'script'));
 </script>
 <script>
