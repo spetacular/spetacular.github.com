@@ -5,8 +5,8 @@
         <description>David&#39;s World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Sat, 30 Apr 2016 18:07:30 +0800</lastBuildDate>
-        <pubDate>Sat, 30 Apr 2016 18:07:30 +0800</pubDate>
+        <lastBuildDate>Sat, 30 Apr 2016 18:14:00 +0800</lastBuildDate>
+        <pubDate>Sat, 30 Apr 2016 18:14:00 +0800</pubDate>
         <ttl>60</ttl>
 
 
@@ -16,11 +16,18 @@
 
 &lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2016/top-10.png&quot; alt=&quot;热门 top 10&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;设计一个好的排名算法，需要考虑的因素很多，其中最重要的是占用用户时长、网站本身内容的量级与更新频率。前者决定采用何种排名算法，后者确定排名的上升与下降速度。&lt;/p&gt;
+&lt;p&gt;设计一个好的排名算法，需要考虑的因素很多，其中最重要的是以下两点：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;社区属性及内容属性&lt;/li&gt;
+  &lt;li&gt;网站本身内容的量级与更新频率&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;前者决定采用何种排名算法，后者确定排名的上升与下降速度。&lt;/p&gt;
 
 &lt;h1 id=&quot;section&quot;&gt;影响因素&lt;/h1&gt;
 
-&lt;h2 id=&quot;section-1&quot;&gt;占用用户时长&lt;/h2&gt;
+&lt;h2 id=&quot;section-1&quot;&gt;社区属性及内容属性&lt;/h2&gt;
 &lt;p&gt;社交网站产生许多用户上传的内容，对这些内容进行排名时，需要考虑内容本身的信息。&lt;/p&gt;
 
 &lt;p&gt;从类型上，UGC内容主要是图片、文章、音频还是视频？一般来说，图片扫一眼，文章读一遍，音频听一次，视频看一遍,占用用户的时间依次增加,留住用户的成本也随之增加。&lt;/p&gt;
