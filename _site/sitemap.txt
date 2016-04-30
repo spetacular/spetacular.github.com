@@ -9,6 +9,7 @@ http://spetacular.github.io/rss.xml
 http://spetacular.github.io/sitemap.txt
 http://spetacular.github.io/tags.html
 
+http://spetacular.github.io/2016/02/15/sns-hot-feed-ranking-algorithm.html
 http://spetacular.github.io/2016/01/29/install-and-upgrade-phpredis-extions.html
 http://spetacular.github.io/2015/11/01/redis-zunionstore-tip.html
 http://spetacular.github.io/2015/09/20/redis-hash-tag.html
