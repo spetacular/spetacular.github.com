@@ -4,7 +4,7 @@
  <title>David&#39;s World</title>
  <link href="http://spetacular.github.io/atom.xml" rel="self"/>
  <link href="http://spetacular.github.io"/>
- <updated>2016-04-30T18:02:11+08:00</updated>
+ <updated>2016-04-30T18:05:04+08:00</updated>
  <id>http://spetacular.github.io</id>
  <author>
    <name>David</name>
@@ -64,8 +64,9 @@
 &lt;p&gt;有用型的内容，排名逐渐上升，越到后来越多人知道它的价值。
 &lt;img src=&quot;http://spetacular.github.io/images/2016/up_2.png&quot; alt=&quot;上升趋势，增速逐渐变小&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;＃ 排名如何下降
-旧内容渐渐呈现下降趋势。&lt;/p&gt;
+&lt;h1 id=&quot;section-5&quot;&gt;排名如何下降&lt;/h1&gt;
+
+&lt;p&gt;旧内容渐渐呈现下降趋势。&lt;/p&gt;
 
 &lt;p&gt;少有访问、dislike（讨厌、踩，反对）、低评分（星级）、编辑降权，都会使排名下降。&lt;/p&gt;
 
@@ -75,7 +76,7 @@
 &lt;p&gt;有用型的内容，排名虽然下降了，但其价值还在，还会不断有人关注。
 &lt;img src=&quot;http://spetacular.github.io/images/2016/down_2.png&quot; alt=&quot;下降趋势，增速逐渐变小&quot; /&gt;&lt;/p&gt;
 
-&lt;h1 id=&quot;section-5&quot;&gt;没有银弹&lt;/h1&gt;
+&lt;h1 id=&quot;section-6&quot;&gt;没有银弹&lt;/h1&gt;
 &lt;p&gt;知名博主阮一峰发表了6篇&lt;a href=&quot;http://www.ruanyifeng.com/blog/it/algorithm/&quot; title=&quot;基于用户投票的排名算法&quot;&gt;基于用户投票的排名算法&lt;/a&gt;的系列文章。这6篇文章剖析了几个网站的排名算法。&lt;/p&gt;
 
 &lt;p&gt;如Delicious采用”过去60分钟内被收藏的次数”进行排名。每过60分钟，就统计一次。它的上升和下降趋势就是阶梯函数式的。&lt;/p&gt;
