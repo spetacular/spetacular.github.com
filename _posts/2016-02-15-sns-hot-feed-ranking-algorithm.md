@@ -52,10 +52,10 @@ tags : [sns , 社交网站]
 用户浏览、like（点赞、顶，喜欢）、评论、高评分（星级），编辑推荐等，都会使排名上升。
 
 有趣型的内容，排名迅速上升，如病毒般地传播开来。
-![上升趋势，增速逐渐变大](http://spetacular.github.io/images/2016/up_1.png)
+![上升趋势，增速逐渐变小](http://spetacular.github.io/images/2016/up_1.png)
 
 有用型的内容，排名逐渐上升，越到后来越多人知道它的价值。
-![上升趋势，增速逐渐变小](http://spetacular.github.io/images/2016/up_2.png)
+![上升趋势，增速逐渐变大](http://spetacular.github.io/images/2016/up_2.png)
 
 # 排名如何下降
 
