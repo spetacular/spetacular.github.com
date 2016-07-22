@@ -12,7 +12,7 @@ Add Digits （非负整数各位相加）
 
 ## 题目地址
 
-https://leetcode.com/problems/add-digits
+[https://leetcode.com/problems/add-digits](https://leetcode.com/problems/add-digits)
 
 ## 解法1
 该算法有一个O(1)复杂度的[《解法》](http://my.oschina.net/Tsybius2014/blog/497645 "LeetCode：Add Digits - 非负整数各位相加")。其中的公式为 (num - 1) % 9 + 1。这里引用一下这个公式的推导过程：
