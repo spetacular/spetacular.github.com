@@ -4,13 +4,70 @@
  <title>David&#39;s World</title>
  <link href="http://spetacular.github.io/atom.xml" rel="self"/>
  <link href="http://spetacular.github.io"/>
- <updated>2016-04-30T18:26:39+08:00</updated>
+ <updated>2016-07-22T11:51:31+08:00</updated>
  <id>http://spetacular.github.io</id>
  <author>
    <name>David</name>
    <email>blah@email.test</email>
  </author>
 
+ 
+ <entry>
+   <title>Leetcode 258 ：Add Digits - 非负整数各位相加（另外一个解法）</title>
+   <link href="http://spetacular.github.io/2016/07/22/leetcode-258-add-digits.html"/>
+   <updated>2016-07-22T00:00:00+08:00</updated>
+   <id>http://spetacular.github.io/2016/07/22/leetcode-258-add-digits</id>
+   <content type="html">&lt;h2 id=&quot;section&quot;&gt;题目名称&lt;/h2&gt;
+
+&lt;p&gt;Add Digits （非负整数各位相加）&lt;/p&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;题目地址&lt;/h2&gt;
+
+&lt;p&gt;https://leetcode.com/problems/add-digits&lt;/p&gt;
+
+&lt;h2 id=&quot;section-2&quot;&gt;解法1&lt;/h2&gt;
+&lt;p&gt;该算法有一个O(1)复杂度的&lt;a href=&quot;http://my.oschina.net/Tsybius2014/blog/497645&quot; title=&quot;LeetCode：Add Digits - 非负整数各位相加&quot;&gt;《解法》&lt;/a&gt;。其中的公式为 (num - 1) % 9 + 1。这里引用一下这个公式的推导过程：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;假设输入的数字是一个5位数字num，则num的各位分别为a、b、c、d、e。有如下关系：num = a * 10000 + b * 1000 + c * 100 + d * 10 + e  
+即：num = (a + b + c + d + e) + (a * 9999 + b * 999 + c * 99 + d * 9)  
+因为 a * 9999 + b * 999 + c * 99 + d * 9 一定可以被9整除，因此num模除9的结果与 a + b + c + d + e 模除9的结果是一样的。  
+对数字 a + b + c + d + e 反复执行同类操作，最后的结果就是一个 1-9 的数字加上一串数字，最左边的数字是 1-9 之间的，右侧的数字永远都是可以被9整除的。  
+这道题最后的目标，就是不断将各位相加，相加到最后，当结果小于10时返回。因为最后结果在1-9之间，得到9之后将不会再对各位进行相加，因此不会出现结果为0的情况。因为 (x + y) % z = (x % z + y % z) % z，又因为 x % z % z = x % z，因此结果为 (num - 1) % 9 + 1，只模除9一次，并将模除后的结果加一返回。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这个公式是正确的，但这个推导过程有待商榷。为什么要num要先减1，最后再加上1？&lt;/p&gt;
+
+&lt;h2 id=&quot;section-3&quot;&gt;解法2&lt;/h2&gt;
+&lt;p&gt;其实还有一个更容易的理解的解法。推导过程如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;假设输入的数字是一个5位数字num，则num的各位分别为a、b、c、d、e。有如下关系：num = a * 10000 + b * 1000 + c * 100 + d * 10 + e  
+即：num = (a + b + c + d + e) + (a * 9999 + b * 999 + c * 99 + d * 9)  
+因为 a * 9999 + b * 999 + c * 99 + d * 9 一定可以被9整除，因此num模除9的结果与 a + b + c + d + e 模除9的结果是一样的。
+所以最后的结果是：num % 9.
+但是这个结果需要修正一下：如果num能被9整除，则结果为0，这时应该修正为9.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;最后整个算法代码（swift）如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;class Solution {
+    func addDigits(num: Int) -&amp;gt; Int {
+        if num == 0 {
+            return 0
+        }
+        var mod = num % 9
+        if mod == 0 {
+            return 9
+        }else{
+            return mod
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;算法复杂度也为O(1)。&lt;/p&gt;
+
+</content>
+ </entry>
  
  <entry>
    <title>社交网站:热门内容排名算法浅议</title>
@@ -1719,65 +1776,6 @@ httpConnection.setRequestProperty(&quot;RANGE&quot;, &quot;bytes=1024-&quot;);
 &lt;p&gt;&lt;a href=&quot;http://blog.vjeux.com/2010/javascript/javascript-max_int-number-limits.html&quot;&gt;http://blog.vjeux.com/2010/javascript/javascript-max_int-number-limits.html&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;a href=&quot;http://lifesinger.wordpress.com/2011/03/07/js-precision/&quot;&gt;http://lifesinger.wordpress.com/2011/03/07/js-precision/&lt;/a&gt;&lt;/p&gt;
-</content>
- </entry>
- 
- <entry>
-   <title>强大的弱关系</title>
-   <link href="http://spetacular.github.io/2015/01/14/strong-weak-ties.html"/>
-   <updated>2015-01-14T00:00:00+08:00</updated>
-   <id>http://spetacular.github.io/2015/01/14/strong-weak-ties</id>
-   <content type="html">&lt;p&gt;今天看 TED &lt;a href=&quot;http://www.ted.com/talks/meg_jay_why_30_is_not_the_new_20&quot; title=&quot;Why 30 is not the new 20&quot;&gt;Why 30 is not the new 20&lt;/a&gt; 时，看到三条很有意义的话：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;Get some identity capital&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Use your weak ties&lt;/strong&gt;&lt;/li&gt;
-  &lt;li&gt;Pick your family&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;对于第二条，演讲者Meg Jay说到，很多人靠私人联系找到工作。奇怪的是，这些私人联系更多的是熟人，而非亲近的朋友。&lt;/p&gt;
-
-&lt;p&gt;搜了下“weak ties”，发现美国康乃尔大学有这样的研究，并有本书（&lt;a href=&quot;http://www.cs.cornell.edu/home/kleinber/networks-book/&quot; title=&quot;Networks, Crowds, and Markets:  Reasoning About a Highly Connected World&quot;&gt;Networks, Crowds, and Markets:  Reasoning About a Highly Connected World&lt;/a&gt;）。其中第三章讲了Weak Ties（&lt;a href=&quot;http://www.cs.cornell.edu/home/kleinber/networks-book/networks-book-ch03.pdf&quot; title=&quot;Chapter 3 Strong and Weak Ties&quot;&gt;Chapter 3 Strong and Weak Ties&lt;/a&gt;），看懂一些，分享出来跟大家讨论一下。&lt;/p&gt;
-
-&lt;h2 id=&quot;section&quot;&gt;强弱关系&lt;/h2&gt;
-&lt;p&gt;社交网络中，每个人都是网络的节点，人与人之间的关系构成网络的边。
-在下图中，A认识B和C，A和B、A和C之间为强关系。B和C很可能会认识，形成弱关系。形象地说，强弱关系的区别如同朋友/熟人。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://omiga-wordpress.stor.sinaapp.com/uploads/strong_and_weak_ties.jpg&quot; alt=&quot;强关系与弱关系，来自维基百科&quot; /&gt;&lt;/p&gt;
-&lt;center&gt;图1&lt;/center&gt;
-
-&lt;h2 id=&quot;section-1&quot;&gt;三元闭合&lt;/h2&gt;
-&lt;p&gt;在图1中，“B和C很可能会认识”。直觉上，人们会把朋友介绍给另一个朋友。其实可以利用概率的知识简单说明。
-如下图，黑线代表每天的24小时。一天之内，A和B有接触时间（红色），A和C也有接触时间（黄色）。如果接触时间重合，就代表B和C遇见了，就有可能认识。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://omiga-wordpress.stor.sinaapp.com/uploads/san_yuan_gailv.jpg&quot; alt=&quot;相遇概率&quot; /&gt;&lt;/p&gt;
-&lt;center&gt;图2&lt;/center&gt;
-
-&lt;p&gt;这种现象就是三元闭合（Triadic Closure）。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://omiga-wordpress.stor.sinaapp.com/uploads/Triadic%20Closure.jpg&quot; alt=&quot;三元闭合&quot; /&gt;&lt;/p&gt;
-&lt;center&gt;图3&lt;/center&gt;
-
-&lt;h2 id=&quot;section-2&quot;&gt;桥&lt;/h2&gt;
-&lt;p&gt;常常有这种情况：你认识了一个人，然后他将你带入一个新的朋友圈。这个人就是“桥”。在下图中，B是A的桥。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://omiga-wordpress.stor.sinaapp.com/uploads/what_is_weak_ties.jpg&quot; alt=&quot;桥&quot; /&gt;&lt;/p&gt;
-&lt;center&gt;图4&lt;/center&gt;
-
-&lt;h2 id=&quot;section-3&quot;&gt;弱关系的意义&lt;/h2&gt;
-&lt;p&gt;好机会总是稀少的。在图4中，如果A想获得新信息，那么机会很可能来自于由B“桥”连接的未知朋友圈。尽管A的亲密朋友很乐意帮忙，但可能他们知道的信息和A本人差不多。&lt;/p&gt;
-
-&lt;h2 id=&quot;section-4&quot;&gt;启示&lt;/h2&gt;
-&lt;ol&gt;
-  &lt;li&gt;利用弱关系&lt;/li&gt;
-  &lt;li&gt;建立自己的弱关系网络&lt;/li&gt;
-  &lt;li&gt;倾听他们的声音&lt;/li&gt;
-  &lt;li&gt;帮助他们解决问题&lt;/li&gt;
-  &lt;li&gt;请求他们的帮助&lt;/li&gt;
-  &lt;li&gt;结识新朋友，不忘老朋友&lt;/li&gt;
-  &lt;li&gt;壮大自己，争取做“桥”&lt;/li&gt;
-&lt;/ol&gt;
-
 </content>
  </entry>
  
