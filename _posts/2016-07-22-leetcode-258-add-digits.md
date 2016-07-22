@@ -6,15 +6,15 @@ tagline: "Supporting tagline"
 tags : [leetcode , 算法 , swift]
 ---
 
-##题目名称
+## 题目名称
 
 Add Digits （非负整数各位相加）
 
-##题目地址
+## 题目地址
 
 https://leetcode.com/problems/add-digits
 
-##解法1
+## 解法1
 该算法有一个O(1)复杂度的[《解法》](http://my.oschina.net/Tsybius2014/blog/497645 "LeetCode：Add Digits - 非负整数各位相加")。其中的公式为 (num - 1) % 9 + 1。这里引用一下这个公式的推导过程：
 
     假设输入的数字是一个5位数字num，则num的各位分别为a、b、c、d、e。有如下关系：num = a * 10000 + b * 1000 + c * 100 + d * 10 + e  
@@ -25,7 +25,7 @@ https://leetcode.com/problems/add-digits
 
 这个公式是正确的，但这个推导过程有待商榷。为什么要num要先减1，最后再加上1？
 
-##解法2
+## 解法2
 其实还有一个更容易的理解的解法。推导过程如下：
 
     假设输入的数字是一个5位数字num，则num的各位分别为a、b、c、d、e。有如下关系：num = a * 10000 + b * 1000 + c * 100 + d * 10 + e  
