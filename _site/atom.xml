@@ -4,7 +4,7 @@
  <title>David&#39;s World</title>
  <link href="http://spetacular.github.io/atom.xml" rel="self"/>
  <link href="http://spetacular.github.io"/>
- <updated>2016-07-25T16:08:29+08:00</updated>
+ <updated>2016-07-25T16:14:14+08:00</updated>
  <id>http://spetacular.github.io</id>
  <author>
    <name>David</name>
@@ -189,7 +189,7 @@ apm.socket_stats_enabled=0
 
 &lt;h3 id=&quot;section-2&quot;&gt;问题2 部署后无数据，扩展已加载。&lt;/h3&gt;
 
-&lt;p&gt;mysql_stats_enabled默认值为0，这时是不收集的。可以将设置apm.mysql_stats_enabled=1。&lt;/p&gt;
+&lt;p&gt;mysql_stats_enabled默认值为0，这时是不收集的。可以设置apm.mysql_stats_enabled=1。&lt;/p&gt;
 
 </content>
  </entry>

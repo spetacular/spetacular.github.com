@@ -96,5 +96,5 @@ apm提供了一个web端查看的项目，地址为：[https://github.com/patric
 
 ### 问题2 部署后无数据，扩展已加载。
 
-mysql_stats_enabled默认值为0，这时是不收集的。可以将设置apm.mysql_stats_enabled=1。
+mysql_stats_enabled默认值为0，这时是不收集的。可以设置apm.mysql_stats_enabled=1。
 
