@@ -5,8 +5,8 @@
         <description>David&#39;s World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Fri, 22 Jul 2016 11:51:31 +0800</lastBuildDate>
-        <pubDate>Fri, 22 Jul 2016 11:51:31 +0800</pubDate>
+        <lastBuildDate>Mon, 25 Jul 2016 16:08:29 +0800</lastBuildDate>
+        <pubDate>Mon, 25 Jul 2016 16:08:29 +0800</pubDate>
         <ttl>60</ttl>
 
 
@@ -18,7 +18,7 @@
 
 &lt;h2 id=&quot;section-1&quot;&gt;题目地址&lt;/h2&gt;
 
-&lt;p&gt;https://leetcode.com/problems/add-digits&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://leetcode.com/problems/add-digits&quot;&gt;https://leetcode.com/problems/add-digits&lt;/a&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;section-2&quot;&gt;解法1&lt;/h2&gt;
 &lt;p&gt;该算法有一个O(1)复杂度的&lt;a href=&quot;http://my.oschina.net/Tsybius2014/blog/497645&quot; title=&quot;LeetCode：Add Digits - 非负整数各位相加&quot;&gt;《解法》&lt;/a&gt;。其中的公式为 (num - 1) % 9 + 1。这里引用一下这个公式的推导过程：&lt;/p&gt;
@@ -65,6 +65,131 @@
                 <link>http://spetacular.github.io/2016/07/22/leetcode-258-add-digits.html</link>
                 <guid>http://spetacular.github.io/2016/07/22/leetcode-258-add-digits</guid>
                 <pubDate>Fri, 22 Jul 2016 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>PHP性能监控问题记录之二－session与gc过程</title>
+                <description>&lt;h2 id=&quot;sessionstartgc&quot;&gt;session_start与gc垃圾回收过程&lt;/h2&gt;
+&lt;p&gt;在调性能时，偶然发现有个session函数（ThinkPHP/Common/functions.php）耗时很大。查了一下，ThinkPHP框架默认开启了session，就是每次请求都会调用session_start。 这里面存在问题。&lt;br /&gt;
+因为在PHP中, 如果使用file_handler作为Session的save handler, 那么就有概率在每次session_start的时候运行Session的Gc过程。详见&lt;a href=&quot;http://www.laruence.com/2011/03/29/1949.html&quot;&gt;鸟哥的分析&lt;/a&gt;。&lt;br /&gt;
+这样就造成每隔一段时间，session函数这里触发了Gc过程，就变慢了。&lt;/p&gt;
+
+&lt;p&gt;解决方法是将session_start默认关闭，需要时再打开。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&#39;SESSION_AUTO_START&#39;=&amp;gt;false
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+                <link>http://spetacular.github.io/2016/06/16/session-and-gc.html</link>
+                <guid>http://spetacular.github.io/2016/06/16/session-and-gc</guid>
+                <pubDate>Thu, 16 Jun 2016 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>PHP性能监控问题记录之一－安装配置php-apm</title>
+                <description>&lt;h2 id=&quot;php-apm&quot;&gt;php-apm是什么&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/patrickallaert/php-apm&quot;&gt;php-apm&lt;/a&gt;是一个PHP的性能检测工具，它能方便地捕捉到错误信息，并提供错误追踪回溯，获取请求的统计内存、CPU、响应时间的统计信息，并提供&lt;a href=&quot;https://github.com/patrickallaert/php-apm-web&quot;&gt;可视化的展示&lt;/a&gt;。&lt;/p&gt;
+
+&lt;h2 id=&quot;apm&quot;&gt;安装apm&lt;/h2&gt;
+&lt;p&gt;安装apm有两种方式：从PECL安装，或从源码编译。这里采用PECL安装。源码编译见&lt;a href=&quot;https://github.com/patrickallaert/php-apm#from-source&quot;&gt;官方文档&lt;/a&gt;。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo pecl install apm
+WARNING: channel &quot;pecl.php.net&quot; has updated its protocols, use &quot;pecl channel-update pecl.php.net&quot; to update
+downloading APM-2.0.5.tgz ...
+Starting to download APM-2.0.5.tgz (31,484 bytes)
+.........done: 31,484 bytes
+14 source files, building
+running: phpize
+Configuring for:
+PHP Api Version:         20131106
+Zend Module Api No:      20131226
+Zend Extension Api No:   220131226
+Enable Sqlite3 support [yes] : no
+Enable MariaDB/MySQL support [yes] : yes
+Enable Socket support [yes] : yes
+Enable Statsd support [yes] : yes
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;出现了如下错误：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;configure: error: Cannot find MySQL header files
+ERROR: `/tmp/pear/temp/APM/configure --with-php-config=/usr/bin/php-config --with-sqlite3=no --with-mysql --enable-socket=yes --enable-statsd=yes&#39; failed
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;需要安装下mysql dev&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo apt-get install mysql-client libmysqlclient-dev
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;apm-1&quot;&gt;配置apm&lt;/h2&gt;
+&lt;p&gt;在php.ini上配置apm。apm.so依赖于json.so，如果之前没有加载，则应先加载。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;extension=json.so
+extension=apm.so
+;;;;;;;;;;;;;;;;;;;
+; Module Settings ;
+;;;;;;;;;;;;;;;;;;;
+
+;apm
+apm.mysql_enabled=1
+; Error reporting level specific to the MariaDB/MySQL driver, same level as for PHP&#39;s *error_reporting*
+apm.mysql_error_reporting=E_ALL|E_STRICT
+apm.mysql_stats_enabled=1
+apm.mysql_host=localhost
+apm.mysql_port=3306
+apm.mysql_user=apm
+apm.mysql_pass=apm
+apm.mysql_db=apm
+apm.socket_enabled=0
+apm.socket_stats_enabled=0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然后重启php，例如：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;service php5-fpm restart
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;apm-web&quot;&gt;部署apm-web&lt;/h2&gt;
+&lt;p&gt;apm提供了一个web端查看的项目，地址为：&lt;a href=&quot;https://github.com/patrickallaert/php-apm-web&quot;&gt;https://github.com/patrickallaert/php-apm-web&lt;/a&gt;。&lt;/p&gt;
+
+&lt;p&gt;将&lt;a href=&quot;https://github.com/patrickallaert/php-apm-web/archive/master.zip&quot;&gt;https://github.com/patrickallaert/php-apm-web/archive/master.zip&lt;/a&gt;解压后上传到网站根目录，或者如果使用git，可以clone到网站根目录下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;git clone https://github.com/patrickallaert/php-apm-web.git apm-web
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然后编辑config/db.php文件。如果选用mysql，可以如下配置：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;return new PDO(&quot;mysql:host=localhost;dbname=apm&quot;, &quot;apm&quot;, &quot;apm&quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;最后的效果如下：&lt;/p&gt;
+
+&lt;p&gt;返回Error的请求列表
+&lt;img src=&quot;http://spetacular.github.io/images/2016/web_apm_faulty.png&quot; alt=&quot;返回Error的请求列表&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;点击每一列，都会出现请求的URL、时间、内存、CPU使用情况，以及错误信息。
+&lt;img src=&quot;http://spetacular.github.io/images/2016/web_apm_e_error.png&quot; alt=&quot;错误信息&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;点击错误信息，会出现该错误的Stacktrace。
+&lt;img src=&quot;http://spetacular.github.io/images/2016/web_apm_stacktrace.png&quot; alt=&quot;错误追踪回溯&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;还有详细的访问统计日志。
+&lt;img src=&quot;http://spetacular.github.io/images/2016/web_apm_stats.png&quot; alt=&quot;访问日志&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;常见问题&lt;/h2&gt;
+
+&lt;h3 id=&quot;section-1&quot;&gt;问题1 部署后无数据，且扩展未加载。&lt;/h3&gt;
+
+&lt;p&gt;检测php.ini文件，看是否有apm扩展。如果出现类似如下的信息，则说明扩展已加载。
+&lt;img src=&quot;http://spetacular.github.io/images/2016/php_ini_apm.png&quot; alt=&quot;php.ini文件&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;section-2&quot;&gt;问题2 部署后无数据，扩展已加载。&lt;/h3&gt;
+
+&lt;p&gt;mysql_stats_enabled默认值为0，这时是不收集的。可以将设置apm.mysql_stats_enabled=1。&lt;/p&gt;
+
+</description>
+                <link>http://spetacular.github.io/2016/06/15/problem-tips.html</link>
+                <guid>http://spetacular.github.io/2016/06/15/problem-tips</guid>
+                <pubDate>Wed, 15 Jun 2016 00:00:00 +0800</pubDate>
         </item>
 
         <item>
@@ -1657,124 +1782,6 @@ httpConnection.setRequestProperty(&quot;RANGE&quot;, &quot;bytes=1024-&quot;);
                 <link>http://spetacular.github.io/2015/01/29/fiddler-can-not-drag-session-to-composer.html</link>
                 <guid>http://spetacular.github.io/2015/01/29/fiddler-can-not-drag-session-to-composer</guid>
                 <pubDate>Thu, 29 Jan 2015 00:00:00 +0800</pubDate>
-        </item>
-
-        <item>
-                <title>cgi与fastcgi的区别</title>
-                <description>&lt;p&gt;青石街有两个卖烧饼的，王大与李二。&lt;/p&gt;
-
-&lt;p&gt;顾客很少。&lt;/p&gt;
-
-&lt;p&gt;王大很闲。每次有顾客，王大就生火、和面、擀饼、下炉、出锅。不出一会儿，热腾腾的烧饼就送到顾客面前。顾客走后，王大就收拾炉子，熄火休息。&lt;/p&gt;
-
-&lt;p&gt;李二却很忙。每天早晨，李二就生火、和面，等着顾客上门。白天里，顾客来，李二就擀饼、下炉、出锅，然后等下一位顾客。直到夜幕降临，李二才打烊。&lt;/p&gt;
-
-&lt;p&gt;后来青石街城镇化 ，人多起来，买烧饼的人也多了。&lt;/p&gt;
-
-&lt;p&gt;王大很忙。每个顾客来，都要生火、和面、熄火 ，不胜其烦；顾客的等待时间在延长，不满情绪在酝酿。&lt;/p&gt;
-
-&lt;p&gt;李二也很忙，不过还是和以前一样，不太累，顾客也满意。&lt;/p&gt;
-
-&lt;p&gt;故事很傻，勿喷啊，讲的是cgi与fastcgi的区别。&lt;/p&gt;
-
-&lt;p&gt;cgi像王大。每次请求，web服务器都会根据请求的内容，fork一个新进程来运行外部程序或解释器， 这个进程会把处理完的数据返回给web服务器，最后web服务器把内容发送给用户，刚才fork的进程也随之退出。 如果下次用户还请求该动态脚本，那么web服务器又再次fork一个新进程，周而复始的进行。&lt;/p&gt;
-
-&lt;p&gt;fastcgi像李二。web服务器启动时，就开启一个进程来等待请求。收到一个请求时，不会重新fork一个进程（因为这个进程在web服务器启动时就开启了，而且不会退出），web服务器直接把内容传递给这个进程（进程间通信，但fastcgi使用了别的方式，tcp方式通信），这个进程收到请求后进行处理，把结果返回给web服务器，最后自己接着等待下一个请求的到来，而不是退出。&lt;/p&gt;
-
-&lt;p&gt;总结一下：&lt;/p&gt;
-
-&lt;p&gt;在web服务器方面&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;cgi：fork一个新的进程进行处理&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;fastcgi：用tcp方式跟远程机子上的进程或本地进程建立连接&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;在对数据进行处理的进程方面&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;cgi：读取参数，处理数据，然后就结束生命期&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;fastcgi： 要开启tcp端口，进入循环，等待数据的到来，处理数据&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;参考资料：http://www.cnblogs.com/jamesbd/p/3567682.html&lt;/p&gt;
-</description>
-                <link>http://spetacular.github.io/2015/01/25/cgi-and-fastcgi.html</link>
-                <guid>http://spetacular.github.io/2015/01/25/cgi-and-fastcgi</guid>
-                <pubDate>Sun, 25 Jan 2015 00:00:00 +0800</pubDate>
-        </item>
-
-        <item>
-                <title>Javascript整型数字精度限制</title>
-                <description>&lt;p&gt;在做一个项目时，需要生成一个长整数Id，生成函数如下：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;`$Id = date(&#39;YmdHis&#39;) . rand(1, 100000);`
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;按照时间加随机数的形式，可以直观地看到这个Id是何时生成的。&lt;/p&gt;
-
-&lt;p&gt;这样，我用PHP生成了这样一个数&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$id = &#39;2014112010185143423&#39;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;然后将值传给JS变量&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;var id = &amp;lt;?php echo $id;?&amp;gt;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;但是在使用时，发现id竟然变了。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-01-20/js_int_lose.png&quot; alt=&quot;精度丢失&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;猜想可能是溢出，把dialogid给换成字符串，一切就OK了。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;var id = &#39;&amp;lt;?php echo $id;?&amp;gt;&#39;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-01-20/js_string_int.png&quot; alt=&quot;用字符串处理&quot; /&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;section&quot;&gt;为啥动了我的数？&lt;/h2&gt;
-&lt;p&gt;原来JS采用IEEE 754定义的双精度浮点数。当有效位数超过 52 位时，会存在精度丢失。&lt;/p&gt;
-
-&lt;p&gt;IEEE 754表示的64位双精度数据的格式如下，其中52位的Significand是无符号整数。你可以将Significand左移或右移，移动的位数保存在Exponent里，11位可以表示+(2^10 -1) ~ -(2^10 -1)的范围。Sign表示正负。&lt;/p&gt;
-
-&lt;table border=&quot;1&quot;&gt;
-    &lt;tr&gt;
-        &lt;th&gt;Total&lt;/th&gt;&lt;th&gt;bits&lt;/th&gt;&lt;th&gt;Exponent&lt;/th&gt;&lt;th&gt;Significand&lt;/th&gt;
- 	&lt;/tr&gt;
- 	&lt;tr&gt;
-		&lt;td&gt;64&lt;/td&gt;&lt;td&gt;1&lt;/td&gt;&lt;td&gt;11&lt;/td&gt;&lt;td&gt;52&lt;/td&gt;
-    &lt;/tr&gt;
-&lt;/table&gt;
-
-&lt;p&gt;这就是说，当Exponent起作用时，精度会丢失。即：
-左移时，数字末位补零；
-右移时，数字末位丢失。&lt;/p&gt;
-
-&lt;p&gt;回到前面提到的数字Id，数字大于2^53-1，表示该数时，相当于将Significand左移，只能将末位补零。&lt;/p&gt;
-
-&lt;p&gt;另外，js的Number提供了最大无误差的数字：&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Number.MAX_SAFE_INTEGER is 9007199254740991 (2^53−1).&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;参考资料：&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://blog.vjeux.com/2010/javascript/javascript-max_int-number-limits.html&quot;&gt;http://blog.vjeux.com/2010/javascript/javascript-max_int-number-limits.html&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://lifesinger.wordpress.com/2011/03/07/js-precision/&quot;&gt;http://lifesinger.wordpress.com/2011/03/07/js-precision/&lt;/a&gt;&lt;/p&gt;
-</description>
-                <link>http://spetacular.github.io/2015/01/20/js-int-limit.html</link>
-                <guid>http://spetacular.github.io/2015/01/20/js-int-limit</guid>
-                <pubDate>Tue, 20 Jan 2015 00:00:00 +0800</pubDate>
         </item>
 
 

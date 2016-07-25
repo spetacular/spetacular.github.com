@@ -7,11 +7,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<title>HTTP 416错误与断点续传</title>
+	<title>PHP性能监控问题记录之一－安装配置php-apm</title>
 	<meta name="author" content="David">
 	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
 	<link href='/assets/themes/the-program/css/style.css' rel="stylesheet" media="all">
-	<link href="http://feeds.feedburner.com/" rel="alternate" title="HTTP 416错误与断点续传" type="application/atom+xml">
+	<link href="http://feeds.feedburner.com/" rel="alternate" title="PHP性能监控问题记录之一－安装配置php-apm" type="application/atom+xml">
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.0.6/modernizr.min.js"></script>
 </head>
 <body>
@@ -43,111 +43,121 @@
 			<header>
 				<div class="unit-head">
 					<div class="unit-inner unit-head-inner">
-						<h1 class="h2 entry-title">HTTP 416错误与断点续传</h1>
+						<h1 class="h2 entry-title">PHP性能监控问题记录之一－安装配置php-apm</h1>
 					</div><!-- unit-inner -->
 				</div><!-- unit-head -->
 			</header>
 
 			<div class="bd">
 				<div class="entry-content">
-					<p>看房团 App 1.8.2更新版本时，偶然发现无法从1.8.1升级到1.8.2，于是探究一番，发现大有深意。</p>
+					<h2 id="php-apm">php-apm是什么</h2>
+<p><a href="https://github.com/patrickallaert/php-apm">php-apm</a>是一个PHP的性能检测工具，它能方便地捕捉到错误信息，并提供错误追踪回溯，获取请求的统计内存、CPU、响应时间的统计信息，并提供<a href="https://github.com/patrickallaert/php-apm-web">可视化的展示</a>。</p>
 
-<h2 id="section">问题</h2>
-<p>升级，无非是下载新版软件包，再进行安装。无法更新，最直接的反应是下载链接是不是404了？</p>
+<h2 id="apm">安装apm</h2>
+<p>安装apm有两种方式：从PECL安装，或从源码编译。这里采用PECL安装。源码编译见<a href="https://github.com/patrickallaert/php-apm#from-source">官方文档</a>。</p>
 
-<p>那抓下包吧。</p>
-
-<p><img src="http://spetacular.github.io/images/2015-01-30/fiddler-session.jpg" alt="fiddler抓包记录" /></p>
-
-<p>出人意料的416。</p>
-
-<p>把地址放到浏览器中，能成功下载；传到手机上，也能安装。说明不是下载链接的问题。</p>
-
-<p>先看下HTTP 416错误代表什么吧？</p>
-
-<p><code>所请求的范围无法满足 (Requested Range not satisfiable)</code></p>
-
-<p>看了不明觉厉，因为从没遇见过。</p>
-
-<h2 id="section-1">探索</h2>
-<p>问了下客户端的同学，发现下载使用的是HttpURLConnection，于是Google一下，得到一些关键信息：</p>
-
-<pre><code>HTTP response code: 416是由于读取文件时设置的Range有误造成的，具体的说就是下面这行代码有误：
-httpConnection.setRequestProperty("RANGE", "bytes=1024-");
-这个RANGE显然不能超出文件的size
+<pre><code>sudo pecl install apm
+WARNING: channel "pecl.php.net" has updated its protocols, use "pecl channel-update pecl.php.net" to update
+downloading APM-2.0.5.tgz ...
+Starting to download APM-2.0.5.tgz (31,484 bytes)
+.........done: 31,484 bytes
+14 source files, building
+running: phpize
+Configuring for:
+PHP Api Version:         20131106
+Zend Module Api No:      20131226
+Zend Extension Api No:   220131226
+Enable Sqlite3 support [yes] : no
+Enable MariaDB/MySQL support [yes] : yes
+Enable Socket support [yes] : yes
+Enable Statsd support [yes] : yes
 </code></pre>
 
-<p>而客户端设置的RANGE为文件大小。</p>
+<p>出现了如下错误：</p>
 
-<p>试想，文件存在远程服务器上，如何知道文件大小？</p>
-
-<p>至少要发起两次请求。第一次请求，不需要下载整个文件，只需要获得Response的Content-Length大小；第二次请求，将Content-Length值写进RANGE，实现下载。</p>
-
-<p>看第一次请求时，发现如下：</p>
-
-<p><img src="http://spetacular.github.io/images/2015-01-30/range-bytes-zero.png" alt="range bytes=0" /></p>
-
-<p>这是罪魁祸首！</p>
-
-<p>为了验证，将Range去掉，再构造请求，一切OK。</p>
-
-<p><img src="http://spetacular.github.io/images/2015-01-30/remove-range.jpg" alt="去掉Range" /></p>
-
-<h2 id="section-2">结论</h2>
-<p>造成返回码416的原因，是设置的Range有误。解决办法也很简单，将第一次请求时的Range去掉。</p>
-
-<pre><code>   //删掉之后，整个世界都清净了！
-   conn.setRequestProperty("Range", "bytes=" + startPosition);// startPosition=0
+<pre><code>configure: error: Cannot find MySQL header files
+ERROR: `/tmp/pear/temp/APM/configure --with-php-config=/usr/bin/php-config --with-sqlite3=no --with-mysql --enable-socket=yes --enable-statsd=yes' failed
 </code></pre>
 
-<h2 id="section-3">启示</h2>
-<p>解决bug并不难，难的是版本已发，鞭长莫及。这时我想到的解决办法是：用其它链接替换，或服务器做一个中转。但前者需要更换CDN提供商，后者需要接入层服务器的支持，都没有着眼于问题的本质。</p>
+<p>需要安装下mysql dev</p>
 
-<p>问题的本质是，无论CDN服务器支持与否，客户端请求的方式都存在不足之处，在下一个版本中修正即可。而且从报表上看，用户自发地通过其它途径升级到了最新版本！</p>
-
-<p>程序员感叹：不要试图用代码解决所有问题。</p>
-
-<p>讨论
-下载地址是CDN地址，莫非CDN不支持断点续传？</p>
-
-<p>恰好相反，416正是支持断点续传的标志。服务器得到一个Range之后，需要对它的取值进行检验，包括：</p>
-
-<p>开始位置非负</p>
-
-<p>结束位置需要大于开始位置</p>
-
-<p>开始位置需要小于文件长度减一 (因为这里的位置索引是从0开始的)</p>
-
-<p>若结束位置大于文件长度减一，则需要把它的值设置为文件长度减一</p>
-
-<p>如果Range的取值不合法，则需要终止程序并告知浏览器：</p>
-
-<pre><code>    header('HTTP/1.1 416 Requested Range Not Satisfiable');
+<pre><code>sudo apt-get install mysql-client libmysqlclient-dev
 </code></pre>
 
-<p>在本文的例子中，CDN服务器尽职尽责地告诉客户端，你的请求错了！</p>
+<h2 id="apm-1">配置apm</h2>
+<p>在php.ini上配置apm。apm.so依赖于json.so，如果之前没有加载，则应先加载。</p>
 
-<p>CDN服务器没有错，但可以采用稍微柔性的处理方法。Range为0，可以啊，就从头开始下载吧。</p>
+<pre><code>extension=json.so
+extension=apm.so
+;;;;;;;;;;;;;;;;;;;
+; Module Settings ;
+;;;;;;;;;;;;;;;;;;;
 
-<p>七牛云存储就是这么干的。</p>
+;apm
+apm.mysql_enabled=1
+; Error reporting level specific to the MariaDB/MySQL driver, same level as for PHP's *error_reporting*
+apm.mysql_error_reporting=E_ALL|E_STRICT
+apm.mysql_stats_enabled=1
+apm.mysql_host=localhost
+apm.mysql_port=3306
+apm.mysql_user=apm
+apm.mysql_pass=apm
+apm.mysql_db=apm
+apm.socket_enabled=0
+apm.socket_stats_enabled=0
+</code></pre>
 
-<p>PS：别问我最后一句是怎么来的，七牛给过我一顶太阳帽^_^。</p>
+<p>然后重启php，例如：</p>
 
-<p>参考网址：</p>
+<pre><code>service php5-fpm restart
+</code></pre>
 
-<p><a href="http://www.checkupdown.com/status/E416_cn.html">http://www.checkupdown.com/status/E416_cn.html</a></p>
+<h2 id="apm-web">部署apm-web</h2>
+<p>apm提供了一个web端查看的项目，地址为：<a href="https://github.com/patrickallaert/php-apm-web">https://github.com/patrickallaert/php-apm-web</a>。</p>
 
-<p><a href="http://blog.csdn.net/zollty/article/details/9176829">http://blog.csdn.net/zollty/article/details/9176829</a></p>
+<p>将<a href="https://github.com/patrickallaert/php-apm-web/archive/master.zip">https://github.com/patrickallaert/php-apm-web/archive/master.zip</a>解压后上传到网站根目录，或者如果使用git，可以clone到网站根目录下：</p>
 
-<p><a href="http://www.pureweber.com/article/resumable-download/">http://www.pureweber.com/article/resumable-download/</a></p>
+<pre><code>git clone https://github.com/patrickallaert/php-apm-web.git apm-web
+</code></pre>
+
+<p>然后编辑config/db.php文件。如果选用mysql，可以如下配置：</p>
+
+<pre><code>return new PDO("mysql:host=localhost;dbname=apm", "apm", "apm");
+</code></pre>
+
+<p>最后的效果如下：</p>
+
+<p>返回Error的请求列表
+<img src="http://spetacular.github.io/images/2016/web_apm_faulty.png" alt="返回Error的请求列表" /></p>
+
+<p>点击每一列，都会出现请求的URL、时间、内存、CPU使用情况，以及错误信息。
+<img src="http://spetacular.github.io/images/2016/web_apm_e_error.png" alt="错误信息" /></p>
+
+<p>点击错误信息，会出现该错误的Stacktrace。
+<img src="http://spetacular.github.io/images/2016/web_apm_stacktrace.png" alt="错误追踪回溯" /></p>
+
+<p>还有详细的访问统计日志。
+<img src="http://spetacular.github.io/images/2016/web_apm_stats.png" alt="访问日志" /></p>
+
+<h2 id="section">常见问题</h2>
+
+<h3 id="section-1">问题1 部署后无数据，且扩展未加载。</h3>
+
+<p>检测php.ini文件，看是否有apm扩展。如果出现类似如下的信息，则说明扩展已加载。
+<img src="http://spetacular.github.io/images/2016/php_ini_apm.png" alt="php.ini文件" /></p>
+
+<h3 id="section-2">问题2 部署后无数据，扩展已加载。</h3>
+
+<p>mysql_stats_enabled默认值为0，这时是不收集的。可以将设置apm.mysql_stats_enabled=1。</p>
+
 
 					<div class="meta">
 						<p class="date-publish">
 							Published: 
-							<date class="date-pub" title="2015-01-30T00:00:00+08:00" datetime="2015-01-30T00:00:00+08:00" pubdate>
-							<span class="month"><abbr>January</abbr></span>
-							<span class="day">30</span>
-							<span class="year">2015</span>
+							<date class="date-pub" title="2016-06-15T00:00:00+08:00" datetime="2016-06-15T00:00:00+08:00" pubdate>
+							<span class="month"><abbr>June</abbr></span>
+							<span class="day">15</span>
+							<span class="year">2016</span>
 							</date>
 						</p>
 						<ul class="list-category list-linear">
@@ -174,9 +184,9 @@ httpConnection.setRequestProperty("RANGE", "bytes=1024-");
 
   
      
-    	<li><a href="/tags.html#http-ref">http <span>1</span></a></li>
+    	<li><a href="/tags.html#PHP-ref">PHP <span>2</span></a></li>
      
-    	<li><a href="/tags.html#断点续传-ref">断点续传 <span>1</span></a></li>
+    	<li><a href="/tags.html#性能-ref">性能 <span>2</span></a></li>
     
   
 
@@ -223,13 +233,13 @@ httpConnection.setRequestProperty("RANGE", "bytes=1024-");
 					<nav class="pagination">
 						<ul>
 							
-							<li class="prev"><a class="internal" rel="prev"  href="/2015/01/29/fiddler-can-not-drag-session-to-composer.html" title="View 鼠标无法拖放的解决办法">&laquo; 鼠标无法拖放的解决办法</a></li>
+							<li class="prev"><a class="internal" rel="prev"  href="/2016/02/15/sns-hot-feed-ranking-algorithm.html" title="View 社交网站:热门内容排名算法浅议">&laquo; 社交网站:热门内容排名算法浅议</a></li>
 							
 							
 							<li class="pipe"> | </li>
 							
 							
-							<li class="next"><a class="internal" rel="next"  href="/2015/02/27/mysql-show-profiles-get-execute-time.html" title="View Mysql Tips -- 显示执行SQL耗时，精确到毫秒">Mysql Tips -- 显示执行SQL耗时，精确到毫秒 &raquo;</a></li>
+							<li class="next"><a class="internal" rel="next"  href="/2016/06/16/session-and-gc.html" title="View PHP性能监控问题记录之二－session与gc过程">PHP性能监控问题记录之二－session与gc过程 &raquo;</a></li>
 							
 						</ul>
 					</nav>
@@ -278,7 +288,7 @@ httpConnection.setRequestProperty("RANGE", "bytes=1024-");
 		};
 	load('//platform.twitter.com/widgets.js', 'tweetjs');
 	// load('https://apis.google.com/js/plusone.js', 'gplus1js'); // Checkout http://j.mp/ApDgMr for usage html for this is <div class="g-plusone" data-size="medium"></div>
-	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2015/01/30/http-code-416-and-download.html" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
+	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2016/06/15/problem-tips.html" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
 	}(document, 'script'));
 </script>
 <script>
