@@ -5,13 +5,110 @@
         <description>David&#39;s World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Mon, 25 Jul 2016 16:14:14 +0800</lastBuildDate>
-        <pubDate>Mon, 25 Jul 2016 16:14:14 +0800</pubDate>
+        <lastBuildDate>Tue, 26 Jul 2016 16:22:20 +0800</lastBuildDate>
+        <pubDate>Tue, 26 Jul 2016 16:22:20 +0800</pubDate>
         <ttl>60</ttl>
 
 
         <item>
-                <title>Leetcode 258 ：Add Digits - 非负整数各位相加（另外一个解法）</title>
+                <title>Leetcode 21. Merge Two Sorted Lists - 合并有序链表（递归与非递归解法）</title>
+                <description>&lt;h2 id=&quot;section&quot;&gt;题目名称&lt;/h2&gt;
+
+&lt;p&gt;Merge Two Sorted Lists （合并有序链表）&lt;/p&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;题目地址&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://leetcode.com/problems/merge-two-sorted-lists/&quot;&gt;https://leetcode.com/problems/merge-two-sorted-lists/&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;section-2&quot;&gt;题目描述&lt;/h2&gt;
+&lt;p&gt;英文：Merge two sorted linked lists and return it as a new list. The new list should be made by splicing together the nodes of the first two lists.&lt;/p&gt;
+
+&lt;p&gt;中文：有两个有序链表，将之合并为一个有序链表。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-3&quot;&gt;解法1 递归&lt;/h2&gt;
+&lt;p&gt;合并过程是这样的：先比较两个链表的头节点，节点值小的先摘到新链表中；然后再处理剩下的链表，直到两个链表都为空。递归解法比较容易实现。&lt;/p&gt;
+
+&lt;p&gt;算法代码（swift）如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;class Solution {
+    func mergeTwoLists(l1: ListNode?, _ l2: ListNode?) -&amp;gt; ListNode? {
+        if l1 == nil{
+            return l2
+        }
+        if l2 == nil{
+            return l1
+        }
+        var ret: ListNode?
+        if l1!.val &amp;gt; l2!.val{
+            ret = l2
+            ret!.next = mergeTwoLists(l1,l2!.next)
+        } else {
+            ret = l1
+            ret!.next = mergeTwoLists(l1!.next,l2)
+        }
+        return ret
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;section-4&quot;&gt;解法2 非递归&lt;/h2&gt;
+&lt;p&gt;也可以用while循环来做。就是用一个tail指针遍历两个链表，每次走到值较小的节点上，直到其中一个链表走到头。最后拼上另一个链表即可。&lt;/p&gt;
+
+&lt;p&gt;算法代码（swift）如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;class Solution {
+    func mergeTwoLists(l1: ListNode?, _ l2: ListNode?) -&amp;gt; ListNode? {
+        if l1 == nil{
+            return l2
+        }
+        if l2 == nil{
+            return l1
+        }
+        var head: ListNode?
+        var tail: ListNode?
+        var ll1 = l1
+        var ll2 = l2
+        if l1!.val &amp;gt; l2!.val{
+            head = l2
+            ll2 = l2!.next
+        }else{
+            head = l1
+            ll1 = l1!.next
+        }
+        tail = head
+        head?.next = tail
+        while ll1 != nil &amp;amp;&amp;amp; ll2 != nil{
+            if ll1!.val &amp;gt; ll2!.val{
+                tail?.next = ll2
+                tail = ll2
+                ll2 = ll2?.next
+            }else{
+                tail?.next = ll1
+                tail = ll1
+                ll1 = ll1?.next
+            }
+        }
+        if ll1 == nil{
+            tail?.next = ll2
+        }
+        if ll2 == nil{
+            tail?.next = ll1
+        }
+        return head
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;假设l1长度为M，l2长度为N，则算法复杂度为O(M+N)。&lt;/p&gt;
+
+</description>
+                <link>http://spetacular.github.io/2016/07/23/merge-two-sorted-lists.html</link>
+                <guid>http://spetacular.github.io/2016/07/23/merge-two-sorted-lists</guid>
+                <pubDate>Sat, 23 Jul 2016 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>Leetcode 258. Add Digits - 非负整数各位相加（另外一个解法）</title>
                 <description>&lt;h2 id=&quot;section&quot;&gt;题目名称&lt;/h2&gt;
 
 &lt;p&gt;Add Digits （非负整数各位相加）&lt;/p&gt;
@@ -20,7 +117,14 @@
 
 &lt;p&gt;&lt;a href=&quot;https://leetcode.com/problems/add-digits&quot;&gt;https://leetcode.com/problems/add-digits&lt;/a&gt;&lt;/p&gt;
 
-&lt;h2 id=&quot;section-2&quot;&gt;解法1&lt;/h2&gt;
+&lt;h2 id=&quot;section-2&quot;&gt;题目描述&lt;/h2&gt;
+&lt;p&gt;英文：Given a non-negative integer num, repeatedly add all its digits until the result has only one digit.&lt;/p&gt;
+
+&lt;p&gt;中文：有一个非负整数num，重复这样的操作：对该数字的各位数字求和，对这个和的各位数字再求和……直到最后得到一个仅1位的数字（即小于10的数字）。&lt;/p&gt;
+
+&lt;p&gt;例如：num=38，3+8=11,1+1=2。因为2小于10，因此返回2。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-3&quot;&gt;解法1&lt;/h2&gt;
 &lt;p&gt;该算法有一个O(1)复杂度的&lt;a href=&quot;http://my.oschina.net/Tsybius2014/blog/497645&quot; title=&quot;LeetCode：Add Digits - 非负整数各位相加&quot;&gt;《解法》&lt;/a&gt;。其中的公式为 (num - 1) % 9 + 1。这里引用一下这个公式的推导过程：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;假设输入的数字是一个5位数字num，则num的各位分别为a、b、c、d、e。有如下关系：num = a * 10000 + b * 1000 + c * 100 + d * 10 + e  
@@ -32,7 +136,7 @@
 
 &lt;p&gt;这个公式是正确的，但这个推导过程有待商榷。为什么要num要先减1，最后再加上1？&lt;/p&gt;
 
-&lt;h2 id=&quot;section-3&quot;&gt;解法2&lt;/h2&gt;
+&lt;h2 id=&quot;section-4&quot;&gt;解法2&lt;/h2&gt;
 &lt;p&gt;其实还有一个更容易的理解的解法。推导过程如下：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;假设输入的数字是一个5位数字num，则num的各位分别为a、b、c、d、e。有如下关系：num = a * 10000 + b * 1000 + c * 100 + d * 10 + e  
@@ -1760,28 +1864,6 @@ httpConnection.setRequestProperty(&quot;RANGE&quot;, &quot;bytes=1024-&quot;);
                 <link>http://spetacular.github.io/2015/01/30/http-code-416-and-download.html</link>
                 <guid>http://spetacular.github.io/2015/01/30/http-code-416-and-download</guid>
                 <pubDate>Fri, 30 Jan 2015 00:00:00 +0800</pubDate>
-        </item>
-
-        <item>
-                <title>鼠标无法拖放的解决办法</title>
-                <description>&lt;p&gt;话说fiddler有个强大的功能，就是把Session请求拖到Composer里，很方便地构造请求。我偶然发现不能拖放了。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-01-29/fiddler-drag-to-composer.png&quot; alt=&quot;拖放&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;刚开始以为fiddler的bug，于是找了N多新旧版本，试了还是不行。后来发现不但fiddler不能拖放，连文件都不能拖放了。那就是系统的配置问题了。&lt;/p&gt;
-
-&lt;p&gt;最终的解决办法是：&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;按两下esc键&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;奇迹般地好了！
-原因不明，如果网友刚好也遇到这样的问题，不妨一试。&lt;/p&gt;
-</description>
-                <link>http://spetacular.github.io/2015/01/29/fiddler-can-not-drag-session-to-composer.html</link>
-                <guid>http://spetacular.github.io/2015/01/29/fiddler-can-not-drag-session-to-composer</guid>
-                <pubDate>Thu, 29 Jan 2015 00:00:00 +0800</pubDate>
         </item>
 
 

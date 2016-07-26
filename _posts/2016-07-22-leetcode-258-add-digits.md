@@ -1,5 +1,5 @@
 ---
-title: Leetcode 258 ：Add Digits - 非负整数各位相加（另外一个解法）
+title: Leetcode 258. Add Digits - 非负整数各位相加（另外一个解法）
 layout: post
 category : 算法
 tagline: "Supporting tagline"
@@ -13,6 +13,13 @@ Add Digits （非负整数各位相加）
 ## 题目地址
 
 [https://leetcode.com/problems/add-digits](https://leetcode.com/problems/add-digits)
+
+## 题目描述
+英文：Given a non-negative integer num, repeatedly add all its digits until the result has only one digit.
+
+中文：有一个非负整数num，重复这样的操作：对该数字的各位数字求和，对这个和的各位数字再求和……直到最后得到一个仅1位的数字（即小于10的数字）。
+
+例如：num=38，3+8=11,1+1=2。因为2小于10，因此返回2。
 
 ## 解法1
 该算法有一个O(1)复杂度的[《解法》](http://my.oschina.net/Tsybius2014/blog/497645 "LeetCode：Add Digits - 非负整数各位相加")。其中的公式为 (num - 1) % 9 + 1。这里引用一下这个公式的推导过程：
