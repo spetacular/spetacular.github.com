@@ -33,7 +33,7 @@ Note: Your solution should be in logarithmic time complexity.
 
     5,10,15,...,x*5^y
 
-然后看每个数字能分解出x个5:
+然后看每个数字能分解出y个5:
 
     1,1,1,...,y
 
@@ -75,7 +75,7 @@ Note: Your solution should be in logarithmic time complexity.
 	    }
 	}
 
-这个算法需要循环n/5次，时间复杂度为O(N)，尽管“政治正确”，但不是最好的解法。
+这个算法需要循环(n/5)次，时间复杂度为O(N)，尽管“政治正确”，但不是最好的解法。
 
 ## 解法2 O(logN)
 
