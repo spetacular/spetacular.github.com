@@ -4,13 +4,134 @@
  <title>David&#39;s World</title>
  <link href="http://spetacular.github.io/atom.xml" rel="self"/>
  <link href="http://spetacular.github.io"/>
- <updated>2016-07-26T16:22:20+08:00</updated>
+ <updated>2016-07-28T16:26:48+08:00</updated>
  <id>http://spetacular.github.io</id>
  <author>
    <name>David</name>
    <email>blah@email.test</email>
  </author>
 
+ 
+ <entry>
+   <title>Leetcode 172. Factorial Trailing Zeroes - 阶乘后缀0的数目（O(N)与O(logN)解法）</title>
+   <link href="http://spetacular.github.io/2016/07/24/factorial-trailing-zeroes.html"/>
+   <updated>2016-07-24T00:00:00+08:00</updated>
+   <id>http://spetacular.github.io/2016/07/24/factorial-trailing-zeroes</id>
+   <content type="html">&lt;h2 id=&quot;section&quot;&gt;题目名称&lt;/h2&gt;
+
+&lt;p&gt;Factorial Trailing Zeroes （阶乘后缀0的数目）&lt;/p&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;题目地址&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://leetcode.com/problems/factorial-trailing-zeroes/&quot;&gt;https://leetcode.com/problems/factorial-trailing-zeroes/&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;section-2&quot;&gt;题目描述&lt;/h2&gt;
+&lt;p&gt;英文：Given an integer n, return the number of trailing zeroes in n!. &lt;br /&gt;
+Note: Your solution should be in logarithmic time complexity.&lt;/p&gt;
+
+&lt;p&gt;中文：给一个整型数字n，返回n!后缀0的数目。需要对数级别的时间复杂度。&lt;/p&gt;
+
+&lt;p&gt;例如：10! = 3628800，后缀有两个0，返回2。&lt;/p&gt;
+
+&lt;h2 id=&quot;on&quot;&gt;解法1 O(N)&lt;/h2&gt;
+&lt;p&gt;首先是不太可能直接计算n!，然后看后缀0的数目，因为n!太大了！&lt;br /&gt;
+我们先用笨办法，先算出前25个数字的结果，看能否找到规律。&lt;br /&gt;
+&lt;img src=&quot;http://spetacular.github.io/images/2016/zeros.png&quot; alt=&quot;n!与后缀0数目的关系&quot; /&gt;
+可以看到，后缀0数目发生变化的点，都是5的整数倍，如5，10，15，20，25…
+这容易理解，产生后缀0，只能是与10相乘，而10 ＝ 2 * 5，2广泛存在于偶数中，所以不用关注。只需要知道5的倍数的整数即可。&lt;/p&gt;
+
+&lt;p&gt;给定整数n，要找到以下数字：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;5,10,15,...,n-n%5
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然后看每个数字能分解出x个5:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;1,1,1,...,5*x+y
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;最后的结果就是如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Sum(1,1,1,...,x)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;算法代码（swift）如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;class Solution {
+    func trailingZeroes(n: Int) -&amp;gt; Int {
+        if n &amp;lt; 5{
+            return 0
+        }
+        var i = 5
+        var ret = 0
+        while i &amp;lt;= n{
+            ret += num_of_five(i)
+            i += 5
+        }
+        return ret
+    }
+    
+    func num_of_five(n: Int) -&amp;gt;(Int) {
+        var i = n
+        var ret = 0
+      
+        while i &amp;gt; 0{
+            if i % 5 != 0 {
+                break
+            }
+            i = i / 5
+            if i &amp;gt;= 1{
+                ret++
+            }
+        }
+        
+        return ret
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这个算法需要循环n/5次，时间复杂度为O(N)，尽管“政治正确”，但不是最好的解法。&lt;/p&gt;
+
+&lt;h2 id=&quot;ologn&quot;&gt;解法2 O(logN)&lt;/h2&gt;
+
+&lt;p&gt;将解法1的过程再回顾下，计算5出现的次数，可以分解看：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;出现5，计数加1；
+出现5*5，计数加2；
+出现5*5*5，计数加3；
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;换个角度看，&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;除以5，计数加1；
+除以5，计数加1；除以5*5，计数加1；
+除以5，计数加1；除以5*5，计数加1；除以5*5*5，计数加1；
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;那么最后结果&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;floor(n/5) + floor(n/25) + floor(n/125) + ....
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;算法代码（swift）如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;class Solution1 {
+    func trailingZeroes(n: Int) -&amp;gt; Int {
+        var i = 5
+        var ret = 0
+        while i &amp;lt;= n{
+            ret += n / i
+            i *= 5
+        }
+        return ret
+    }
+}	
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;算法复杂度为O(logN)。&lt;/p&gt;
+
+</content>
+ </entry>
  
  <entry>
    <title>Leetcode 21. Merge Two Sorted Lists - 合并有序链表（递归与非递归解法）</title>
@@ -1767,104 +1888,6 @@ Query OK, 0 rows affected (0.00 sec)
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Duration就是该SQL的执行时间，将其乘以1000就是毫秒数了。&lt;/p&gt;
-</content>
- </entry>
- 
- <entry>
-   <title>HTTP 416错误与断点续传</title>
-   <link href="http://spetacular.github.io/2015/01/30/http-code-416-and-download.html"/>
-   <updated>2015-01-30T00:00:00+08:00</updated>
-   <id>http://spetacular.github.io/2015/01/30/http-code-416-and-download</id>
-   <content type="html">&lt;p&gt;看房团 App 1.8.2更新版本时，偶然发现无法从1.8.1升级到1.8.2，于是探究一番，发现大有深意。&lt;/p&gt;
-
-&lt;h2 id=&quot;section&quot;&gt;问题&lt;/h2&gt;
-&lt;p&gt;升级，无非是下载新版软件包，再进行安装。无法更新，最直接的反应是下载链接是不是404了？&lt;/p&gt;
-
-&lt;p&gt;那抓下包吧。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-01-30/fiddler-session.jpg&quot; alt=&quot;fiddler抓包记录&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;出人意料的416。&lt;/p&gt;
-
-&lt;p&gt;把地址放到浏览器中，能成功下载；传到手机上，也能安装。说明不是下载链接的问题。&lt;/p&gt;
-
-&lt;p&gt;先看下HTTP 416错误代表什么吧？&lt;/p&gt;
-
-&lt;p&gt;&lt;code&gt;所请求的范围无法满足 (Requested Range not satisfiable)&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;看了不明觉厉，因为从没遇见过。&lt;/p&gt;
-
-&lt;h2 id=&quot;section-1&quot;&gt;探索&lt;/h2&gt;
-&lt;p&gt;问了下客户端的同学，发现下载使用的是HttpURLConnection，于是Google一下，得到一些关键信息：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;HTTP response code: 416是由于读取文件时设置的Range有误造成的，具体的说就是下面这行代码有误：
-httpConnection.setRequestProperty(&quot;RANGE&quot;, &quot;bytes=1024-&quot;);
-这个RANGE显然不能超出文件的size
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;而客户端设置的RANGE为文件大小。&lt;/p&gt;
-
-&lt;p&gt;试想，文件存在远程服务器上，如何知道文件大小？&lt;/p&gt;
-
-&lt;p&gt;至少要发起两次请求。第一次请求，不需要下载整个文件，只需要获得Response的Content-Length大小；第二次请求，将Content-Length值写进RANGE，实现下载。&lt;/p&gt;
-
-&lt;p&gt;看第一次请求时，发现如下：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-01-30/range-bytes-zero.png&quot; alt=&quot;range bytes=0&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;这是罪魁祸首！&lt;/p&gt;
-
-&lt;p&gt;为了验证，将Range去掉，再构造请求，一切OK。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-01-30/remove-range.jpg&quot; alt=&quot;去掉Range&quot; /&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;section-2&quot;&gt;结论&lt;/h2&gt;
-&lt;p&gt;造成返回码416的原因，是设置的Range有误。解决办法也很简单，将第一次请求时的Range去掉。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;   //删掉之后，整个世界都清净了！
-   conn.setRequestProperty(&quot;Range&quot;, &quot;bytes=&quot; + startPosition);// startPosition=0
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&quot;section-3&quot;&gt;启示&lt;/h2&gt;
-&lt;p&gt;解决bug并不难，难的是版本已发，鞭长莫及。这时我想到的解决办法是：用其它链接替换，或服务器做一个中转。但前者需要更换CDN提供商，后者需要接入层服务器的支持，都没有着眼于问题的本质。&lt;/p&gt;
-
-&lt;p&gt;问题的本质是，无论CDN服务器支持与否，客户端请求的方式都存在不足之处，在下一个版本中修正即可。而且从报表上看，用户自发地通过其它途径升级到了最新版本！&lt;/p&gt;
-
-&lt;p&gt;程序员感叹：不要试图用代码解决所有问题。&lt;/p&gt;
-
-&lt;p&gt;讨论
-下载地址是CDN地址，莫非CDN不支持断点续传？&lt;/p&gt;
-
-&lt;p&gt;恰好相反，416正是支持断点续传的标志。服务器得到一个Range之后，需要对它的取值进行检验，包括：&lt;/p&gt;
-
-&lt;p&gt;开始位置非负&lt;/p&gt;
-
-&lt;p&gt;结束位置需要大于开始位置&lt;/p&gt;
-
-&lt;p&gt;开始位置需要小于文件长度减一 (因为这里的位置索引是从0开始的)&lt;/p&gt;
-
-&lt;p&gt;若结束位置大于文件长度减一，则需要把它的值设置为文件长度减一&lt;/p&gt;
-
-&lt;p&gt;如果Range的取值不合法，则需要终止程序并告知浏览器：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;    header(&#39;HTTP/1.1 416 Requested Range Not Satisfiable&#39;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;在本文的例子中，CDN服务器尽职尽责地告诉客户端，你的请求错了！&lt;/p&gt;
-
-&lt;p&gt;CDN服务器没有错，但可以采用稍微柔性的处理方法。Range为0，可以啊，就从头开始下载吧。&lt;/p&gt;
-
-&lt;p&gt;七牛云存储就是这么干的。&lt;/p&gt;
-
-&lt;p&gt;PS：别问我最后一句是怎么来的，七牛给过我一顶太阳帽^_^。&lt;/p&gt;
-
-&lt;p&gt;参考网址：&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://www.checkupdown.com/status/E416_cn.html&quot;&gt;http://www.checkupdown.com/status/E416_cn.html&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://blog.csdn.net/zollty/article/details/9176829&quot;&gt;http://blog.csdn.net/zollty/article/details/9176829&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://www.pureweber.com/article/resumable-download/&quot;&gt;http://www.pureweber.com/article/resumable-download/&lt;/a&gt;&lt;/p&gt;
 </content>
  </entry>
  
