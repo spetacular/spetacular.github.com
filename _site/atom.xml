@@ -4,7 +4,7 @@
  <title>David&#39;s World</title>
  <link href="http://spetacular.github.io/atom.xml" rel="self"/>
  <link href="http://spetacular.github.io"/>
- <updated>2016-07-28T16:26:48+08:00</updated>
+ <updated>2016-07-28T16:38:14+08:00</updated>
  <id>http://spetacular.github.io</id>
  <author>
    <name>David</name>
@@ -40,19 +40,19 @@ Note: Your solution should be in logarithmic time complexity.&lt;/p&gt;
 可以看到，后缀0数目发生变化的点，都是5的整数倍，如5，10，15，20，25…
 这容易理解，产生后缀0，只能是与10相乘，而10 ＝ 2 * 5，2广泛存在于偶数中，所以不用关注。只需要知道5的倍数的整数即可。&lt;/p&gt;
 
-&lt;p&gt;给定整数n，要找到以下数字：&lt;/p&gt;
+&lt;p&gt;给定整数n，要找到以下数字，其中x*5^y &amp;lt;= n：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;5,10,15,...,n-n%5
+&lt;pre&gt;&lt;code&gt;5,10,15,...,x*5^y
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;然后看每个数字能分解出x个5:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;1,1,1,...,5*x+y
+&lt;pre&gt;&lt;code&gt;1,1,1,...,y
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;最后的结果就是如下：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;Sum(1,1,1,...,x)
+&lt;pre&gt;&lt;code&gt;Sum(1,1,1,...,y)
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;算法代码（swift）如下：&lt;/p&gt;
