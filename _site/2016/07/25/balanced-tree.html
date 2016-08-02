@@ -7,11 +7,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<title>Leetcode 172. Factorial Trailing Zeroes - 阶乘后缀0的数目（O(N)与O(logN)解法）</title>
+	<title>Leetcode 110. Balanced Binary Tree - 判断是否为平衡二叉树（递归解法）</title>
 	<meta name="author" content="David">
 	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
 	<link href='/assets/themes/the-program/css/style.css' rel="stylesheet" media="all">
-	<link href="http://feeds.feedburner.com/" rel="alternate" title="Leetcode 172. Factorial Trailing Zeroes - 阶乘后缀0的数目（O(N)与O(logN)解法）" type="application/atom+xml">
+	<link href="http://feeds.feedburner.com/" rel="alternate" title="Leetcode 110. Balanced Binary Tree - 判断是否为平衡二叉树（递归解法）" type="application/atom+xml">
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.0.6/modernizr.min.js"></script>
 </head>
 <body>
@@ -43,7 +43,7 @@
 			<header>
 				<div class="unit-head">
 					<div class="unit-inner unit-head-inner">
-						<h1 class="h2 entry-title">Leetcode 172. Factorial Trailing Zeroes - 阶乘后缀0的数目（O(N)与O(logN)解法）</h1>
+						<h1 class="h2 entry-title">Leetcode 110. Balanced Binary Tree - 判断是否为平衡二叉树（递归解法）</h1>
 					</div><!-- unit-inner -->
 				</div><!-- unit-head -->
 			</header>
@@ -52,124 +52,94 @@
 				<div class="entry-content">
 					<h2 id="section">题目名称</h2>
 
-<p>Factorial Trailing Zeroes （阶乘后缀0的数目）</p>
+<p>Balanced Binary Tree （判断是否为平衡二叉树）</p>
 
 <h2 id="section-1">题目地址</h2>
 
-<p><a href="https://leetcode.com/problems/factorial-trailing-zeroes/">https://leetcode.com/problems/factorial-trailing-zeroes/</a></p>
+<p><a href="https://leetcode.com/problems/balanced-binary-tree/">https://leetcode.com/problems/balanced-binary-tree/</a></p>
 
 <h2 id="section-2">题目描述</h2>
-<p>英文：Given an integer n, return the number of trailing zeroes in n!. <br />
-Note: Your solution should be in logarithmic time complexity.</p>
+<p>英文：Given a binary tree, determine if it is height-balanced.</p>
 
-<p>中文：给一个整型数字n，返回n!后缀0的数目。需要对数级别的时间复杂度。</p>
+<p>For this problem, a height-balanced binary tree is defined as a binary tree in which the depth of the two subtrees of every node never differ by more than 1.</p>
 
-<p>例如：10! = 3628800，后缀有两个0，返回2。</p>
+<p>中文：给一个二叉树，判断是否为平衡二叉树。</p>
 
-<h2 id="on">解法1 O(N)</h2>
-<p>首先是不太可能直接计算n!，然后看后缀0的数目，因为n!太大了！<br />
-我们先用笨办法，先算出前25个数字的结果，看能否找到规律。<br />
-<img src="http://spetacular.github.io/images/2016/zeros.png" alt="n!与后缀0数目的关系" />
-可以看到，后缀0数目发生变化的点，都是5的整数倍，如5，10，15，20，25…
-这容易理解，产生后缀0，只能是与10相乘，而10 ＝ 2 * 5，2广泛存在于偶数中，所以不用关注。只需要知道5的倍数的整数即可。</p>
-
-<p>给定整数n，要找到以下数字，其中x*5^y &lt;= n：</p>
-
-<pre><code>5,10,15,...,x*5^y
-</code></pre>
-
-<p>然后看每个数字能分解出y个5:</p>
-
-<pre><code>1,1,1,...,y
-</code></pre>
-
-<p>最后的结果就是如下：</p>
-
-<pre><code>Sum(1,1,1,...,y)
-</code></pre>
+<h2 id="section-3">解法</h2>
 
 <p>算法代码（swift）如下：</p>
 
 <pre><code>class Solution {
-    func trailingZeroes(n: Int) -&gt; Int {
-        if n &lt; 5{
+    
+    func getHeight(root: TreeNode?) -&gt; Int{
+        if root == nil {
             return 0
         }
-        var i = 5
-        var ret = 0
-        while i &lt;= n{
-            ret += num_of_five(i)
-            i += 5
-        }
-        return ret
-    }
-    
-    func num_of_five(n: Int) -&gt;(Int) {
-        var i = n
-        var ret = 0
-      
-        while i &gt; 0{
-            if i % 5 != 0 {
-                break
-            }
-            i = i / 5
-            if i &gt;= 1{
-                ret++
-            }
+        var leftCount = 0;
+        var rightCount = 0;
+        if root!.left != nil{
+            leftCount = getHeight(root!.left) + 1
         }
         
-        return ret
+        if root!.right != nil{
+            rightCount = getHeight(root!.right) + 1
+        }
+        
+        return leftCount &gt; rightCount ? leftCount : rightCount
+        
+    }
+    
+    
+    func isBalanced(root: TreeNode?) -&gt; Bool {
+        if root == nil {
+            return true
+        }
+        var leftCount = root!.left == nil ? 0:getHeight(root!.left)+1
+        var rightCount = root!.right == nil ? 0:getHeight(root!.right)+1
+        if abs(leftCount-rightCount) &gt; 1{
+            return false
+        }else if !isBalanced(root!.left) || !isBalanced(root!.right){
+            return false
+        }else{
+            return true
+        }
+        
     }
 }
 </code></pre>
 
-<p>这个算法需要循环(n/5)次，时间复杂度为O(N)，尽管“政治正确”，但不是最好的解法。</p>
+<p>测试用例示例：</p>
 
-<h2 id="ologn">解法2 O(logN)</h2>
+<p><img src="http://spetacular.github.io/images/2016/balanced_tree_test_case.jpg" alt="平衡二叉树测试用例" /></p>
 
-<p>将解法1的过程再回顾下，计算5出现的次数，可以分解看：</p>
+<pre><code>public class TreeNode {
+     public var val: Int
+     public var left: TreeNode?
+     public var right: TreeNode?
+     public init(_ val: Int) {
+         self.val = val
+         self.left = nil
+         self.right = nil
+     }
+}
 
-<pre><code>出现5，计数加1；
-出现5*5，计数加2；
-出现5*5*5，计数加3；
+//[1,null,2,null,3]
+var r1 = TreeNode(1)
+var r2 = TreeNode(2)
+var r3 = TreeNode(3)
+r1.right = r2
+r2.right = r3
+var s = Solution()
+s.isBalanced(r1)//false
 </code></pre>
-
-<p>换个角度看，</p>
-
-<pre><code>除以5，计数加1；
-除以5，计数加1；除以5*5，计数加1；
-除以5，计数加1；除以5*5，计数加1；除以5*5*5，计数加1；
-</code></pre>
-
-<p>那么最后结果</p>
-
-<pre><code>floor(n/5) + floor(n/25) + floor(n/125) + ....
-</code></pre>
-
-<p>算法代码（swift）如下：</p>
-
-<pre><code>class Solution1 {
-    func trailingZeroes(n: Int) -&gt; Int {
-        var i = 5
-        var ret = 0
-        while i &lt;= n{
-            ret += n / i
-            i *= 5
-        }
-        return ret
-    }
-}	
-</code></pre>
-
-<p>算法复杂度为O(logN)。</p>
 
 
 					<div class="meta">
 						<p class="date-publish">
 							Published: 
-							<date class="date-pub" title="2016-07-24T00:00:00+08:00" datetime="2016-07-24T00:00:00+08:00" pubdate>
+							<date class="date-pub" title="2016-07-25T00:00:00+08:00" datetime="2016-07-25T00:00:00+08:00" pubdate>
 							<span class="month"><abbr>July</abbr></span>
-							<span class="day">24</span>
+							<span class="day">25</span>
 							<span class="year">2016</span>
 							</date>
 						</p>
@@ -248,13 +218,13 @@ Note: Your solution should be in logarithmic time complexity.</p>
 					<nav class="pagination">
 						<ul>
 							
-							<li class="prev"><a class="internal" rel="prev"  href="/2016/07/23/merge-two-sorted-lists.html" title="View Leetcode 21. Merge Two Sorted Lists - 合并有序链表（递归与非递归解法）">&laquo; Leetcode 21. Merge Two Sorted Lists - 合并有序链表（递归与非递归解法）</a></li>
+							<li class="prev"><a class="internal" rel="prev"  href="/2016/07/24/factorial-trailing-zeroes.html" title="View Leetcode 172. Factorial Trailing Zeroes - 阶乘后缀0的数目（O(N)与O(logN)解法）">&laquo; Leetcode 172. Factorial Trailing Zeroes - 阶乘后缀0的数目（O(N)与O(logN)解法）</a></li>
 							
 							
 							<li class="pipe"> | </li>
 							
 							
-							<li class="next"><a class="internal" rel="next"  href="/2016/07/25/balanced-tree.html" title="View Leetcode 110. Balanced Binary Tree - 判断是否为平衡二叉树（递归解法）">Leetcode 110. Balanced Binary Tree - 判断是否为平衡二叉树（递归解法） &raquo;</a></li>
+							<li class="next"><a class="internal" rel="next"  href="/2016/07/25/reverse-string.html" title="View Leetcode 344. Reverse String - 反转字符串">Leetcode 344. Reverse String - 反转字符串 &raquo;</a></li>
 							
 						</ul>
 					</nav>
@@ -303,7 +273,7 @@ Note: Your solution should be in logarithmic time complexity.</p>
 		};
 	load('//platform.twitter.com/widgets.js', 'tweetjs');
 	// load('https://apis.google.com/js/plusone.js', 'gplus1js'); // Checkout http://j.mp/ApDgMr for usage html for this is <div class="g-plusone" data-size="medium"></div>
-	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2016/07/24/factorial-trailing-zeroes.html" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
+	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2016/07/25/balanced-tree.html" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
 	}(document, 'script'));
 </script>
 <script>

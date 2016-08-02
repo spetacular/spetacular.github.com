@@ -9,6 +9,8 @@ http://spetacular.github.io/rss.xml
 http://spetacular.github.io/sitemap.txt
 http://spetacular.github.io/tags.html
 
+http://spetacular.github.io/2016/07/25/reverse-string.html
+http://spetacular.github.io/2016/07/25/balanced-tree.html
 http://spetacular.github.io/2016/07/24/factorial-trailing-zeroes.html
 http://spetacular.github.io/2016/07/23/merge-two-sorted-lists.html
 http://spetacular.github.io/2016/07/22/leetcode-258-add-digits.html

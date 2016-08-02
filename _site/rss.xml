@@ -5,10 +5,146 @@
         <description>David&#39;s World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Thu, 28 Jul 2016 16:39:12 +0800</lastBuildDate>
-        <pubDate>Thu, 28 Jul 2016 16:39:12 +0800</pubDate>
+        <lastBuildDate>Tue, 02 Aug 2016 19:33:32 +0800</lastBuildDate>
+        <pubDate>Tue, 02 Aug 2016 19:33:32 +0800</pubDate>
         <ttl>60</ttl>
 
+
+        <item>
+                <title>Leetcode 344. Reverse String - 反转字符串</title>
+                <description>&lt;h2 id=&quot;section&quot;&gt;题目名称&lt;/h2&gt;
+
+&lt;p&gt;Reverse String （反转字符串）&lt;/p&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;题目地址&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://leetcode.com/problems/reverse-string/&quot;&gt;https://leetcode.com/problems/reverse-string/&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;section-2&quot;&gt;题目描述&lt;/h2&gt;
+&lt;p&gt;英文：Write a function that takes a string as input and returns the string reversed.&lt;/p&gt;
+
+&lt;p&gt;Example:
+Given s = “hello”, return “olleh”.&lt;/p&gt;
+
+&lt;p&gt;中文：反转一个字符串。例如”hello”，转化为”olleh”。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-3&quot;&gt;解法&lt;/h2&gt;
+
+&lt;p&gt;算法代码（swift）如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;class Solution {
+    func reverseString(s: String) -&amp;gt; String {
+        var len = s.characters.count
+        var sArr  = [Character](count:len, repeatedValue:&quot; &quot;)
+        for i in s.characters{
+            sArr[--len] = i
+        }
+        
+        return String(sArr)
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;算法复杂度为O(N)。&lt;/p&gt;
+
+&lt;p&gt;还有一种时间复杂度为O(N/2)的解法，即交换与中心对称位置的字符，这样可以只循环N/2次。&lt;/p&gt;
+
+</description>
+                <link>http://spetacular.github.io/2016/07/25/reverse-string.html</link>
+                <guid>http://spetacular.github.io/2016/07/25/reverse-string</guid>
+                <pubDate>Mon, 25 Jul 2016 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>Leetcode 110. Balanced Binary Tree - 判断是否为平衡二叉树（递归解法）</title>
+                <description>&lt;h2 id=&quot;section&quot;&gt;题目名称&lt;/h2&gt;
+
+&lt;p&gt;Balanced Binary Tree （判断是否为平衡二叉树）&lt;/p&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;题目地址&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://leetcode.com/problems/balanced-binary-tree/&quot;&gt;https://leetcode.com/problems/balanced-binary-tree/&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;section-2&quot;&gt;题目描述&lt;/h2&gt;
+&lt;p&gt;英文：Given a binary tree, determine if it is height-balanced.&lt;/p&gt;
+
+&lt;p&gt;For this problem, a height-balanced binary tree is defined as a binary tree in which the depth of the two subtrees of every node never differ by more than 1.&lt;/p&gt;
+
+&lt;p&gt;中文：给一个二叉树，判断是否为平衡二叉树。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-3&quot;&gt;解法&lt;/h2&gt;
+
+&lt;p&gt;算法代码（swift）如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;class Solution {
+    
+    func getHeight(root: TreeNode?) -&amp;gt; Int{
+        if root == nil {
+            return 0
+        }
+        var leftCount = 0;
+        var rightCount = 0;
+        if root!.left != nil{
+            leftCount = getHeight(root!.left) + 1
+        }
+        
+        if root!.right != nil{
+            rightCount = getHeight(root!.right) + 1
+        }
+        
+        return leftCount &amp;gt; rightCount ? leftCount : rightCount
+        
+    }
+    
+    
+    func isBalanced(root: TreeNode?) -&amp;gt; Bool {
+        if root == nil {
+            return true
+        }
+        var leftCount = root!.left == nil ? 0:getHeight(root!.left)+1
+        var rightCount = root!.right == nil ? 0:getHeight(root!.right)+1
+        if abs(leftCount-rightCount) &amp;gt; 1{
+            return false
+        }else if !isBalanced(root!.left) || !isBalanced(root!.right){
+            return false
+        }else{
+            return true
+        }
+        
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;测试用例示例：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2016/balanced_tree_test_case.jpg&quot; alt=&quot;平衡二叉树测试用例&quot; /&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;public class TreeNode {
+     public var val: Int
+     public var left: TreeNode?
+     public var right: TreeNode?
+     public init(_ val: Int) {
+         self.val = val
+         self.left = nil
+         self.right = nil
+     }
+}
+
+//[1,null,2,null,3]
+var r1 = TreeNode(1)
+var r2 = TreeNode(2)
+var r3 = TreeNode(3)
+r1.right = r2
+r2.right = r3
+var s = Solution()
+s.isBalanced(r1)//false
+&lt;/code&gt;&lt;/pre&gt;
+
+</description>
+                <link>http://spetacular.github.io/2016/07/25/balanced-tree.html</link>
+                <guid>http://spetacular.github.io/2016/07/25/balanced-tree</guid>
+                <pubDate>Mon, 25 Jul 2016 00:00:00 +0800</pubDate>
+        </item>
 
         <item>
                 <title>Leetcode 172. Factorial Trailing Zeroes - 阶乘后缀0的数目（O(N)与O(logN)解法）</title>
@@ -1722,171 +1858,6 @@ WHERE m2.id IS NULL;
                 <link>http://spetacular.github.io/2015/03/17/office-url-not-break.html</link>
                 <guid>http://spetacular.github.io/2015/03/17/office-url-not-break</guid>
                 <pubDate>Tue, 17 Mar 2015 00:00:00 +0800</pubDate>
-        </item>
-
-        <item>
-                <title>Mysql Tips -- 合理利用查询缓存优化查询效率</title>
-                <description>&lt;p&gt;最近开发会员中心项目，遇到多表查询的问题，发现响应极慢，就动手查下原因，并进行一些优化。先说下成果吧，由6-7秒降到200ms以下。
-吃公鸡下的蛋之前，走道是这样的：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-03-08/before-optimization.png&quot; alt=&quot;before optimization&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;图1&lt;/p&gt;
-
-&lt;p&gt;吃完了之后，那家伙，再看，就成了这样：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-03-08/after-optimization.png&quot; alt=&quot;after optimization&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;图2&lt;/p&gt;
-
-&lt;p&gt;降到还可以接受的范围了。&lt;/p&gt;
-
-&lt;h1 id=&quot;section&quot;&gt;问题&lt;/h1&gt;
-&lt;p&gt;我在review代码和需求时，发现用户列表页访问很慢。该页面根据图3中的查询条件，筛选出符合条件的用户记录，每页显示15条记录，显示如图4所示。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-03-08/filter-conditions.png&quot; alt=&quot;filter conditions&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;图3&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-03-08/query-result.png&quot; alt=&quot;query result&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;图4&lt;/p&gt;
-
-&lt;p&gt;看下数据表的规模：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;select count(*) from t_uc_user;
-+----------+
-| count(*) |
-+----------+
-|  2001935 | 
-+----------+
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;200万条记录。&lt;/p&gt;
-
-&lt;h1 id=&quot;section-1&quot;&gt;定位问题&lt;/h1&gt;
-&lt;p&gt;听前辈说，解决查询问题的瓶颈，最重要的是查出瓶颈在哪。我深以为然，所以第一步就是把SQL打印出来。
-我发现的可疑点有：&lt;/p&gt;
-
-&lt;p&gt;1） 其中好几条SQL都是包含正则表达式的查询，耗时长达2秒以上。标记一下，稍后优化。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;select count(*) as num from t_uc_search_101_user where (((FStatus=&#39;1&#39;))) and ((((concat(&#39;|&#39;,FBusinessInfo, &#39;|&#39;) regexp &#39;\\|1_[[:alnum:]]*_[[:alnum:]]*_[[:alnum:]]*_[[:alnum:]]*\\|&#39;)))) and ((((concat(&#39;|&#39;,FAttributeInfo, &#39;|&#39;) regexp &#39;\\|1_-1_[[:alnum:]]*\\|&#39;))));
-+-----+
-| num |
-+-----+
-| 3   | 
-+-----+
-1 row in set (2.18 sec)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;2） 有至少三条count(*)查询，看下存储引擎，如果是Innodb，可以考虑用MYISAM。结果是MYISAM，此路不通。&lt;/p&gt;
-
-&lt;p&gt;3） 重复执行相同的SQL语句。这些SQL语句的功能是根据查询到的用户记录ID，去取用户的详细信息。以每页15条来看，可以减少15次查询。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;select * from t_uc_records_101 where ( (FId=&#39;5878970&#39;) OR (FId=&#39;5878969&#39;) OR (FId=&#39;5880317&#39;) ) AND FStatus!=-1
-select * from t_uc_records_101 where ( (FId=&#39;5878970&#39;) OR (FId=&#39;5878969&#39;) OR (FId=&#39;5880317&#39;) ) AND FStatus!=-1
-select * from t_uc_records_101 where ( (FId=&#39;5877911&#39;) ) AND FStatus!=-1
-select * from t_uc_records_101 where ( (FId=&#39;5877911&#39;) ) AND FStatus!=-1
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;4） 最大的问题是，每次以相同的查询条件加载，耗时好像没有减少。难道Mysql没有查询缓存吗？&lt;/p&gt;
-
-&lt;h1 id=&quot;section-2&quot;&gt;解决问题&lt;/h1&gt;
-
-&lt;p&gt;合理利用缓存技术，能提高网页访问速度。即便最终没能解决SQL语句的优化，也能在第二次加载时提高速度，带来良好体验。&lt;/p&gt;
-
-&lt;p&gt;1） 查询缓存是否开启？&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mysql&amp;gt; select @@query_cache_type;
-+--------------------+
-| @@query_cache_type |
-+--------------------+
-| ON                 | 
-+--------------------+
-1 row in set (0.01 sec)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;已开启。&lt;/p&gt;
-
-&lt;p&gt;2） 查询缓存是否可用？&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mysql&amp;gt; show variables like &#39;have_query_cache&#39;;
-+------------------+-------+
-| Variable_name    | Value |
-+------------------+-------+
-| have_query_cache | YES   | 
-+------------------+-------+
-1 row in set (0.01 sec)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;可用。&lt;/p&gt;
-
-&lt;p&gt;3） 查询缓存大小？&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mysql&amp;gt; select @@global.query_cache_size;
-+---------------------------+
-| @@global.query_cache_size |
-+---------------------------+
-|                         0 | 
-+---------------------------+
-1 row in set (0.00 sec)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;分配给查询缓存内存为0，就是没分配。  没有任何效果。&lt;/p&gt;
-
-&lt;p&gt;4） 设置查询缓存大小。大约10M，不够以后再加。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mysql&amp;gt; set @@global.query_cache_size=10000000;
-Query OK, 0 rows affected, 1 warning (0.00 sec)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;完成这些以后，发现第一次访问速度还是龟速。再刷新，就瞬间加载了。&lt;/p&gt;
-
-&lt;h1 id=&quot;section-3&quot;&gt;结论&lt;/h1&gt;
-&lt;p&gt;利用查询缓存来优化查询，能将访问速度减少到200ms以下，能满足当前需求。但是最终的解决之道是对耗时较多、冗余的SQL语句进行优化。
-所以，革命尚未成功，同志仍需努力！&lt;/p&gt;
-</description>
-                <link>http://spetacular.github.io/2015/03/08/use-mysql-query-cache.html</link>
-                <guid>http://spetacular.github.io/2015/03/08/use-mysql-query-cache</guid>
-                <pubDate>Sun, 08 Mar 2015 00:00:00 +0800</pubDate>
-        </item>
-
-        <item>
-                <title>Mysql Tips -- 显示执行SQL耗时，精确到毫秒</title>
-                <description>&lt;p&gt;MySQL执行一个SQL语句时，执行时间精确到秒。如下：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mysql&amp;gt; select * from test
-+----+-------+
-| id | name  |
-+----+-------+
-|  1 | david |
-+----+-------+
-1 row in set (0.00 sec)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;如何精确到毫秒呢？MySQL有个内置语句&lt;a href=&quot;http://dev.mysql.com/doc/refman/5.5/en/show-profile.html&quot; title=&quot;(show profile)&quot;&gt;(show profile)&lt;/a&gt;可以查看执行耗时。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mysql&amp;gt; set profiling=1;
-Query OK, 0 rows affected (0.00 sec)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;然后执行查询语句。
-使用show profiles就可以看到执行时间了。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;mysql&amp;gt; show profiles;
-+----------+------------+--------------------+
-| Query_ID | Duration   | Query              |
-+----------+------------+--------------------+
-|        1 | 0.00034500 | select * from test |
-+----------+------------+--------------------+
-1 row in set (0.04 sec)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Duration就是该SQL的执行时间，将其乘以1000就是毫秒数了。&lt;/p&gt;
-</description>
-                <link>http://spetacular.github.io/2015/02/27/mysql-show-profiles-get-execute-time.html</link>
-                <guid>http://spetacular.github.io/2015/02/27/mysql-show-profiles-get-execute-time</guid>
-                <pubDate>Fri, 27 Feb 2015 00:00:00 +0800</pubDate>
         </item>
 
 
