@@ -5,10 +5,169 @@
         <description>David&#39;s World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Tue, 02 Aug 2016 19:33:32 +0800</lastBuildDate>
-        <pubDate>Tue, 02 Aug 2016 19:33:32 +0800</pubDate>
+        <lastBuildDate>Tue, 06 Sep 2016 20:22:01 +0800</lastBuildDate>
+        <pubDate>Tue, 06 Sep 2016 20:22:01 +0800</pubDate>
         <ttl>60</ttl>
 
+
+        <item>
+                <title>Restful API中的JSON模板解析－JSONOut库的介绍</title>
+                <description>&lt;h2 id=&quot;json&quot;&gt;为什么需要JSON模板解析&lt;/h2&gt;
+
+&lt;p&gt;Restful API的两个重要因素是输入和输出，一个好的API要求输入和输出都清晰可见。
+输入包括用户提交的方式、参数等，都是可预期的。尽量不要采用数组接收。例如以下的例子，&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$data = $_POST;
+$User-&amp;gt;save($data);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这样的坏处一是无法过滤用户非法、多余的参数提交；二是参数不明，后续无法维护。&lt;/p&gt;
+
+&lt;p&gt;输出则要求仅提供满足需要的最小的数据集。例如如下的例子，&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$user = User::get(1);
+echo $user-&amp;gt;toJson();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这样的坏处一是输出的内容不清晰，只有知道数据表的结构才能了解输出的内容；二是可能一不小心把用户表敏感字段（密码，手机号）输出，造成信息泄漏。&lt;/p&gt;
+
+&lt;h2 id=&quot;jsonout&quot;&gt;JSONOut库介绍&lt;/h2&gt;
+
+&lt;p&gt;解决输出的方法，是采用JSON模板解析的方法。例如用户表有id,name,pass,avatar,phone字段，其中只有name,avatar是需要输出的。那么模板可以这样定义：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{
+  &quot;name&quot;: &quot;&quot;,
+  &quot;avatar&quot;: &quot;&quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;当输出用户数据时，仅保留name和avatar，其它字段自动过滤掉。&lt;/p&gt;
+
+&lt;p&gt;优点是：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;输出结构一目了然&lt;/li&gt;
+  &lt;li&gt;仅保留满足需要的最小的数据集&lt;/li&gt;
+  &lt;li&gt;敏感字段自动过滤，减少信息泄露&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;算法代码如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;class JSONOut
+{
+	/**
+	*按照JSON模板输出JSON数据
+	*@param data 源数据
+	*@param tplContent JSON模板内容
+	*@param multi 是否为多条内容，默认单条
+	*@return string
+	*/
+	public static function toJSON($data, $tplContent,$multi = false){
+        if(empty($data)){
+            return array();
+        }
+     
+        $tplData = json_decode($tplContent,true);
+        if(!$tplData){
+            return false;
+        }
+
+        $array = array();
+        if (!$multi) {
+            // 一维数组
+            $array = self::array_intersect_key_recursive($data,$tplData);
+        } else {
+            // 多维数组
+            foreach($data as $key =&amp;gt; $value){
+                $array[$key] = self::array_intersect_key_recursive($value,$tplData);
+            }
+        }
+
+        return json_encode($array);
+    }
+
+
+    private static function array_intersect_key_recursive(array $array1, array $array2) {
+        $array1 = array_intersect_key($array1, $array2);
+
+        foreach ($array1 as $key =&amp;gt; &amp;amp;$value) {
+            if (is_array($value) &amp;amp;&amp;amp; is_array($array2[$key])) {
+                $value = $this-&amp;gt;array_intersect_key_recursive($value, $array2[$key]);
+            }
+        }
+        return $array1;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;测试代码&lt;/h2&gt;
+
+&lt;p&gt;测试代码如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$tplContent = &amp;lt;&amp;lt;&amp;lt;EOT
+{
+  &quot;name&quot;: &quot;&quot;,
+  &quot;avatar&quot;: &quot;&quot;
+}
+EOT;
+
+//单条数据
+$user  = array(&#39;id&#39;=&amp;gt;1,&#39;name&#39; =&amp;gt; &#39;david&#39;,&#39;pass&#39; =&amp;gt; &#39;123456&#39;,&#39;phone&#39;=&amp;gt;&#39;13888888888&#39;,&#39;avatar&#39; =&amp;gt; &#39;http://spetacular.github.io/images/favicon.ico&#39;);
+
+echo JSONOut::toJSON($user,$tplContent,false);
+
+echo &quot;\n&quot;;
+
+//多条数据
+$users  = [array(&#39;id&#39;=&amp;gt;1,&#39;name&#39; =&amp;gt; &#39;david&#39;,&#39;pass&#39; =&amp;gt; &#39;123456&#39;,&#39;phone&#39;=&amp;gt;&#39;13888888888&#39;,&#39;avatar&#39; =&amp;gt; &#39;http://spetacular.github.io/images/favicon.ico&#39;),
+array(&#39;id&#39;=&amp;gt;2,&#39;name&#39; =&amp;gt; &#39;john&#39;,&#39;pass&#39; =&amp;gt; &#39;654321&#39;,&#39;phone&#39;=&amp;gt;&#39;13888888889&#39;,&#39;avatar&#39; =&amp;gt; &#39;http://spetacular.github.io/images/favicon.png&#39;)];
+
+echo JSONOut::toJSON($users,$tplContent,true);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;测试结果如下：&lt;/p&gt;
+
+&lt;p&gt;单条数据：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{
+  &quot;name&quot;: &quot;david&quot;,
+  &quot;avatar&quot;: &quot;http://spetacular.github.io/images/favicon.ico&quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;多条数据：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[
+  {
+    &quot;name&quot;: &quot;david&quot;,
+    &quot;avatar&quot;: &quot;http://spetacular.github.io/images/favicon.ico&quot;
+  },
+  {
+    &quot;name&quot;: &quot;john&quot;,
+    &quot;avatar&quot;: &quot;http://spetacular.github.io/images/favicon.png&quot;
+  }
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;未来扩展&lt;/h2&gt;
+&lt;p&gt;注意到JSON模板仅有key，没有value，未来可以在value上扩展，比如默认值，比如：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{&quot;gender&quot;:0}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果数据里没有gender的数据，则默认为0；&lt;/p&gt;
+
+&lt;p&gt;或者在value上加过滤函数，比如：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{&quot;age&quot;:&quot;int&quot;}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;表示age要转化为整型数字。&lt;/p&gt;
+</description>
+                <link>http://spetacular.github.io/2016/08/01/json-template-to-json.html</link>
+                <guid>http://spetacular.github.io/2016/08/01/json-template-to-json</guid>
+                <pubDate>Mon, 01 Aug 2016 00:00:00 +0800</pubDate>
+        </item>
 
         <item>
                 <title>Leetcode 344. Reverse String - 反转字符串</title>
@@ -1840,24 +1999,6 @@ WHERE m2.id IS NULL;
                 <link>http://spetacular.github.io/2015/04/03/retrieve-the-last-record-in-each-group.html</link>
                 <guid>http://spetacular.github.io/2015/04/03/retrieve-the-last-record-in-each-group</guid>
                 <pubDate>Fri, 03 Apr 2015 00:00:00 +0800</pubDate>
-        </item>
-
-        <item>
-                <title>Office 输入URL时单词中间出现长空格的解决办法</title>
-                <description>&lt;p&gt;Office在输入英文长单词时，默认不会从中间断开换行，这是很好的功能。但输入URL时也不会换行，导致出现“长空格”，如下图所示：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-03-17/big_space.png&quot; alt=&quot;换行导致出现长空格&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;这时，可以选中文字，进入“段落”=&amp;gt;“中文版式”，将”允许西文在单词中间换行”项打勾即可。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-03-17/duanluo_checked.png&quot; alt=&quot;勾选允许西文在单词中间换行&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;最终结果是，“长空格”不见了，文字变得紧凑。
-&lt;img src=&quot;http://spetacular.github.io/images/2015-03-17/no_big_space.png&quot; alt=&quot;去掉“长空格”&quot; /&gt;&lt;/p&gt;
-</description>
-                <link>http://spetacular.github.io/2015/03/17/office-url-not-break.html</link>
-                <guid>http://spetacular.github.io/2015/03/17/office-url-not-break</guid>
-                <pubDate>Tue, 17 Mar 2015 00:00:00 +0800</pubDate>
         </item>
 
 
