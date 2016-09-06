@@ -5,14 +5,17 @@
         <description>David&#39;s World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Tue, 06 Sep 2016 20:22:01 +0800</lastBuildDate>
-        <pubDate>Tue, 06 Sep 2016 20:22:01 +0800</pubDate>
+        <lastBuildDate>Tue, 06 Sep 2016 20:37:09 +0800</lastBuildDate>
+        <pubDate>Tue, 06 Sep 2016 20:37:09 +0800</pubDate>
         <ttl>60</ttl>
 
 
         <item>
                 <title>Restful API中的JSON模板解析－JSONOut库的介绍</title>
-                <description>&lt;h2 id=&quot;json&quot;&gt;为什么需要JSON模板解析&lt;/h2&gt;
+                <description>&lt;h2 id=&quot;section&quot;&gt;项目地址&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&quot;http://spetacular.github.io/2016/08/01/json-template-to-json.html&quot;&gt;Restful API中的JSON模板解析&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;json&quot;&gt;为什么需要JSON模板解析&lt;/h2&gt;
 
 &lt;p&gt;Restful API的两个重要因素是输入和输出，一个好的API要求输入和输出都清晰可见。
 输入包括用户提交的方式、参数等，都是可预期的。尽量不要采用数组接收。例如以下的例子，&lt;/p&gt;
@@ -100,7 +103,7 @@ echo $user-&amp;gt;toJson();
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&quot;section&quot;&gt;测试代码&lt;/h2&gt;
+&lt;h2 id=&quot;section-1&quot;&gt;测试代码&lt;/h2&gt;
 
 &lt;p&gt;测试代码如下：&lt;/p&gt;
 
@@ -149,7 +152,7 @@ echo JSONOut::toJSON($users,$tplContent,true);
 ]
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&quot;section-1&quot;&gt;未来扩展&lt;/h2&gt;
+&lt;h2 id=&quot;section-2&quot;&gt;未来扩展&lt;/h2&gt;
 &lt;p&gt;注意到JSON模板仅有key，没有value，未来可以在value上扩展，比如默认值，比如：&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;{&quot;gender&quot;:0}

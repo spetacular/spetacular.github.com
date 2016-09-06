@@ -50,7 +50,10 @@
 
 			<div class="bd">
 				<div class="entry-content">
-					<h2 id="json">为什么需要JSON模板解析</h2>
+					<h2 id="section">项目地址</h2>
+<p><a href="http://spetacular.github.io/2016/08/01/json-template-to-json.html">Restful API中的JSON模板解析</a></p>
+
+<h2 id="json">为什么需要JSON模板解析</h2>
 
 <p>Restful API的两个重要因素是输入和输出，一个好的API要求输入和输出都清晰可见。
 输入包括用户提交的方式、参数等，都是可预期的。尽量不要采用数组接收。例如以下的例子，</p>
@@ -138,7 +141,7 @@ echo $user-&gt;toJson();
 }
 </code></pre>
 
-<h2 id="section">测试代码</h2>
+<h2 id="section-1">测试代码</h2>
 
 <p>测试代码如下：</p>
 
@@ -187,7 +190,7 @@ echo JSONOut::toJSON($users,$tplContent,true);
 ]
 </code></pre>
 
-<h2 id="section-1">未来扩展</h2>
+<h2 id="section-2">未来扩展</h2>
 <p>注意到JSON模板仅有key，没有value，未来可以在value上扩展，比如默认值，比如：</p>
 
 <pre><code>{"gender":0}
