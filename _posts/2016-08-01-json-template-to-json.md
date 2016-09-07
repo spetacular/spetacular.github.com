@@ -7,7 +7,7 @@ tags : [restful , api , json]
 ---
 
 ## 项目地址
-[Restful API中的JSON模板解析](http://spetacular.github.io/2016/08/01/json-template-to-json.html)
+[Restful API中的JSON模板解析](https://github.com/spetacular/jsonout)
 
 ## 为什么需要JSON模板解析
 

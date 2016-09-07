@@ -5,15 +5,15 @@
         <description>David&#39;s World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Tue, 06 Sep 2016 20:37:09 +0800</lastBuildDate>
-        <pubDate>Tue, 06 Sep 2016 20:37:09 +0800</pubDate>
+        <lastBuildDate>Wed, 07 Sep 2016 10:26:46 +0800</lastBuildDate>
+        <pubDate>Wed, 07 Sep 2016 10:26:46 +0800</pubDate>
         <ttl>60</ttl>
 
 
         <item>
                 <title>Restful API中的JSON模板解析－JSONOut库的介绍</title>
                 <description>&lt;h2 id=&quot;section&quot;&gt;项目地址&lt;/h2&gt;
-&lt;p&gt;&lt;a href=&quot;http://spetacular.github.io/2016/08/01/json-template-to-json.html&quot;&gt;Restful API中的JSON模板解析&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/spetacular/jsonout&quot;&gt;Restful API中的JSON模板解析&lt;/a&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;json&quot;&gt;为什么需要JSON模板解析&lt;/h2&gt;
 
