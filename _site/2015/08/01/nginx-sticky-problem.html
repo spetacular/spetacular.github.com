@@ -50,8 +50,8 @@
 
 			<div class="bd">
 				<div class="entry-content">
-					<h1 id="sticky">什么是Sticky？</h1>
-<p>为了理解Sticky的工作原理，我们可以先考虑一个问题：负载均衡怎么做？</p>
+					<p>#什么是Sticky？#
+为了理解Sticky的工作原理，我们可以先考虑一个问题：负载均衡怎么做？</p>
 
 <p>DNS解析，在域名解析时分配给不同的服务器IP；</p>
 
@@ -63,8 +63,8 @@
 
 <p>为方便叙述，文中的cookie都指sticky使用的cookie。</p>
 
-<h1 id="sticky-1">Sticky工作原理</h1>
-<p>Sticky是nginx的一个模块,通过分发和识别cookie，来使同一个客户端的请求落在同一台服务器上。sticky的处理过程如下（假设cookie名称为route）：</p>
+<p>#Sticky工作原理
+Sticky是nginx的一个模块,通过分发和识别cookie，来使同一个客户端的请求落在同一台服务器上。sticky的处理过程如下（假设cookie名称为route）：</p>
 
 <p>1.客户端首次发起请求，请求头未带route的cookie。nginx接收请求，发现请求头没有route，则以轮询方式将请求分配给后端服务器。</p>
 
@@ -81,12 +81,13 @@
 <p>关于sticky的详细的配置过程在
 <a href="http://nginx.org/en/docs/http/ngx_http_upstream_module.html#sticky" title="nginx sticky详细配置">这里</a>。</p>
 
-<h1 id="section">参数解析</h1>
+<p>#参数解析</p>
 
 <p>这里引用淘宝Tengine的文档：</p>
 
-<pre><code>语法：session_sticky [cookie=name] [domain=your_domain] [path=your_path] [maxage=time] [mode=insert|rewrite|prefix] [option=indirect] [maxidle=time] [maxlife=time] [fallback=on|off] [hash=plain|md5]
+<div class="highlighter-rouge"><pre class="highlight"><code>语法：session_sticky [cookie=name] [domain=your_domain] [path=your_path] [maxage=time] [mode=insert|rewrite|prefix] [option=indirect] [maxidle=time] [maxlife=time] [fallback=on|off] [hash=plain|md5]
 </code></pre>
+</div>
 
 <p>默认值：session_sticky cookie=route mode=insert fallback=on</p>
 
@@ -128,22 +129,20 @@
 
 <p>hash不论是明文还是hash值，都有固定的数目。因为hash是server的标识，所以有多少个server，就有等同数量的hash值。</p>
 
-<h1 id="section-1">一些例外</h1>
+<p>#一些例外#</p>
 
-<h2 id="section-2">同一客户端的请求，有可能落在不同的后端服务器上</h2>
-<p>如果客户端启动时同时发起多个请求。由于这些请求都没带cookie，所以服务器会随机选择后端服务器，返回不同的cookie。当这些请求中的最后一个请求返回时，客户端的cookie才会稳定下来，值以最后返回的cookie为准。</p>
+<p>##同一客户端的请求，有可能落在不同的后端服务器上##
+如果客户端启动时同时发起多个请求。由于这些请求都没带cookie，所以服务器会随机选择后端服务器，返回不同的cookie。当这些请求中的最后一个请求返回时，客户端的cookie才会稳定下来，值以最后返回的cookie为准。</p>
 
-<h2 id="cookie">cookie不一定生效</h2>
-<p>由于cookie最初由服务器端下发，如果客户端禁用cookie，则cookie不会生效。</p>
+<p>##cookie不一定生效##
+由于cookie最初由服务器端下发，如果客户端禁用cookie，则cookie不会生效。</p>
 
-<h2 id="cookie-1">客户端可能不带cookie</h2>
-<p>Android客户端发送请求时，一般不会带上所有的cookie，需要明确指定哪些cookie会带上。如果希望用sticky做负载均衡，请对Android开发说加上cookie。</p>
+<p>##客户端可能不带cookie##
+Android客户端发送请求时，一般不会带上所有的cookie，需要明确指定哪些cookie会带上。如果希望用sticky做负载均衡，请对Android开发说加上cookie。</p>
 
-<h1 id="section-3">注意事项</h1>
-<ul>
-  <li>cookie名称不要和业务使用的cookie重名。Sticky默认的cookie名称是route，可以改成任何值。但切记，不可以与业务中使用的cookie重名。</li>
-  <li>客户端发的第一个请求是不带cookie的。服务器下发的cookie，在客户端下一次请求时才能生效。</li>
-</ul>
+<p>#注意事项
+* cookie名称不要和业务使用的cookie重名。Sticky默认的cookie名称是route，可以改成任何值。但切记，不可以与业务中使用的cookie重名。
+* 客户端发的第一个请求是不带cookie的。服务器下发的cookie，在客户端下一次请求时才能生效。</p>
 
 					<div class="meta">
 						<p class="date-publish">
@@ -194,8 +193,8 @@
 				<div class="misc-content">
 					<div class="social">
 						<ul class="list-linear">
-							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="butbits" data-lang="en">Tweet</a></div></li>
-							<li><div class="twitter-follow"><a href="https://twitter.com/butbits" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
 						</ul>
 					</div>
 					<div class="comment">
@@ -261,8 +260,7 @@
 					<h4>about</h4>
 					<ul>
 						<li class="contact"><address><span class="author fn n">David</span> <!-- - <span class="fn email">blah@email.test</span></address></li> -->
-						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>
-						<li class="twitter"><a href="http://twitter.com/butbits/" rel="me">twitter.com/butbits</a></li>
+						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>				
 						<li class="twitter"><a href="http://weibo.com/mylxq/" rel="me">weibo.com/mylxq</a></li>
 						<li class="rss"><a href="/rss.xml">Subscribe to RSS Feed</a></li>
 					</ul>

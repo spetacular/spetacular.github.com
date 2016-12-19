@@ -90,18 +90,20 @@
 
 <p>制作镜像时，需要知道那个是系统盘：</p>
 
-<pre><code># df -lh
+<div class="highlighter-rouge"><pre class="highlight"><code># df -lh
 Filesystem            Size  Used Avail Use% Mounted on
 /dev/vda1             7.9G  2.9G  4.6G  39% /
 udev                  7.9G  148K  7.9G   1% /dev
 /dev/vdb1             493G  245M  467G   1% /data
 </code></pre>
+</div>
 
 <p>但没有图3中/dev/xvda。咨询后，得到如下信息：</p>
 
-<pre><code>/dev/xvda是xen虚拟化的系统盘
+<div class="highlighter-rouge"><pre class="highlight"><code>/dev/xvda是xen虚拟化的系统盘
 /dev/vda是kvm虚拟化的系统盘
 </code></pre>
+</div>
 
 <p>这样系统盘就是/dev/vda1，而数据盘是/dev/vdb1</p>
 
@@ -171,8 +173,8 @@ udev                  7.9G  148K  7.9G   1% /dev
 				<div class="misc-content">
 					<div class="social">
 						<ul class="list-linear">
-							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="butbits" data-lang="en">Tweet</a></div></li>
-							<li><div class="twitter-follow"><a href="https://twitter.com/butbits" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
 						</ul>
 					</div>
 					<div class="comment">
@@ -238,8 +240,7 @@ udev                  7.9G  148K  7.9G   1% /dev
 					<h4>about</h4>
 					<ul>
 						<li class="contact"><address><span class="author fn n">David</span> <!-- - <span class="fn email">blah@email.test</span></address></li> -->
-						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>
-						<li class="twitter"><a href="http://twitter.com/butbits/" rel="me">twitter.com/butbits</a></li>
+						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>				
 						<li class="twitter"><a href="http://weibo.com/mylxq/" rel="me">weibo.com/mylxq</a></li>
 						<li class="rss"><a href="/rss.xml">Subscribe to RSS Feed</a></li>
 					</ul>

@@ -58,7 +58,7 @@
 
 <p>This conversion contains several messages , which are stored in database in ascending order of their timing. As is shown in the following table.</p>
 
-<pre><code>+----+------------------+--------+---------------------+
+<div class="highlighter-rouge"><pre class="highlight"><code>+----+------------------+--------+---------------------+
 | id | content          | isread | pubtime             |
 +----+------------------+--------+---------------------+
 |  1 | hello            |      1 | 2014-05-22 11:53:00 |
@@ -67,6 +67,7 @@
 |  4 | Me too           |      0 | 2014-05-22 11:56:00 |
 +----+------------------+--------+---------------------+
 </code></pre>
+</div>
 
 <p>The “isread” field represents whether the message is read by someone.
 # Store Data In A Key ?#
@@ -88,7 +89,7 @@ The following figure shows how we use Redis as cache container.</p>
 
 <p>The main reason for these disadvantages is that a conversion is a dynamically changing list. Each change will cause the cache out of date.</p>
 
-<h1 id="store-list-in-sorted-set">Store List In Sorted Set</h1>
+<p>#Store List In Sorted Set#</p>
 
 <p>What Sorted Set is ? I quote the following content from Redis official website (<a href="http://redis.io/topics/data-types#sorted-sets" title="Redis-sorted-sets">See this</a>):</p>
 
@@ -108,11 +109,11 @@ The following figure shows how we use Redis as cache container.</p>
   <li>Set Message Read. Leave the cache unchanged and Edit the corresponding message’s cache.</li>
 </ul>
 
-<h1 id="code-sample">Code Sample</h1>
+<p>#Code Sample#</p>
 
 <p>Some Useful functions:</p>
 
-<pre><code>//Add one or more members to a sorted set, or update its score if it already exists    
+<div class="highlighter-rouge"><pre class="highlight"><code>//Add one or more members to a sorted set, or update its score if it already exists    
 function zAdd(key, score, member)
 
 //Return a range of members in a sorted set, by index
@@ -127,23 +128,27 @@ function mSet(key,value, ...)
 //Get the values of all the given keys
 function mGet(key, ...)
 </code></pre>
+</div>
 
 <p>Store message Id as index, and its “pubtime” as score.</p>
 
-<pre><code>pubtimestamp = strtotime(pubtime);
+<div class="highlighter-rouge"><pre class="highlight"><code>pubtimestamp = strtotime(pubtime);
 zAdd(key,pubtimestamp,id);
 </code></pre>
+</div>
 
 <p>Store messages with mSet Command:</p>
 
-<pre><code>mSet(key,value, ...);
+<div class="highlighter-rouge"><pre class="highlight"><code>mSet(key,value, ...);
 </code></pre>
+</div>
 
 <p>Retrieve messages like this:</p>
 
-<pre><code>indexes = zRange(key, start, stop)
+<div class="highlighter-rouge"><pre class="highlight"><code>indexes = zRange(key, start, stop)
 msgs = mGet(indexes)
 </code></pre>
+</div>
 
 
 					<div class="meta">
@@ -193,8 +198,8 @@ msgs = mGet(indexes)
 				<div class="misc-content">
 					<div class="social">
 						<ul class="list-linear">
-							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="butbits" data-lang="en">Tweet</a></div></li>
-							<li><div class="twitter-follow"><a href="https://twitter.com/butbits" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
 						</ul>
 					</div>
 					<div class="comment">
@@ -260,8 +265,7 @@ msgs = mGet(indexes)
 					<h4>about</h4>
 					<ul>
 						<li class="contact"><address><span class="author fn n">David</span> <!-- - <span class="fn email">blah@email.test</span></address></li> -->
-						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>
-						<li class="twitter"><a href="http://twitter.com/butbits/" rel="me">twitter.com/butbits</a></li>
+						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>				
 						<li class="twitter"><a href="http://weibo.com/mylxq/" rel="me">weibo.com/mylxq</a></li>
 						<li class="rss"><a href="/rss.xml">Subscribe to RSS Feed</a></li>
 					</ul>

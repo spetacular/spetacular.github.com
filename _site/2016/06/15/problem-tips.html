@@ -56,7 +56,7 @@
 <h2 id="apm">安装apm</h2>
 <p>安装apm有两种方式：从PECL安装，或从源码编译。这里采用PECL安装。源码编译见<a href="https://github.com/patrickallaert/php-apm#from-source">官方文档</a>。</p>
 
-<pre><code>sudo pecl install apm
+<div class="highlighter-rouge"><pre class="highlight"><code>sudo pecl install apm
 WARNING: channel "pecl.php.net" has updated its protocols, use "pecl channel-update pecl.php.net" to update
 downloading APM-2.0.5.tgz ...
 Starting to download APM-2.0.5.tgz (31,484 bytes)
@@ -72,22 +72,25 @@ Enable MariaDB/MySQL support [yes] : yes
 Enable Socket support [yes] : yes
 Enable Statsd support [yes] : yes
 </code></pre>
+</div>
 
 <p>出现了如下错误：</p>
 
-<pre><code>configure: error: Cannot find MySQL header files
+<div class="highlighter-rouge"><pre class="highlight"><code>configure: error: Cannot find MySQL header files
 ERROR: `/tmp/pear/temp/APM/configure --with-php-config=/usr/bin/php-config --with-sqlite3=no --with-mysql --enable-socket=yes --enable-statsd=yes' failed
 </code></pre>
+</div>
 
 <p>需要安装下mysql dev</p>
 
-<pre><code>sudo apt-get install mysql-client libmysqlclient-dev
+<div class="highlighter-rouge"><pre class="highlight"><code>sudo apt-get install mysql-client libmysqlclient-dev
 </code></pre>
+</div>
 
 <h2 id="apm-1">配置apm</h2>
 <p>在php.ini上配置apm。apm.so依赖于json.so，如果之前没有加载，则应先加载。</p>
 
-<pre><code>extension=json.so
+<div class="highlighter-rouge"><pre class="highlight"><code>extension=json.so
 extension=apm.so
 ;;;;;;;;;;;;;;;;;;;
 ; Module Settings ;
@@ -106,24 +109,28 @@ apm.mysql_db=apm
 apm.socket_enabled=0
 apm.socket_stats_enabled=0
 </code></pre>
+</div>
 
 <p>然后重启php，例如：</p>
 
-<pre><code>service php5-fpm restart
+<div class="highlighter-rouge"><pre class="highlight"><code>service php5-fpm restart
 </code></pre>
+</div>
 
 <h2 id="apm-web">部署apm-web</h2>
 <p>apm提供了一个web端查看的项目，地址为：<a href="https://github.com/patrickallaert/php-apm-web">https://github.com/patrickallaert/php-apm-web</a>。</p>
 
 <p>将<a href="https://github.com/patrickallaert/php-apm-web/archive/master.zip">https://github.com/patrickallaert/php-apm-web/archive/master.zip</a>解压后上传到网站根目录，或者如果使用git，可以clone到网站根目录下：</p>
 
-<pre><code>git clone https://github.com/patrickallaert/php-apm-web.git apm-web
+<div class="highlighter-rouge"><pre class="highlight"><code>git clone https://github.com/patrickallaert/php-apm-web.git apm-web
 </code></pre>
+</div>
 
 <p>然后编辑config/db.php文件。如果选用mysql，可以如下配置：</p>
 
-<pre><code>return new PDO("mysql:host=localhost;dbname=apm", "apm", "apm");
+<div class="highlighter-rouge"><pre class="highlight"><code>return new PDO("mysql:host=localhost;dbname=apm", "apm", "apm");
 </code></pre>
+</div>
 
 <p>最后的效果如下：</p>
 
@@ -168,8 +175,8 @@ apm.socket_stats_enabled=0
 
   
      
-    	<li><a href="/categories.html#php-ref">
-    		php <span>7</span>
+    	<li><a href="/categories.html#PHP-ref">
+    		PHP <span>2</span>
     	</a></li>
     
   
@@ -198,8 +205,8 @@ apm.socket_stats_enabled=0
 				<div class="misc-content">
 					<div class="social">
 						<ul class="list-linear">
-							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="butbits" data-lang="en">Tweet</a></div></li>
-							<li><div class="twitter-follow"><a href="https://twitter.com/butbits" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
 						</ul>
 					</div>
 					<div class="comment">
@@ -265,8 +272,7 @@ apm.socket_stats_enabled=0
 					<h4>about</h4>
 					<ul>
 						<li class="contact"><address><span class="author fn n">David</span> <!-- - <span class="fn email">blah@email.test</span></address></li> -->
-						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>
-						<li class="twitter"><a href="http://twitter.com/butbits/" rel="me">twitter.com/butbits</a></li>
+						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>				
 						<li class="twitter"><a href="http://weibo.com/mylxq/" rel="me">weibo.com/mylxq</a></li>
 						<li class="rss"><a href="/rss.xml">Subscribe to RSS Feed</a></li>
 					</ul>

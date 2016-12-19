@@ -52,20 +52,23 @@
 				<div class="entry-content">
 					<p>在做一个项目时，需要生成一个长整数Id，生成函数如下：</p>
 
-<pre><code>`$Id = date('YmdHis') . rand(1, 100000);`
+<div class="highlighter-rouge"><pre class="highlight"><code>`$Id = date('YmdHis') . rand(1, 100000);`
 </code></pre>
+</div>
 
 <p>按照时间加随机数的形式，可以直观地看到这个Id是何时生成的。</p>
 
 <p>这样，我用PHP生成了这样一个数</p>
 
-<pre><code>$id = '2014112010185143423';
+<div class="highlighter-rouge"><pre class="highlight"><code>$id = '2014112010185143423';
 </code></pre>
+</div>
 
 <p>然后将值传给JS变量</p>
 
-<pre><code>var id = &lt;?php echo $id;?&gt;;
+<div class="highlighter-rouge"><pre class="highlight"><code>var id = &lt;?php echo $id;?&gt;;
 </code></pre>
+</div>
 
 <p>但是在使用时，发现id竟然变了。</p>
 
@@ -73,8 +76,9 @@
 
 <p>猜想可能是溢出，把dialogid给换成字符串，一切就OK了。</p>
 
-<pre><code>var id = '&lt;?php echo $id;?&gt;';
+<div class="highlighter-rouge"><pre class="highlight"><code>var id = '&lt;?php echo $id;?&gt;';
 </code></pre>
+</div>
 
 <p><img src="http://spetacular.github.io/images/2015-01-20/js_string_int.png" alt="用字符串处理" /></p>
 
@@ -155,8 +159,8 @@
 				<div class="misc-content">
 					<div class="social">
 						<ul class="list-linear">
-							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="butbits" data-lang="en">Tweet</a></div></li>
-							<li><div class="twitter-follow"><a href="https://twitter.com/butbits" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
 						</ul>
 					</div>
 					<div class="comment">
@@ -222,8 +226,7 @@
 					<h4>about</h4>
 					<ul>
 						<li class="contact"><address><span class="author fn n">David</span> <!-- - <span class="fn email">blah@email.test</span></address></li> -->
-						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>
-						<li class="twitter"><a href="http://twitter.com/butbits/" rel="me">twitter.com/butbits</a></li>
+						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>				
 						<li class="twitter"><a href="http://weibo.com/mylxq/" rel="me">weibo.com/mylxq</a></li>
 						<li class="rss"><a href="/rss.xml">Subscribe to RSS Feed</a></li>
 					</ul>

@@ -75,22 +75,25 @@ Note: Your solution should be in logarithmic time complexity.</p>
 
 <p>给定整数n，要找到以下数字，其中x*5^y &lt;= n：</p>
 
-<pre><code>5,10,15,...,x*5^y
+<div class="highlighter-rouge"><pre class="highlight"><code>5,10,15,...,x*5^y
 </code></pre>
+</div>
 
 <p>然后看每个数字能分解出y个5:</p>
 
-<pre><code>1,1,1,...,y
+<div class="highlighter-rouge"><pre class="highlight"><code>1,1,1,...,y
 </code></pre>
+</div>
 
 <p>最后的结果就是如下：</p>
 
-<pre><code>Sum(1,1,1,...,y)
+<div class="highlighter-rouge"><pre class="highlight"><code>Sum(1,1,1,...,y)
 </code></pre>
+</div>
 
 <p>算法代码（swift）如下：</p>
 
-<pre><code>class Solution {
+<div class="highlighter-rouge"><pre class="highlight"><code>class Solution {
     func trailingZeroes(n: Int) -&gt; Int {
         if n &lt; 5{
             return 0
@@ -122,6 +125,7 @@ Note: Your solution should be in logarithmic time complexity.</p>
     }
 }
 </code></pre>
+</div>
 
 <p>这个算法需要循环(n/5)次，时间复杂度为O(N)，尽管“政治正确”，但不是最好的解法。</p>
 
@@ -129,26 +133,29 @@ Note: Your solution should be in logarithmic time complexity.</p>
 
 <p>将解法1的过程再回顾下，计算5出现的次数，可以分解看：</p>
 
-<pre><code>出现5，计数加1；
+<div class="highlighter-rouge"><pre class="highlight"><code>出现5，计数加1；
 出现5*5，计数加2；
 出现5*5*5，计数加3；
 </code></pre>
+</div>
 
 <p>换个角度看，</p>
 
-<pre><code>除以5，计数加1；
+<div class="highlighter-rouge"><pre class="highlight"><code>除以5，计数加1；
 除以5，计数加1；除以5*5，计数加1；
 除以5，计数加1；除以5*5，计数加1；除以5*5*5，计数加1；
 </code></pre>
+</div>
 
 <p>那么最后结果</p>
 
-<pre><code>floor(n/5) + floor(n/25) + floor(n/125) + ....
+<div class="highlighter-rouge"><pre class="highlight"><code>floor(n/5) + floor(n/25) + floor(n/125) + ....
 </code></pre>
+</div>
 
 <p>算法代码（swift）如下：</p>
 
-<pre><code>class Solution1 {
+<div class="highlighter-rouge"><pre class="highlight"><code>class Solution1 {
     func trailingZeroes(n: Int) -&gt; Int {
         var i = 5
         var ret = 0
@@ -160,6 +167,7 @@ Note: Your solution should be in logarithmic time complexity.</p>
     }
 }	
 </code></pre>
+</div>
 
 <p>算法复杂度为O(logN)。</p>
 
@@ -213,8 +221,8 @@ Note: Your solution should be in logarithmic time complexity.</p>
 				<div class="misc-content">
 					<div class="social">
 						<ul class="list-linear">
-							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="butbits" data-lang="en">Tweet</a></div></li>
-							<li><div class="twitter-follow"><a href="https://twitter.com/butbits" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
 						</ul>
 					</div>
 					<div class="comment">
@@ -280,8 +288,7 @@ Note: Your solution should be in logarithmic time complexity.</p>
 					<h4>about</h4>
 					<ul>
 						<li class="contact"><address><span class="author fn n">David</span> <!-- - <span class="fn email">blah@email.test</span></address></li> -->
-						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>
-						<li class="twitter"><a href="http://twitter.com/butbits/" rel="me">twitter.com/butbits</a></li>
+						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>				
 						<li class="twitter"><a href="http://weibo.com/mylxq/" rel="me">weibo.com/mylxq</a></li>
 						<li class="rss"><a href="/rss.xml">Subscribe to RSS Feed</a></li>
 					</ul>

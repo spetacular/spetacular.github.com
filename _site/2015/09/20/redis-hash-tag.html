@@ -71,7 +71,7 @@
 
 <p>而集群上虽然也支持同时设置多个key，但不再是原子性操作。会存在某些给定 key 被更新而另外一些给定 key 没有改变的情况。其原因是需要设置的多个key可能分配到不同的机器上。</p>
 
-<h2 id="sinterstoresunionstorezinterstorezunionstore">SINTERSTORE,SUNIONSTORE,ZINTERSTORE,ZUNIONSTORE</h2>
+<p>##SINTERSTORE,SUNIONSTORE,ZINTERSTORE,ZUNIONSTORE</p>
 
 <p>这四个命令属于同一类型。它们的共同之处是都需要对一组key进行运算或操作，但要求这些key都被分配到相同机器上。</p>
 
@@ -101,7 +101,7 @@
 <p>Hash Tag是用于hash的部分字符串开始和结束的标记，例如”{}”、”$$”等。
 配置时，只需更改hash_tag字段即可</p>
 
-<pre><code>beta:
+<div class="highlighter-rouge"><pre class="highlight"><code>beta:
   listen: 127.0.0.1:22122
   hash: fnv1a_64
   hash_tag: "{}"
@@ -115,6 +115,7 @@
    - 127.0.0.1:6382:1 server3
    - 127.0.0.1:6383:1 server4
 </code></pre>
+</div>
 
 					<div class="meta">
 						<p class="date-publish">
@@ -165,8 +166,8 @@
 				<div class="misc-content">
 					<div class="social">
 						<ul class="list-linear">
-							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="butbits" data-lang="en">Tweet</a></div></li>
-							<li><div class="twitter-follow"><a href="https://twitter.com/butbits" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
 						</ul>
 					</div>
 					<div class="comment">
@@ -232,8 +233,7 @@
 					<h4>about</h4>
 					<ul>
 						<li class="contact"><address><span class="author fn n">David</span> <!-- - <span class="fn email">blah@email.test</span></address></li> -->
-						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>
-						<li class="twitter"><a href="http://twitter.com/butbits/" rel="me">twitter.com/butbits</a></li>
+						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>				
 						<li class="twitter"><a href="http://weibo.com/mylxq/" rel="me">weibo.com/mylxq</a></li>
 						<li class="rss"><a href="/rss.xml">Subscribe to RSS Feed</a></li>
 					</ul>

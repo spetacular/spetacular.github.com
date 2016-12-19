@@ -77,7 +77,7 @@
 <h2 id="section">代码</h2>
 <p>这里定义MaxWordSegmentation类，其中的run方法返回匹配到的结果。</p>
 
-<pre><code>class MaxWordSegmentation{
+<div class="highlighter-rouge"><pre class="highlight"><code>class MaxWordSegmentation{
 
 	private $dict = array();//保存字典的list
 
@@ -147,10 +147,11 @@
 	}
 }
 </code></pre>
+</div>
 
 <p>使用示例：</p>
 
-<pre><code>$text = '日前，奥迪全新SQ7运动版车型的无伪装谍照出人意料的被曝光出来，该车预计今年底或者明年初发布。可以看到，新车已经有一些专属设计明显的区别于普通版的车型。';
+<div class="highlighter-rouge"><pre class="highlight"><code>$text = '日前，奥迪全新SQ7运动版车型的无伪装谍照出人意料的被曝光出来，该车预计今年底或者明年初发布。可以看到，新车已经有一些专属设计明显的区别于普通版的车型。';
 $file = './dict.txt';	
 $obj = new MaxWordSegmentation($file);
 $ret = $obj-&gt;run($text);
@@ -163,6 +164,7 @@ var_dump($ret);
 	}
 */
 </code></pre>
+</div>
 
 <h2 id="section-1">改进之处</h2>
 <p>由于提取标签时，标签通常不会只有一个字，比如“奥迪”、“奔驰”、“宝马”等，子串长度都为2。如果字典中最短的词长为S，那么对对剩下的字符串重新进行匹配处理，不必等到剩余字串的长度为零才结束，只要匹配到S个字符就行。</p>
@@ -201,7 +203,7 @@ var_dump($ret);
   
      
     	<li><a href="/categories.html#php-ref">
-    		php <span>7</span>
+    		php <span>5</span>
     	</a></li>
     
   
@@ -228,8 +230,8 @@ var_dump($ret);
 				<div class="misc-content">
 					<div class="social">
 						<ul class="list-linear">
-							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="butbits" data-lang="en">Tweet</a></div></li>
-							<li><div class="twitter-follow"><a href="https://twitter.com/butbits" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
 						</ul>
 					</div>
 					<div class="comment">
@@ -295,8 +297,7 @@ var_dump($ret);
 					<h4>about</h4>
 					<ul>
 						<li class="contact"><address><span class="author fn n">David</span> <!-- - <span class="fn email">blah@email.test</span></address></li> -->
-						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>
-						<li class="twitter"><a href="http://twitter.com/butbits/" rel="me">twitter.com/butbits</a></li>
+						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>				
 						<li class="twitter"><a href="http://weibo.com/mylxq/" rel="me">weibo.com/mylxq</a></li>
 						<li class="rss"><a href="/rss.xml">Subscribe to RSS Feed</a></li>
 					</ul>

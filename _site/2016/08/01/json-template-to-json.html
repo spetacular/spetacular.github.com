@@ -58,17 +58,19 @@
 <p>Restful API的两个重要因素是输入和输出，一个好的API要求输入和输出都清晰可见。
 输入包括用户提交的方式、参数等，都是可预期的。尽量不要采用数组接收。例如以下的例子，</p>
 
-<pre><code>$data = $_POST;
+<div class="highlighter-rouge"><pre class="highlight"><code>$data = $_POST;
 $User-&gt;save($data);
 </code></pre>
+</div>
 
 <p>这样的坏处一是无法过滤用户非法、多余的参数提交；二是参数不明，后续无法维护。</p>
 
 <p>输出则要求仅提供满足需要的最小的数据集。例如如下的例子，</p>
 
-<pre><code>$user = User::get(1);
+<div class="highlighter-rouge"><pre class="highlight"><code>$user = User::get(1);
 echo $user-&gt;toJson();
 </code></pre>
+</div>
 
 <p>这样的坏处一是输出的内容不清晰，只有知道数据表的结构才能了解输出的内容；二是可能一不小心把用户表敏感字段（密码，手机号）输出，造成信息泄漏。</p>
 
@@ -76,11 +78,12 @@ echo $user-&gt;toJson();
 
 <p>解决输出的方法，是采用JSON模板解析的方法。例如用户表有id,name,pass,avatar,phone字段，其中只有name,avatar是需要输出的。那么模板可以这样定义：</p>
 
-<pre><code>{
-  "name": "",
-  "avatar": ""
-}
-</code></pre>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"avatar"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
 
 <p>当输出用户数据时，仅保留name和avatar，其它字段自动过滤掉。</p>
 
@@ -94,7 +97,7 @@ echo $user-&gt;toJson();
 
 <p>算法代码如下：</p>
 
-<pre><code>class JSONOut
+<div class="highlighter-rouge"><pre class="highlight"><code>class JSONOut
 {
 	/**
 	*按照JSON模板输出JSON数据
@@ -140,12 +143,13 @@ echo $user-&gt;toJson();
     }
 }
 </code></pre>
+</div>
 
 <h2 id="section-1">测试代码</h2>
 
 <p>测试代码如下：</p>
 
-<pre><code>$tplContent = &lt;&lt;&lt;EOT
+<div class="highlighter-rouge"><pre class="highlight"><code>$tplContent = &lt;&lt;&lt;EOT
 {
   "name": "",
   "avatar": ""
@@ -165,20 +169,22 @@ array('id'=&gt;2,'name' =&gt; 'john','pass' =&gt; '654321','phone'=&gt;'13888888
 
 echo JSONOut::toJSON($users,$tplContent,true);
 </code></pre>
+</div>
 
 <p>测试结果如下：</p>
 
 <p>单条数据：</p>
 
-<pre><code>{
-  "name": "david",
-  "avatar": "http://spetacular.github.io/images/favicon.ico"
-}
-</code></pre>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"david"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"avatar"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://spetacular.github.io/images/favicon.ico"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
 
 <p>多条数据：</p>
 
-<pre><code>[
+<div class="highlighter-rouge"><pre class="highlight"><code>[
   {
     "name": "david",
     "avatar": "http://spetacular.github.io/images/favicon.ico"
@@ -189,19 +195,22 @@ echo JSONOut::toJSON($users,$tplContent,true);
   }
 ]
 </code></pre>
+</div>
 
-<h2 id="section-2">未来扩展</h2>
-<p>注意到JSON模板仅有key，没有value，未来可以在value上扩展，比如默认值，比如：</p>
+<p>##未来扩展
+注意到JSON模板仅有key，没有value，未来可以在value上扩展，比如默认值，比如：</p>
 
-<pre><code>{"gender":0}
-</code></pre>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="nt">"gender"</span><span class="p">:</span><span class="mi">0</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
 
 <p>如果数据里没有gender的数据，则默认为0；</p>
 
 <p>或者在value上加过滤函数，比如：</p>
 
-<pre><code>{"age":"int"}
-</code></pre>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="nt">"age"</span><span class="p">:</span><span class="s2">"int"</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
 
 <p>表示age要转化为整型数字。</p>
 
@@ -254,8 +263,8 @@ echo JSONOut::toJSON($users,$tplContent,true);
 				<div class="misc-content">
 					<div class="social">
 						<ul class="list-linear">
-							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="butbits" data-lang="en">Tweet</a></div></li>
-							<li><div class="twitter-follow"><a href="https://twitter.com/butbits" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
 						</ul>
 					</div>
 					<div class="comment">
@@ -317,8 +326,7 @@ echo JSONOut::toJSON($users,$tplContent,true);
 					<h4>about</h4>
 					<ul>
 						<li class="contact"><address><span class="author fn n">David</span> <!-- - <span class="fn email">blah@email.test</span></address></li> -->
-						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>
-						<li class="twitter"><a href="http://twitter.com/butbits/" rel="me">twitter.com/butbits</a></li>
+						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>				
 						<li class="twitter"><a href="http://weibo.com/mylxq/" rel="me">weibo.com/mylxq</a></li>
 						<li class="rss"><a href="/rss.xml">Subscribe to RSS Feed</a></li>
 					</ul>

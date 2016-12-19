@@ -52,7 +52,7 @@
 				<div class="entry-content">
 					<p>MySQL执行一个SQL语句时，执行时间精确到秒。如下：</p>
 
-<pre><code>mysql&gt; select * from test
+<div class="highlighter-rouge"><pre class="highlight"><code>mysql&gt; select * from test
 +----+-------+
 | id | name  |
 +----+-------+
@@ -60,17 +60,19 @@
 +----+-------+
 1 row in set (0.00 sec)
 </code></pre>
+</div>
 
 <p>如何精确到毫秒呢？MySQL有个内置语句<a href="http://dev.mysql.com/doc/refman/5.5/en/show-profile.html" title="(show profile)">(show profile)</a>可以查看执行耗时。</p>
 
-<pre><code>mysql&gt; set profiling=1;
+<div class="highlighter-rouge"><pre class="highlight"><code>mysql&gt; set profiling=1;
 Query OK, 0 rows affected (0.00 sec)
 </code></pre>
+</div>
 
 <p>然后执行查询语句。
 使用show profiles就可以看到执行时间了。</p>
 
-<pre><code>mysql&gt; show profiles;
+<div class="highlighter-rouge"><pre class="highlight"><code>mysql&gt; show profiles;
 +----------+------------+--------------------+
 | Query_ID | Duration   | Query              |
 +----------+------------+--------------------+
@@ -78,6 +80,7 @@ Query OK, 0 rows affected (0.00 sec)
 +----------+------------+--------------------+
 1 row in set (0.04 sec)
 </code></pre>
+</div>
 
 <p>Duration就是该SQL的执行时间，将其乘以1000就是毫秒数了。</p>
 
@@ -126,8 +129,8 @@ Query OK, 0 rows affected (0.00 sec)
 				<div class="misc-content">
 					<div class="social">
 						<ul class="list-linear">
-							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="butbits" data-lang="en">Tweet</a></div></li>
-							<li><div class="twitter-follow"><a href="https://twitter.com/butbits" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
 						</ul>
 					</div>
 					<div class="comment">
@@ -193,8 +196,7 @@ Query OK, 0 rows affected (0.00 sec)
 					<h4>about</h4>
 					<ul>
 						<li class="contact"><address><span class="author fn n">David</span> <!-- - <span class="fn email">blah@email.test</span></address></li> -->
-						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>
-						<li class="twitter"><a href="http://twitter.com/butbits/" rel="me">twitter.com/butbits</a></li>
+						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>				
 						<li class="twitter"><a href="http://weibo.com/mylxq/" rel="me">weibo.com/mylxq</a></li>
 						<li class="rss"><a href="/rss.xml">Subscribe to RSS Feed</a></li>
 					</ul>

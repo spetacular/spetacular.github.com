@@ -68,7 +68,7 @@
 
 <p>举例来说，有这样一个表：</p>
 
-<pre><code>mysql&gt; select * from t_tmp;
+<div class="highlighter-rouge"><pre class="highlight"><code>mysql&gt; select * from t_tmp;
 +-----+---------+---------------------+
 | FId | FCityId | FUpdateTime         |
 +-----+---------+---------------------+
@@ -77,25 +77,27 @@
 |   3 |       2 | 2014-10-10 10:00:00 |
 +-----+---------+---------------------+
 </code></pre>
+</div>
 
 <p>表1</p>
 
 <p>希望从中找出每个FCityId的最新更新记录，即筛选出这样的结果：</p>
 
-<pre><code>+-----+---------+---------------------+
+<div class="highlighter-rouge"><pre class="highlight"><code>+-----+---------+---------------------+
 | FId | FCityId | FUpdateTime         |
 +-----+---------+---------------------+
 |   2 |       1 | 2014-10-11 00:00:00 |
 |   3 |       2 | 2014-10-10 10:00:00 |
 +-----+---------+---------------------+
 </code></pre>
+</div>
 
 <p>表2</p>
 
 <h1 id="group-by">Group By</h1>
 <p>Po主最开始的方法是用group by（So Easy！）</p>
 
-<pre><code>select * from t_tmp group by FCityId order by FUpdateTime desc;` 结果却是错误的！
+<div class="highlighter-rouge"><pre class="highlight"><code>select * from t_tmp group by FCityId order by FUpdateTime desc;` 结果却是错误的！
 
 +-----+---------+---------------------+
 | FId | FCityId | FUpdateTime         |
@@ -104,12 +106,13 @@
 |   1 |       1 | 2014-10-10 00:00:00 |
 +-----+---------+---------------------+
 </code></pre>
+</div>
 
 <p>表3</p>
 
 <p>其原因是：Group By 要先于 Order By执行。Group By执行分组之后，记录中只剩下1和3了：</p>
 
-<pre><code>mysql&gt; SELECT * FROM t_tmp GROUP BY FCityId LIMIT 0 , 30;
+<div class="highlighter-rouge"><pre class="highlight"><code>mysql&gt; SELECT * FROM t_tmp GROUP BY FCityId LIMIT 0 , 30;
 +-----+---------+---------------------+
 | FId | FCityId | FUpdateTime         |
 +-----+---------+---------------------+
@@ -117,6 +120,7 @@
 |   3 |       2 | 2014-10-10 10:00:00 |
 +-----+---------+---------------------+
 </code></pre>
+</div>
 
 <p>表4</p>
 
@@ -130,7 +134,7 @@
 <p>很自然的一个解决方法就是：既然Group By先于Order By改变结果，那么就在Group By之前纠正结果。方法是子查询。
 如表4，Group By从头到尾扫一遍，留下了第1和第3两条记录。如果从尾到头扫一遍，就留下3和2两条记录。然后执行Order By，就能得到期望的结果。</p>
 
-<pre><code>mysql&gt; SELECT * FROM (SELECT * FROM t_tmp ORDER BY FUpdateTime DESC)tmptable GROUP BY FCityId ORDER BY FUpdateTime DESC;
+<div class="highlighter-rouge"><pre class="highlight"><code>mysql&gt; SELECT * FROM (SELECT * FROM t_tmp ORDER BY FUpdateTime DESC)tmptable GROUP BY FCityId ORDER BY FUpdateTime DESC;
 +-----+---------+---------------------+
 | FId | FCityId | FUpdateTime         |
 +-----+---------+---------------------+
@@ -138,6 +142,7 @@
 |   3 |       2 | 2014-10-10 10:00:00 |
 +-----+---------+---------------------+
 </code></pre>
+</div>
 
 <p>表5</p>
 
@@ -152,7 +157,7 @@
 
 <p>我们可以用LEFT JOIN去掉部分记录（即FId不按从大到小排列的记录）：</p>
 
-<pre><code>mysql&gt; SELECT m1. * FROM t_tmp m1 LEFT JOIN t_tmp m2 ON ( m1.FCityId = m2.FCity
+<div class="highlighter-rouge"><pre class="highlight"><code>mysql&gt; SELECT m1. * FROM t_tmp m1 LEFT JOIN t_tmp m2 ON ( m1.FCityId = m2.FCity
 Id AND m1.FId &lt; m2.FId )  WHERE m2.FId IS NULL ORDER BY FUpdateTime DESC LIMIT 0
 , 30;
 +-----+---------+---------------------+
@@ -162,6 +167,7 @@ Id AND m1.FId &lt; m2.FId )  WHERE m2.FId IS NULL ORDER BY FUpdateTime DESC LIMI
 |   3 |       2 | 2014-10-10 10:00:00 |
 +-----+---------+---------------------+
 </code></pre>
+</div>
 
 <p>表6</p>
 
@@ -170,16 +176,18 @@ Id AND m1.FId &lt; m2.FId )  WHERE m2.FId IS NULL ORDER BY FUpdateTime DESC LIMI
 
 <p>直观但低效的方法：</p>
 
-<pre><code>select * from (select * from messages ORDER BY id DESC) AS x GROUP BY name
+<div class="highlighter-rouge"><pre class="highlight"><code>select * from (select * from messages ORDER BY id DESC) AS x GROUP BY name
 </code></pre>
+</div>
 
 <p>难懂但高效的方法：</p>
 
-<pre><code>SELECT m1.*
+<div class="highlighter-rouge"><pre class="highlight"><code>SELECT m1.*
 FROM messages m1 LEFT JOIN messages m2
  	ON (m1.name = m2.name AND m1.id &lt; m2.id)
 WHERE m2.id IS NULL;
 </code></pre>
+</div>
 
 
 					<div class="meta">
@@ -227,8 +235,8 @@ WHERE m2.id IS NULL;
 				<div class="misc-content">
 					<div class="social">
 						<ul class="list-linear">
-							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="butbits" data-lang="en">Tweet</a></div></li>
-							<li><div class="twitter-follow"><a href="https://twitter.com/butbits" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
 						</ul>
 					</div>
 					<div class="comment">
@@ -294,8 +302,7 @@ WHERE m2.id IS NULL;
 					<h4>about</h4>
 					<ul>
 						<li class="contact"><address><span class="author fn n">David</span> <!-- - <span class="fn email">blah@email.test</span></address></li> -->
-						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>
-						<li class="twitter"><a href="http://twitter.com/butbits/" rel="me">twitter.com/butbits</a></li>
+						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>				
 						<li class="twitter"><a href="http://weibo.com/mylxq/" rel="me">weibo.com/mylxq</a></li>
 						<li class="rss"><a href="/rss.xml">Subscribe to RSS Feed</a></li>
 					</ul>

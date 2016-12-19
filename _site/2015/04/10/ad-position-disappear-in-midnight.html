@@ -95,7 +95,7 @@
 
 <p>我把fiddler的url记录导出成一个txt文件。有几千条记录，于是写了个小程序，把url分下类。</p>
 
-<pre><code>&lt;?php
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;?php
 $handle = @fopen("path/to/urls.txt", "r");
 $urls = array();
 if ($handle) {
@@ -124,10 +124,11 @@ foreach($urls as $url){
 }
 ?&gt;
 </code></pre>
+</div>
 
 <p>结果如下：</p>
 
-<pre><code>---------- PHP ----------
+<div class="highlighter-rouge"><pre class="highlight"><code>---------- PHP ----------
 pyhelp.qq.com/cgi-bin/getloc.so__
 message.t.qq.com/newMsgCount.php
 t.web2.qq.com/channel/poll
@@ -141,6 +142,7 @@ www.gstatic.com/chrome/crlset/1445/crl-set-14121586793162109453.crx.data__
 
 Output completed (0 sec consumed) - Normal Termination
 </code></pre>
+</div>
 
 <p>*号标记的url恰好是控制广告出现的文件。看了下请求时间，00：01。</p>
 
@@ -211,7 +213,7 @@ Output completed (0 sec consumed) - Normal Termination
   
      
     	<li><a href="/categories.html#php-ref">
-    		php <span>7</span>
+    		php <span>5</span>
     	</a></li>
     
   
@@ -240,8 +242,8 @@ Output completed (0 sec consumed) - Normal Termination
 				<div class="misc-content">
 					<div class="social">
 						<ul class="list-linear">
-							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="butbits" data-lang="en">Tweet</a></div></li>
-							<li><div class="twitter-follow"><a href="https://twitter.com/butbits" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
 						</ul>
 					</div>
 					<div class="comment">
@@ -307,8 +309,7 @@ Output completed (0 sec consumed) - Normal Termination
 					<h4>about</h4>
 					<ul>
 						<li class="contact"><address><span class="author fn n">David</span> <!-- - <span class="fn email">blah@email.test</span></address></li> -->
-						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>
-						<li class="twitter"><a href="http://twitter.com/butbits/" rel="me">twitter.com/butbits</a></li>
+						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>				
 						<li class="twitter"><a href="http://weibo.com/mylxq/" rel="me">weibo.com/mylxq</a></li>
 						<li class="rss"><a href="/rss.xml">Subscribe to RSS Feed</a></li>
 					</ul>

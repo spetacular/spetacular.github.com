@@ -78,13 +78,14 @@
 
 <p>看下数据表的规模：</p>
 
-<pre><code>select count(*) from t_uc_user;
+<div class="highlighter-rouge"><pre class="highlight"><code>select count(*) from t_uc_user;
 +----------+
 | count(*) |
 +----------+
 |  2001935 | 
 +----------+
 </code></pre>
+</div>
 
 <p>200万条记录。</p>
 
@@ -94,7 +95,7 @@
 
 <p>1） 其中好几条SQL都是包含正则表达式的查询，耗时长达2秒以上。标记一下，稍后优化。</p>
 
-<pre><code>select count(*) as num from t_uc_search_101_user where (((FStatus='1'))) and ((((concat('|',FBusinessInfo, '|') regexp '\\|1_[[:alnum:]]*_[[:alnum:]]*_[[:alnum:]]*_[[:alnum:]]*\\|')))) and ((((concat('|',FAttributeInfo, '|') regexp '\\|1_-1_[[:alnum:]]*\\|'))));
+<div class="highlighter-rouge"><pre class="highlight"><code>select count(*) as num from t_uc_search_101_user where (((FStatus='1'))) and ((((concat('|',FBusinessInfo, '|') regexp '\\|1_[[:alnum:]]*_[[:alnum:]]*_[[:alnum:]]*_[[:alnum:]]*\\|')))) and ((((concat('|',FAttributeInfo, '|') regexp '\\|1_-1_[[:alnum:]]*\\|'))));
 +-----+
 | num |
 +-----+
@@ -102,16 +103,18 @@
 +-----+
 1 row in set (2.18 sec)
 </code></pre>
+</div>
 
 <p>2） 有至少三条count(*)查询，看下存储引擎，如果是Innodb，可以考虑用MYISAM。结果是MYISAM，此路不通。</p>
 
 <p>3） 重复执行相同的SQL语句。这些SQL语句的功能是根据查询到的用户记录ID，去取用户的详细信息。以每页15条来看，可以减少15次查询。</p>
 
-<pre><code>select * from t_uc_records_101 where ( (FId='5878970') OR (FId='5878969') OR (FId='5880317') ) AND FStatus!=-1
+<div class="highlighter-rouge"><pre class="highlight"><code>select * from t_uc_records_101 where ( (FId='5878970') OR (FId='5878969') OR (FId='5880317') ) AND FStatus!=-1
 select * from t_uc_records_101 where ( (FId='5878970') OR (FId='5878969') OR (FId='5880317') ) AND FStatus!=-1
 select * from t_uc_records_101 where ( (FId='5877911') ) AND FStatus!=-1
 select * from t_uc_records_101 where ( (FId='5877911') ) AND FStatus!=-1
 </code></pre>
+</div>
 
 <p>4） 最大的问题是，每次以相同的查询条件加载，耗时好像没有减少。难道Mysql没有查询缓存吗？</p>
 
@@ -121,7 +124,7 @@ select * from t_uc_records_101 where ( (FId='5877911') ) AND FStatus!=-1
 
 <p>1） 查询缓存是否开启？</p>
 
-<pre><code>mysql&gt; select @@query_cache_type;
+<div class="highlighter-rouge"><pre class="highlight"><code>mysql&gt; select @@query_cache_type;
 +--------------------+
 | @@query_cache_type |
 +--------------------+
@@ -129,12 +132,13 @@ select * from t_uc_records_101 where ( (FId='5877911') ) AND FStatus!=-1
 +--------------------+
 1 row in set (0.01 sec)
 </code></pre>
+</div>
 
 <p>已开启。</p>
 
 <p>2） 查询缓存是否可用？</p>
 
-<pre><code>mysql&gt; show variables like 'have_query_cache';
+<div class="highlighter-rouge"><pre class="highlight"><code>mysql&gt; show variables like 'have_query_cache';
 +------------------+-------+
 | Variable_name    | Value |
 +------------------+-------+
@@ -142,12 +146,13 @@ select * from t_uc_records_101 where ( (FId='5877911') ) AND FStatus!=-1
 +------------------+-------+
 1 row in set (0.01 sec)
 </code></pre>
+</div>
 
 <p>可用。</p>
 
 <p>3） 查询缓存大小？</p>
 
-<pre><code>mysql&gt; select @@global.query_cache_size;
+<div class="highlighter-rouge"><pre class="highlight"><code>mysql&gt; select @@global.query_cache_size;
 +---------------------------+
 | @@global.query_cache_size |
 +---------------------------+
@@ -155,19 +160,21 @@ select * from t_uc_records_101 where ( (FId='5877911') ) AND FStatus!=-1
 +---------------------------+
 1 row in set (0.00 sec)
 </code></pre>
+</div>
 
 <p>分配给查询缓存内存为0，就是没分配。  没有任何效果。</p>
 
 <p>4） 设置查询缓存大小。大约10M，不够以后再加。</p>
 
-<pre><code>mysql&gt; set @@global.query_cache_size=10000000;
+<div class="highlighter-rouge"><pre class="highlight"><code>mysql&gt; set @@global.query_cache_size=10000000;
 Query OK, 0 rows affected, 1 warning (0.00 sec)
 </code></pre>
+</div>
 
 <p>完成这些以后，发现第一次访问速度还是龟速。再刷新，就瞬间加载了。</p>
 
-<h1 id="section-3">结论</h1>
-<p>利用查询缓存来优化查询，能将访问速度减少到200ms以下，能满足当前需求。但是最终的解决之道是对耗时较多、冗余的SQL语句进行优化。
+<p>#结论#
+利用查询缓存来优化查询，能将访问速度减少到200ms以下，能满足当前需求。但是最终的解决之道是对耗时较多、冗余的SQL语句进行优化。
 所以，革命尚未成功，同志仍需努力！</p>
 
 					<div class="meta">
@@ -215,8 +222,8 @@ Query OK, 0 rows affected, 1 warning (0.00 sec)
 				<div class="misc-content">
 					<div class="social">
 						<ul class="list-linear">
-							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="butbits" data-lang="en">Tweet</a></div></li>
-							<li><div class="twitter-follow"><a href="https://twitter.com/butbits" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
 						</ul>
 					</div>
 					<div class="comment">
@@ -282,8 +289,7 @@ Query OK, 0 rows affected, 1 warning (0.00 sec)
 					<h4>about</h4>
 					<ul>
 						<li class="contact"><address><span class="author fn n">David</span> <!-- - <span class="fn email">blah@email.test</span></address></li> -->
-						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>
-						<li class="twitter"><a href="http://twitter.com/butbits/" rel="me">twitter.com/butbits</a></li>
+						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>				
 						<li class="twitter"><a href="http://weibo.com/mylxq/" rel="me">weibo.com/mylxq</a></li>
 						<li class="rss"><a href="/rss.xml">Subscribe to RSS Feed</a></li>
 					</ul>

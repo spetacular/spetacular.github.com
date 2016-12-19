@@ -52,8 +52,8 @@
 				<div class="entry-content">
 					<p>看房团 App 1.8.2更新版本时，偶然发现无法从1.8.1升级到1.8.2，于是探究一番，发现大有深意。</p>
 
-<h2 id="section">问题</h2>
-<p>升级，无非是下载新版软件包，再进行安装。无法更新，最直接的反应是下载链接是不是404了？</p>
+<p>##问题
+升级，无非是下载新版软件包，再进行安装。无法更新，最直接的反应是下载链接是不是404了？</p>
 
 <p>那抓下包吧。</p>
 
@@ -65,17 +65,18 @@
 
 <p>先看下HTTP 416错误代表什么吧？</p>
 
-<p><code>所请求的范围无法满足 (Requested Range not satisfiable)</code></p>
+<p><code class="highlighter-rouge">所请求的范围无法满足 (Requested Range not satisfiable)</code></p>
 
 <p>看了不明觉厉，因为从没遇见过。</p>
 
-<h2 id="section-1">探索</h2>
-<p>问了下客户端的同学，发现下载使用的是HttpURLConnection，于是Google一下，得到一些关键信息：</p>
+<p>##探索
+问了下客户端的同学，发现下载使用的是HttpURLConnection，于是Google一下，得到一些关键信息：</p>
 
-<pre><code>HTTP response code: 416是由于读取文件时设置的Range有误造成的，具体的说就是下面这行代码有误：
+<div class="highlighter-rouge"><pre class="highlight"><code>HTTP response code: 416是由于读取文件时设置的Range有误造成的，具体的说就是下面这行代码有误：
 httpConnection.setRequestProperty("RANGE", "bytes=1024-");
 这个RANGE显然不能超出文件的size
 </code></pre>
+</div>
 
 <p>而客户端设置的RANGE为文件大小。</p>
 
@@ -93,15 +94,16 @@ httpConnection.setRequestProperty("RANGE", "bytes=1024-");
 
 <p><img src="http://spetacular.github.io/images/2015-01-30/remove-range.jpg" alt="去掉Range" /></p>
 
-<h2 id="section-2">结论</h2>
-<p>造成返回码416的原因，是设置的Range有误。解决办法也很简单，将第一次请求时的Range去掉。</p>
+<p>##结论
+造成返回码416的原因，是设置的Range有误。解决办法也很简单，将第一次请求时的Range去掉。</p>
 
-<pre><code>   //删掉之后，整个世界都清净了！
+<div class="highlighter-rouge"><pre class="highlight"><code>   //删掉之后，整个世界都清净了！
    conn.setRequestProperty("Range", "bytes=" + startPosition);// startPosition=0
 </code></pre>
+</div>
 
-<h2 id="section-3">启示</h2>
-<p>解决bug并不难，难的是版本已发，鞭长莫及。这时我想到的解决办法是：用其它链接替换，或服务器做一个中转。但前者需要更换CDN提供商，后者需要接入层服务器的支持，都没有着眼于问题的本质。</p>
+<p>##启示
+解决bug并不难，难的是版本已发，鞭长莫及。这时我想到的解决办法是：用其它链接替换，或服务器做一个中转。但前者需要更换CDN提供商，后者需要接入层服务器的支持，都没有着眼于问题的本质。</p>
 
 <p>问题的本质是，无论CDN服务器支持与否，客户端请求的方式都存在不足之处，在下一个版本中修正即可。而且从报表上看，用户自发地通过其它途径升级到了最新版本！</p>
 
@@ -122,8 +124,9 @@ httpConnection.setRequestProperty("RANGE", "bytes=1024-");
 
 <p>如果Range的取值不合法，则需要终止程序并告知浏览器：</p>
 
-<pre><code>    header('HTTP/1.1 416 Requested Range Not Satisfiable');
+<div class="highlighter-rouge"><pre class="highlight"><code>    header('HTTP/1.1 416 Requested Range Not Satisfiable');
 </code></pre>
+</div>
 
 <p>在本文的例子中，CDN服务器尽职尽责地告诉客户端，你的请求错了！</p>
 
@@ -159,7 +162,7 @@ httpConnection.setRequestProperty("RANGE", "bytes=1024-");
   
      
     	<li><a href="/categories.html#php-ref">
-    		php <span>7</span>
+    		php <span>5</span>
     	</a></li>
     
   
@@ -188,8 +191,8 @@ httpConnection.setRequestProperty("RANGE", "bytes=1024-");
 				<div class="misc-content">
 					<div class="social">
 						<ul class="list-linear">
-							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="butbits" data-lang="en">Tweet</a></div></li>
-							<li><div class="twitter-follow"><a href="https://twitter.com/butbits" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
 						</ul>
 					</div>
 					<div class="comment">
@@ -255,8 +258,7 @@ httpConnection.setRequestProperty("RANGE", "bytes=1024-");
 					<h4>about</h4>
 					<ul>
 						<li class="contact"><address><span class="author fn n">David</span> <!-- - <span class="fn email">blah@email.test</span></address></li> -->
-						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>
-						<li class="twitter"><a href="http://twitter.com/butbits/" rel="me">twitter.com/butbits</a></li>
+						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>				
 						<li class="twitter"><a href="http://weibo.com/mylxq/" rel="me">weibo.com/mylxq</a></li>
 						<li class="rss"><a href="/rss.xml">Subscribe to RSS Feed</a></li>
 					</ul>

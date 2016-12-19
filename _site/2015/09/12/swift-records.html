@@ -52,30 +52,33 @@
 				<div class="entry-content">
 					<p>po主初学Swift，遇到不少细节知识的缺失，只好请教Google大神。这篇文就是Google的结果，纪录一下。</p>
 
-<h2 id="unix">获取UNIX时间戳</h2>
-<p>即获得到某个时间点到1970年1月1日0点0分0秒的秒数。</p>
+<p>##获取UNIX时间戳
+即获得到某个时间点到1970年1月1日0点0分0秒的秒数。</p>
 
 <p>返回字符串格式：</p>
 
-<pre><code> var Timestamp: String {
+<div class="highlighter-rouge"><pre class="highlight"><code> var Timestamp: String {
     return "\(NSDate().timeIntervalSince1970)"
 }
 </code></pre>
+</div>
 
 <p>输出时，可以这样调用：</p>
 
-<pre><code>println("Timestamp: \(Timestamp)")
+<div class="highlighter-rouge"><pre class="highlight"><code>println("Timestamp: \(Timestamp)")
 </code></pre>
+</div>
 
 <p>如果希望返回NSTimeInterval，则：</p>
 
-<pre><code>var Timestamp: NSTimeInterval {
+<div class="highlighter-rouge"><pre class="highlight"><code>var Timestamp: NSTimeInterval {
     return NSDate().timeIntervalSince1970
 }
 </code></pre>
+</div>
 
-<h2 id="alert">创建alert</h2>
-<p>创建Alert的代码。<a href="http://stackoverflow.com/questions/24272006/how-to-add-action-to-uialertview-in-swift-ios-7" title="原文链接">原文链接</a></p>
+<p>##创建alert
+创建Alert的代码。<a href="http://stackoverflow.com/questions/24272006/how-to-add-action-to-uialertview-in-swift-ios-7" title="原文链接">原文链接</a></p>
 
 <pre>
 <code>
@@ -157,8 +160,8 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 				<div class="misc-content">
 					<div class="social">
 						<ul class="list-linear">
-							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="butbits" data-lang="en">Tweet</a></div></li>
-							<li><div class="twitter-follow"><a href="https://twitter.com/butbits" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
 						</ul>
 					</div>
 					<div class="comment">
@@ -224,8 +227,7 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 					<h4>about</h4>
 					<ul>
 						<li class="contact"><address><span class="author fn n">David</span> <!-- - <span class="fn email">blah@email.test</span></address></li> -->
-						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>
-						<li class="twitter"><a href="http://twitter.com/butbits/" rel="me">twitter.com/butbits</a></li>
+						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>				
 						<li class="twitter"><a href="http://weibo.com/mylxq/" rel="me">weibo.com/mylxq</a></li>
 						<li class="rss"><a href="/rss.xml">Subscribe to RSS Feed</a></li>
 					</ul>

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
-        <title>David&#39;s World</title>
-        <description>David&#39;s World - David</description>
+        <title>David's World</title>
+        <description>David's World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Wed, 07 Sep 2016 10:26:46 +0800</lastBuildDate>
-        <pubDate>Wed, 07 Sep 2016 10:26:46 +0800</pubDate>
+        <lastBuildDate>Mon, 19 Dec 2016 16:41:15 +0800</lastBuildDate>
+        <pubDate>Mon, 19 Dec 2016 16:41:15 +0800</pubDate>
         <ttl>60</ttl>
 
 
@@ -20,17 +20,19 @@
 &lt;p&gt;Restful API的两个重要因素是输入和输出，一个好的API要求输入和输出都清晰可见。
 输入包括用户提交的方式、参数等，都是可预期的。尽量不要采用数组接收。例如以下的例子，&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;$data = $_POST;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$data = $_POST;
 $User-&amp;gt;save($data);
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;这样的坏处一是无法过滤用户非法、多余的参数提交；二是参数不明，后续无法维护。&lt;/p&gt;
 
 &lt;p&gt;输出则要求仅提供满足需要的最小的数据集。例如如下的例子，&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;$user = User::get(1);
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$user = User::get(1);
 echo $user-&amp;gt;toJson();
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;这样的坏处一是输出的内容不清晰，只有知道数据表的结构才能了解输出的内容；二是可能一不小心把用户表敏感字段（密码，手机号）输出，造成信息泄漏。&lt;/p&gt;
 
@@ -38,11 +40,12 @@ echo $user-&amp;gt;toJson();
 
 &lt;p&gt;解决输出的方法，是采用JSON模板解析的方法。例如用户表有id,name,pass,avatar,phone字段，其中只有name,avatar是需要输出的。那么模板可以这样定义：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;{
-  &quot;name&quot;: &quot;&quot;,
-  &quot;avatar&quot;: &quot;&quot;
-}
-&lt;/code&gt;&lt;/pre&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;avatar&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;当输出用户数据时，仅保留name和avatar，其它字段自动过滤掉。&lt;/p&gt;
 
@@ -56,7 +59,7 @@ echo $user-&amp;gt;toJson();
 
 &lt;p&gt;算法代码如下：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;class JSONOut
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;class JSONOut
 {
 	/**
 	*按照JSON模板输出JSON数据
@@ -102,12 +105,13 @@ echo $user-&amp;gt;toJson();
     }
 }
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;h2 id=&quot;section-1&quot;&gt;测试代码&lt;/h2&gt;
 
 &lt;p&gt;测试代码如下：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;$tplContent = &amp;lt;&amp;lt;&amp;lt;EOT
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$tplContent = &amp;lt;&amp;lt;&amp;lt;EOT
 {
   &quot;name&quot;: &quot;&quot;,
   &quot;avatar&quot;: &quot;&quot;
@@ -115,32 +119,34 @@ echo $user-&amp;gt;toJson();
 EOT;
 
 //单条数据
-$user  = array(&#39;id&#39;=&amp;gt;1,&#39;name&#39; =&amp;gt; &#39;david&#39;,&#39;pass&#39; =&amp;gt; &#39;123456&#39;,&#39;phone&#39;=&amp;gt;&#39;13888888888&#39;,&#39;avatar&#39; =&amp;gt; &#39;http://spetacular.github.io/images/favicon.ico&#39;);
+$user  = array('id'=&amp;gt;1,'name' =&amp;gt; 'david','pass' =&amp;gt; '123456','phone'=&amp;gt;'13888888888','avatar' =&amp;gt; 'http://spetacular.github.io/images/favicon.ico');
 
 echo JSONOut::toJSON($user,$tplContent,false);
 
 echo &quot;\n&quot;;
 
 //多条数据
-$users  = [array(&#39;id&#39;=&amp;gt;1,&#39;name&#39; =&amp;gt; &#39;david&#39;,&#39;pass&#39; =&amp;gt; &#39;123456&#39;,&#39;phone&#39;=&amp;gt;&#39;13888888888&#39;,&#39;avatar&#39; =&amp;gt; &#39;http://spetacular.github.io/images/favicon.ico&#39;),
-array(&#39;id&#39;=&amp;gt;2,&#39;name&#39; =&amp;gt; &#39;john&#39;,&#39;pass&#39; =&amp;gt; &#39;654321&#39;,&#39;phone&#39;=&amp;gt;&#39;13888888889&#39;,&#39;avatar&#39; =&amp;gt; &#39;http://spetacular.github.io/images/favicon.png&#39;)];
+$users  = [array('id'=&amp;gt;1,'name' =&amp;gt; 'david','pass' =&amp;gt; '123456','phone'=&amp;gt;'13888888888','avatar' =&amp;gt; 'http://spetacular.github.io/images/favicon.ico'),
+array('id'=&amp;gt;2,'name' =&amp;gt; 'john','pass' =&amp;gt; '654321','phone'=&amp;gt;'13888888889','avatar' =&amp;gt; 'http://spetacular.github.io/images/favicon.png')];
 
 echo JSONOut::toJSON($users,$tplContent,true);
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;测试结果如下：&lt;/p&gt;
 
 &lt;p&gt;单条数据：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;{
-  &quot;name&quot;: &quot;david&quot;,
-  &quot;avatar&quot;: &quot;http://spetacular.github.io/images/favicon.ico&quot;
-}
-&lt;/code&gt;&lt;/pre&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;david&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;avatar&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://spetacular.github.io/images/favicon.ico&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;多条数据：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;[
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;[
   {
     &quot;name&quot;: &quot;david&quot;,
     &quot;avatar&quot;: &quot;http://spetacular.github.io/images/favicon.ico&quot;
@@ -151,19 +157,22 @@ echo JSONOut::toJSON($users,$tplContent,true);
   }
 ]
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
-&lt;h2 id=&quot;section-2&quot;&gt;未来扩展&lt;/h2&gt;
-&lt;p&gt;注意到JSON模板仅有key，没有value，未来可以在value上扩展，比如默认值，比如：&lt;/p&gt;
+&lt;p&gt;##未来扩展
+注意到JSON模板仅有key，没有value，未来可以在value上扩展，比如默认值，比如：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;{&quot;gender&quot;:0}
-&lt;/code&gt;&lt;/pre&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;gender&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;如果数据里没有gender的数据，则默认为0；&lt;/p&gt;
 
 &lt;p&gt;或者在value上加过滤函数，比如：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;{&quot;age&quot;:&quot;int&quot;}
-&lt;/code&gt;&lt;/pre&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;age&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;int&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;表示age要转化为整型数字。&lt;/p&gt;
 </description>
@@ -194,7 +203,7 @@ Given s = “hello”, return “olleh”.&lt;/p&gt;
 
 &lt;p&gt;算法代码（swift）如下：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;class Solution {
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;class Solution {
     func reverseString(s: String) -&amp;gt; String {
         var len = s.characters.count
         var sArr  = [Character](count:len, repeatedValue:&quot; &quot;)
@@ -206,6 +215,7 @@ Given s = “hello”, return “olleh”.&lt;/p&gt;
     }
 }
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;算法复杂度为O(N)。&lt;/p&gt;
 
@@ -238,7 +248,7 @@ Given s = “hello”, return “olleh”.&lt;/p&gt;
 
 &lt;p&gt;算法代码（swift）如下：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;class Solution {
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;class Solution {
     
     func getHeight(root: TreeNode?) -&amp;gt; Int{
         if root == nil {
@@ -276,12 +286,13 @@ Given s = “hello”, return “olleh”.&lt;/p&gt;
     }
 }
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;测试用例示例：&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2016/balanced_tree_test_case.jpg&quot; alt=&quot;平衡二叉树测试用例&quot; /&gt;&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;public class TreeNode {
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;public class TreeNode {
      public var val: Int
      public var left: TreeNode?
      public var right: TreeNode?
@@ -301,6 +312,7 @@ r2.right = r3
 var s = Solution()
 s.isBalanced(r1)//false
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 </description>
                 <link>http://spetacular.github.io/2016/07/25/balanced-tree.html</link>
@@ -335,22 +347,25 @@ Note: Your solution should be in logarithmic time complexity.&lt;/p&gt;
 
 &lt;p&gt;给定整数n，要找到以下数字，其中x*5^y &amp;lt;= n：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;5,10,15,...,x*5^y
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;5,10,15,...,x*5^y
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;然后看每个数字能分解出y个5:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;1,1,1,...,y
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;1,1,1,...,y
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;最后的结果就是如下：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;Sum(1,1,1,...,y)
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Sum(1,1,1,...,y)
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;算法代码（swift）如下：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;class Solution {
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;class Solution {
     func trailingZeroes(n: Int) -&amp;gt; Int {
         if n &amp;lt; 5{
             return 0
@@ -382,6 +397,7 @@ Note: Your solution should be in logarithmic time complexity.&lt;/p&gt;
     }
 }
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;这个算法需要循环(n/5)次，时间复杂度为O(N)，尽管“政治正确”，但不是最好的解法。&lt;/p&gt;
 
@@ -389,26 +405,29 @@ Note: Your solution should be in logarithmic time complexity.&lt;/p&gt;
 
 &lt;p&gt;将解法1的过程再回顾下，计算5出现的次数，可以分解看：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;出现5，计数加1；
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;出现5，计数加1；
 出现5*5，计数加2；
 出现5*5*5，计数加3；
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;换个角度看，&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;除以5，计数加1；
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;除以5，计数加1；
 除以5，计数加1；除以5*5，计数加1；
 除以5，计数加1；除以5*5，计数加1；除以5*5*5，计数加1；
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;那么最后结果&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;floor(n/5) + floor(n/25) + floor(n/125) + ....
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;floor(n/5) + floor(n/25) + floor(n/125) + ....
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;算法代码（swift）如下：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;class Solution1 {
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;class Solution1 {
     func trailingZeroes(n: Int) -&amp;gt; Int {
         var i = 5
         var ret = 0
@@ -420,6 +439,7 @@ Note: Your solution should be in logarithmic time complexity.&lt;/p&gt;
     }
 }	
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;算法复杂度为O(logN)。&lt;/p&gt;
 
@@ -449,7 +469,7 @@ Note: Your solution should be in logarithmic time complexity.&lt;/p&gt;
 
 &lt;p&gt;算法代码（swift）如下：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;class Solution {
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;class Solution {
     func mergeTwoLists(l1: ListNode?, _ l2: ListNode?) -&amp;gt; ListNode? {
         if l1 == nil{
             return l2
@@ -469,13 +489,14 @@ Note: Your solution should be in logarithmic time complexity.&lt;/p&gt;
     }
 }
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;h2 id=&quot;section-4&quot;&gt;解法2 非递归&lt;/h2&gt;
 &lt;p&gt;也可以用while循环来做。就是用一个tail指针遍历两个链表，每次走到值较小的节点上，直到其中一个链表走到头。最后拼上另一个链表即可。&lt;/p&gt;
 
 &lt;p&gt;算法代码（swift）如下：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;class Solution {
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;class Solution {
     func mergeTwoLists(l1: ListNode?, _ l2: ListNode?) -&amp;gt; ListNode? {
         if l1 == nil{
             return l2
@@ -517,6 +538,7 @@ Note: Your solution should be in logarithmic time complexity.&lt;/p&gt;
     }
 }
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;假设l1长度为M，l2长度为N，则算法复杂度为O(M+N)。&lt;/p&gt;
 
@@ -546,28 +568,30 @@ Note: Your solution should be in logarithmic time complexity.&lt;/p&gt;
 &lt;h2 id=&quot;section-3&quot;&gt;解法1&lt;/h2&gt;
 &lt;p&gt;该算法有一个O(1)复杂度的&lt;a href=&quot;http://my.oschina.net/Tsybius2014/blog/497645&quot; title=&quot;LeetCode：Add Digits - 非负整数各位相加&quot;&gt;《解法》&lt;/a&gt;。其中的公式为 (num - 1) % 9 + 1。这里引用一下这个公式的推导过程：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;假设输入的数字是一个5位数字num，则num的各位分别为a、b、c、d、e。有如下关系：num = a * 10000 + b * 1000 + c * 100 + d * 10 + e  
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;假设输入的数字是一个5位数字num，则num的各位分别为a、b、c、d、e。有如下关系：num = a * 10000 + b * 1000 + c * 100 + d * 10 + e  
 即：num = (a + b + c + d + e) + (a * 9999 + b * 999 + c * 99 + d * 9)  
 因为 a * 9999 + b * 999 + c * 99 + d * 9 一定可以被9整除，因此num模除9的结果与 a + b + c + d + e 模除9的结果是一样的。  
 对数字 a + b + c + d + e 反复执行同类操作，最后的结果就是一个 1-9 的数字加上一串数字，最左边的数字是 1-9 之间的，右侧的数字永远都是可以被9整除的。  
 这道题最后的目标，就是不断将各位相加，相加到最后，当结果小于10时返回。因为最后结果在1-9之间，得到9之后将不会再对各位进行相加，因此不会出现结果为0的情况。因为 (x + y) % z = (x % z + y % z) % z，又因为 x % z % z = x % z，因此结果为 (num - 1) % 9 + 1，只模除9一次，并将模除后的结果加一返回。
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;这个公式是正确的，但这个推导过程有待商榷。为什么要num要先减1，最后再加上1？&lt;/p&gt;
 
 &lt;h2 id=&quot;section-4&quot;&gt;解法2&lt;/h2&gt;
 &lt;p&gt;其实还有一个更容易的理解的解法。推导过程如下：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;假设输入的数字是一个5位数字num，则num的各位分别为a、b、c、d、e。有如下关系：num = a * 10000 + b * 1000 + c * 100 + d * 10 + e  
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;假设输入的数字是一个5位数字num，则num的各位分别为a、b、c、d、e。有如下关系：num = a * 10000 + b * 1000 + c * 100 + d * 10 + e  
 即：num = (a + b + c + d + e) + (a * 9999 + b * 999 + c * 99 + d * 9)  
 因为 a * 9999 + b * 999 + c * 99 + d * 9 一定可以被9整除，因此num模除9的结果与 a + b + c + d + e 模除9的结果是一样的。
 所以最后的结果是：num % 9.
 但是这个结果需要修正一下：如果num能被9整除，则结果为0，这时应该修正为9.
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;最后整个算法代码（swift）如下：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;class Solution {
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;class Solution {
     func addDigits(num: Int) -&amp;gt; Int {
         if num == 0 {
             return 0
@@ -581,6 +605,7 @@ Note: Your solution should be in logarithmic time complexity.&lt;/p&gt;
     }
 }
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;算法复杂度也为O(1)。&lt;/p&gt;
 
@@ -599,8 +624,9 @@ Note: Your solution should be in logarithmic time complexity.&lt;/p&gt;
 
 &lt;p&gt;解决方法是将session_start默认关闭，需要时再打开。&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&#39;SESSION_AUTO_START&#39;=&amp;gt;false
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;'SESSION_AUTO_START'=&amp;gt;false
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 </description>
                 <link>http://spetacular.github.io/2016/06/16/session-and-gc.html</link>
                 <guid>http://spetacular.github.io/2016/06/16/session-and-gc</guid>
@@ -615,7 +641,7 @@ Note: Your solution should be in logarithmic time complexity.&lt;/p&gt;
 &lt;h2 id=&quot;apm&quot;&gt;安装apm&lt;/h2&gt;
 &lt;p&gt;安装apm有两种方式：从PECL安装，或从源码编译。这里采用PECL安装。源码编译见&lt;a href=&quot;https://github.com/patrickallaert/php-apm#from-source&quot;&gt;官方文档&lt;/a&gt;。&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;sudo pecl install apm
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo pecl install apm
 WARNING: channel &quot;pecl.php.net&quot; has updated its protocols, use &quot;pecl channel-update pecl.php.net&quot; to update
 downloading APM-2.0.5.tgz ...
 Starting to download APM-2.0.5.tgz (31,484 bytes)
@@ -631,22 +657,25 @@ Enable MariaDB/MySQL support [yes] : yes
 Enable Socket support [yes] : yes
 Enable Statsd support [yes] : yes
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;出现了如下错误：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;configure: error: Cannot find MySQL header files
-ERROR: `/tmp/pear/temp/APM/configure --with-php-config=/usr/bin/php-config --with-sqlite3=no --with-mysql --enable-socket=yes --enable-statsd=yes&#39; failed
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;configure: error: Cannot find MySQL header files
+ERROR: `/tmp/pear/temp/APM/configure --with-php-config=/usr/bin/php-config --with-sqlite3=no --with-mysql --enable-socket=yes --enable-statsd=yes' failed
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;需要安装下mysql dev&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;sudo apt-get install mysql-client libmysqlclient-dev
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt-get install mysql-client libmysqlclient-dev
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;h2 id=&quot;apm-1&quot;&gt;配置apm&lt;/h2&gt;
 &lt;p&gt;在php.ini上配置apm。apm.so依赖于json.so，如果之前没有加载，则应先加载。&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;extension=json.so
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;extension=json.so
 extension=apm.so
 ;;;;;;;;;;;;;;;;;;;
 ; Module Settings ;
@@ -654,7 +683,7 @@ extension=apm.so
 
 ;apm
 apm.mysql_enabled=1
-; Error reporting level specific to the MariaDB/MySQL driver, same level as for PHP&#39;s *error_reporting*
+; Error reporting level specific to the MariaDB/MySQL driver, same level as for PHP's *error_reporting*
 apm.mysql_error_reporting=E_ALL|E_STRICT
 apm.mysql_stats_enabled=1
 apm.mysql_host=localhost
@@ -665,24 +694,28 @@ apm.mysql_db=apm
 apm.socket_enabled=0
 apm.socket_stats_enabled=0
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;然后重启php，例如：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;service php5-fpm restart
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;service php5-fpm restart
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;h2 id=&quot;apm-web&quot;&gt;部署apm-web&lt;/h2&gt;
 &lt;p&gt;apm提供了一个web端查看的项目，地址为：&lt;a href=&quot;https://github.com/patrickallaert/php-apm-web&quot;&gt;https://github.com/patrickallaert/php-apm-web&lt;/a&gt;。&lt;/p&gt;
 
 &lt;p&gt;将&lt;a href=&quot;https://github.com/patrickallaert/php-apm-web/archive/master.zip&quot;&gt;https://github.com/patrickallaert/php-apm-web/archive/master.zip&lt;/a&gt;解压后上传到网站根目录，或者如果使用git，可以clone到网站根目录下：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;git clone https://github.com/patrickallaert/php-apm-web.git apm-web
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git clone https://github.com/patrickallaert/php-apm-web.git apm-web
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;然后编辑config/db.php文件。如果选用mysql，可以如下配置：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;return new PDO(&quot;mysql:host=localhost;dbname=apm&quot;, &quot;apm&quot;, &quot;apm&quot;);
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;return new PDO(&quot;mysql:host=localhost;dbname=apm&quot;, &quot;apm&quot;, &quot;apm&quot;);
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;最后的效果如下：&lt;/p&gt;
 
@@ -799,8 +832,9 @@ apm.socket_stats_enabled=0
 
 &lt;p&gt;redit也属于有趣型的网站。它的时间因素占主导，就是说任何人发的新内容都比较容易靠前；排名算法中利用了赞成票与反对票的差额，说明有争议（很多人赞成，同时很多人反对）的内容，排名靠后；很多人赞成，很少人反对的内容，排名靠前。阮一峰得出结论：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;这决定了Reddit是一个符合大众口味的社区，不是一个很激进、可以展示少数派想法的地方。
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;这决定了Reddit是一个符合大众口味的社区，不是一个很激进、可以展示少数派想法的地方。
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;这也说明了，没有银弹，要建设什么样的社区，就要采用能体现社区特征的排名算法。&lt;/p&gt;
 
@@ -820,27 +854,30 @@ apm.socket_stats_enabled=0
 
 &lt;p&gt;网址：https://pecl.php.net/package/redis&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;  wget https://pecl.php.net/get/redis-2.2.7.tgz
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  wget https://pecl.php.net/get/redis-2.2.7.tgz
   tar zxvf redis-2.2.7.tgz
   cd redis-2.2.7
   phpize
   ./configure
   make &amp;amp;&amp;amp; make install
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;2.检查：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;  php -i | grep Redis
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  php -i | grep Redis
   Redis Support =&amp;gt; enabled
   Redis Version =&amp;gt; 2.2.7
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;安装或升级成功。&lt;/p&gt;
 
 &lt;p&gt;3.重启php5-fpm&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;  service php5-fpm restart
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  service php5-fpm restart
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 </description>
                 <link>http://spetacular.github.io/2016/01/29/install-and-upgrade-phpredis-extions.html</link>
@@ -857,7 +894,7 @@ apm.socket_stats_enabled=0
 &lt;h1 id=&quot;section&quot;&gt;排序&lt;/h1&gt;
 &lt;p&gt;假设老师需要处理期中考试的语文成绩，他做的第一件事是将学生成绩录入系统。&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;  Li Lei成绩70分
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  Li Lei成绩70分
   127.0.0.1:6379&amp;gt; ZADD mid_test 70 &quot;Li Lei&quot;
   (integer) 1
 
@@ -869,11 +906,12 @@ apm.socket_stats_enabled=0
   127.0.0.1:6379&amp;gt; ZADD mid_test 99.5 &quot;Tom&quot;
   (integer) 1
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
-&lt;h3 id=&quot;section-1&quot;&gt;排行榜&lt;/h3&gt;
-&lt;p&gt;有序集合天然就是做排行榜的利器。只需将带score的member塞到有序集合里，就可以正序或倒序取出数据。这要用到ZREVRANGE（倒序）和ZRANGE（正序）。&lt;/p&gt;
+&lt;p&gt;###排行榜
+有序集合天然就是做排行榜的利器。只需将带score的member塞到有序集合里，就可以正序或倒序取出数据。这要用到ZREVRANGE（倒序）和ZRANGE（正序）。&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;  分数排行榜
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  分数排行榜
   127.0.0.1:6379&amp;gt; ZREVRANGE mid_test 0 -1 WITHSCORES
   1) &quot;Tom&quot;
   2) &quot;99.5&quot;
@@ -882,22 +920,24 @@ apm.socket_stats_enabled=0
   5) &quot;Han Meimei&quot;
   6) &quot;70&quot;
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
-&lt;h3 id=&quot;section-2&quot;&gt;分段统计&lt;/h3&gt;
-&lt;p&gt;有序集合还支持按score区间来查询：ZREVRANGEBYSCORE为倒序查询，ZRANGEBYSCORE为正序。例如要知道90分以上的学霸：&lt;/p&gt;
+&lt;p&gt;###分段统计
+有序集合还支持按score区间来查询：ZREVRANGEBYSCORE为倒序查询，ZRANGEBYSCORE为正序。例如要知道90分以上的学霸：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;  127.0.0.1:6379&amp;gt; ZREVRANGEBYSCORE mid_test 100 90 WITHSCORES
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  127.0.0.1:6379&amp;gt; ZREVRANGEBYSCORE mid_test 100 90 WITHSCORES
   1) &quot;Tom&quot;
   2) &quot;99.5&quot;
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
-&lt;h1 id=&quot;section-3&quot;&gt;聚合&lt;/h1&gt;
-&lt;p&gt;有序集合，其本质是集合，当然会有交集（&lt;a href=&quot;http://redisdoc.com/sorted_set/zinterstore.html&quot; title=&quot;ZINTERSTORE&quot;&gt;ZINTERSTORE&lt;/a&gt;）和并集（&lt;a href=&quot;http://redisdoc.com/sorted_set/zunionstore.html&quot; title=&quot;ZUNIONSTORE&quot;&gt;ZUNIONSTORE&lt;/a&gt;）运算。&lt;/p&gt;
+&lt;p&gt;#聚合 
+有序集合，其本质是集合，当然会有交集（&lt;a href=&quot;http://redisdoc.com/sorted_set/zinterstore.html&quot; title=&quot;ZINTERSTORE&quot;&gt;ZINTERSTORE&lt;/a&gt;）和并集（&lt;a href=&quot;http://redisdoc.com/sorted_set/zunionstore.html&quot; title=&quot;ZUNIONSTORE&quot;&gt;ZUNIONSTORE&lt;/a&gt;）运算。&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-11-01/inter-union.jpg&quot; alt=&quot;交集和并集&quot; width=&quot;100%&quot; /&gt;&lt;/p&gt;
 
-&lt;h3 id=&quot;section-4&quot;&gt;交集&lt;/h3&gt;
-&lt;p&gt;&lt;a href=&quot;http://redisdoc.com/sorted_set/zinterstore.html&quot; title=&quot;ZINTERSTORE&quot;&gt;ZINTERSTORE&lt;/a&gt;取所有集合的并集。以两个集合A和B为例，要取交集C，是这样的逻辑：&lt;/p&gt;
+&lt;p&gt;###交集
+&lt;a href=&quot;http://redisdoc.com/sorted_set/zinterstore.html&quot; title=&quot;ZINTERSTORE&quot;&gt;ZINTERSTORE&lt;/a&gt;取所有集合的并集。以两个集合A和B为例，要取交集C，是这样的逻辑：&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;A和B中共有的member，会加入到C中，其score等于A、B中score之和。&lt;/li&gt;
@@ -906,7 +946,7 @@ apm.socket_stats_enabled=0
 
 &lt;p&gt;某班又进行了期末考试，同时来了个新同学Jerry。&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;  127.0.0.1:6379&amp;gt; ZADD fin_test 88 &quot;Li Lei&quot;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  127.0.0.1:6379&amp;gt; ZADD fin_test 88 &quot;Li Lei&quot;
   (integer) 1
   127.0.0.1:6379&amp;gt; ZADD fin_test 75 &quot;Han Meimei&quot;
   (integer) 1
@@ -915,10 +955,11 @@ apm.socket_stats_enabled=0
   127.0.0.1:6379&amp;gt; ZADD fin_test 100 &quot;Jerry&quot;
   (integer) 1
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;老师要按期中考试和期末考试的总成绩来排座位，就对mid_test和fin_test做了个交集。&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;  127.0.0.1:6379&amp;gt; ZINTERSTORE sum_point 2 mid_test fin_test
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  127.0.0.1:6379&amp;gt; ZINTERSTORE sum_point 2 mid_test fin_test
   (integer) 3
   127.0.0.1:6379&amp;gt; ZREVRANGE sum_point 0 -1 WITHSCORES
   1) &quot;Tom&quot;
@@ -928,12 +969,13 @@ apm.socket_stats_enabled=0
   5) &quot;Han Meimei&quot;
   6) &quot;145&quot;
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;结果显示了学生的总成绩。
 但结果中没有新来的Jerry同学（尽管TA考了100分）。这是坑一。&lt;/p&gt;
 
-&lt;h3 id=&quot;section-5&quot;&gt;并集&lt;/h3&gt;
-&lt;p&gt;&lt;a href=&quot;http://redisdoc.com/sorted_set/zunionstore.html&quot; title=&quot;ZUNIONSTORE&quot;&gt;ZUNIONSTORE&lt;/a&gt;计算所有集合的并集。以两个集合A和B为例，要取并集C，是这样的逻辑：&lt;/p&gt;
+&lt;p&gt;###并集
+&lt;a href=&quot;http://redisdoc.com/sorted_set/zunionstore.html&quot; title=&quot;ZUNIONSTORE&quot;&gt;ZUNIONSTORE&lt;/a&gt;计算所有集合的并集。以两个集合A和B为例，要取并集C，是这样的逻辑：&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;A的所有member会加到C中，其score与A中相等&lt;/li&gt;
@@ -945,27 +987,29 @@ apm.socket_stats_enabled=0
 
 &lt;p&gt;程序员工资&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;  127.0.0.1:6379&amp;gt; zadd programmer 2000 peter
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  127.0.0.1:6379&amp;gt; zadd programmer 2000 peter
   (integer) 1
   127.0.0.1:6379&amp;gt; zadd programmer 3500 jack
   (integer) 1
   127.0.0.1:6379&amp;gt; zadd programmer 5000 tom
   (integer) 1
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;经理工资&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;  127.0.0.1:6379&amp;gt; zadd manager 2000 herry
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  127.0.0.1:6379&amp;gt; zadd manager 2000 herry
   (integer) 1
   127.0.0.1:6379&amp;gt; zadd manager 3500 mary
   (integer) 1
   127.0.0.1:6379&amp;gt; zadd manager 4000 tom
   (integer) 1
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;财务统一处理。&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;  127.0.0.1:6379&amp;gt; zunionstore salary 2 programmer manager
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  127.0.0.1:6379&amp;gt; zunionstore salary 2 programmer manager
   (integer) 5
   127.0.0.1:6379&amp;gt; zrange salary 0 -1 withscores
    1) &quot;herry&quot;
@@ -979,12 +1023,13 @@ apm.socket_stats_enabled=0
    9) &quot;tom&quot;
   10) &quot;9000&quot;
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;结果显示了总工资支出情况。&lt;/p&gt;
 
 &lt;p&gt;但结果中程序员tom和经理tom是两个人，但工资算在了一起。这是坑二。&lt;/p&gt;
 
-&lt;h1 id=&quot;section-6&quot;&gt;避免踩坑&lt;/h1&gt;
+&lt;p&gt;#避免踩坑&lt;/p&gt;
 
 &lt;p&gt;还记得上面说的坑一和坑二吗？&lt;/p&gt;
 
@@ -1006,8 +1051,8 @@ apm.socket_stats_enabled=0
 
 &lt;p&gt;后来有用户反馈说timeline排序错误，自己发表发布的信息永远在最上面。后来查明原因，由于早期的bug，自己竟然可以关注自己，导致关注人和自己重复聚合。踩到了坑二。&lt;/p&gt;
 
-&lt;h1 id=&quot;section-7&quot;&gt;为什么踩坑&lt;/h1&gt;
-&lt;p&gt;以坑二为例，为什么有相同元素时，score就会变成原来元素的和？&lt;/p&gt;
+&lt;p&gt;#为什么踩坑
+以坑二为例，为什么有相同元素时，score就会变成原来元素的和？&lt;/p&gt;
 
 &lt;p&gt;因为ZINTERSTORE和ZUNIONSTORE有个参数为AGGREGATE，表示结果集的聚合方式，可取SUM、MIN、MAX其中之一。默认值为SUM。&lt;/p&gt;
 
@@ -1019,7 +1064,7 @@ apm.socket_stats_enabled=0
 
 &lt;p&gt;文档如上。&lt;/p&gt;
 
-&lt;h1 id=&quot;section-8&quot;&gt;有序集合之总结&lt;/h1&gt;
+&lt;p&gt;#有序集合之总结&lt;/p&gt;
 
 &lt;p&gt;使用场景：排行榜，有序列表，聚合；&lt;/p&gt;
 
@@ -1068,7 +1113,7 @@ apm.socket_stats_enabled=0
 
 &lt;p&gt;而集群上虽然也支持同时设置多个key，但不再是原子性操作。会存在某些给定 key 被更新而另外一些给定 key 没有改变的情况。其原因是需要设置的多个key可能分配到不同的机器上。&lt;/p&gt;
 
-&lt;h2 id=&quot;sinterstoresunionstorezinterstorezunionstore&quot;&gt;SINTERSTORE,SUNIONSTORE,ZINTERSTORE,ZUNIONSTORE&lt;/h2&gt;
+&lt;p&gt;##SINTERSTORE,SUNIONSTORE,ZINTERSTORE,ZUNIONSTORE&lt;/p&gt;
 
 &lt;p&gt;这四个命令属于同一类型。它们的共同之处是都需要对一组key进行运算或操作，但要求这些key都被分配到相同机器上。&lt;/p&gt;
 
@@ -1098,7 +1143,7 @@ apm.socket_stats_enabled=0
 &lt;p&gt;Hash Tag是用于hash的部分字符串开始和结束的标记，例如”{}”、”$$”等。
 配置时，只需更改hash_tag字段即可&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;beta:
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;beta:
   listen: 127.0.0.1:22122
   hash: fnv1a_64
   hash_tag: &quot;{}&quot;
@@ -1112,6 +1157,7 @@ apm.socket_stats_enabled=0
    - 127.0.0.1:6382:1 server3
    - 127.0.0.1:6383:1 server4
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 </description>
                 <link>http://spetacular.github.io/2015/09/20/redis-hash-tag.html</link>
                 <guid>http://spetacular.github.io/2015/09/20/redis-hash-tag</guid>
@@ -1122,30 +1168,33 @@ apm.socket_stats_enabled=0
                 <title>Swift知识点纪录</title>
                 <description>&lt;p&gt;po主初学Swift，遇到不少细节知识的缺失，只好请教Google大神。这篇文就是Google的结果，纪录一下。&lt;/p&gt;
 
-&lt;h2 id=&quot;unix&quot;&gt;获取UNIX时间戳&lt;/h2&gt;
-&lt;p&gt;即获得到某个时间点到1970年1月1日0点0分0秒的秒数。&lt;/p&gt;
+&lt;p&gt;##获取UNIX时间戳
+即获得到某个时间点到1970年1月1日0点0分0秒的秒数。&lt;/p&gt;
 
 &lt;p&gt;返回字符串格式：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt; var Timestamp: String {
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; var Timestamp: String {
     return &quot;\(NSDate().timeIntervalSince1970)&quot;
 }
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;输出时，可以这样调用：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;println(&quot;Timestamp: \(Timestamp)&quot;)
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;println(&quot;Timestamp: \(Timestamp)&quot;)
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;如果希望返回NSTimeInterval，则：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;var Timestamp: NSTimeInterval {
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;var Timestamp: NSTimeInterval {
     return NSDate().timeIntervalSince1970
 }
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
-&lt;h2 id=&quot;alert&quot;&gt;创建alert&lt;/h2&gt;
-&lt;p&gt;创建Alert的代码。&lt;a href=&quot;http://stackoverflow.com/questions/24272006/how-to-add-action-to-uialertview-in-swift-ios-7&quot; title=&quot;原文链接&quot;&gt;原文链接&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;##创建alert
+创建Alert的代码。&lt;a href=&quot;http://stackoverflow.com/questions/24272006/how-to-add-action-to-uialertview-in-swift-ios-7&quot; title=&quot;原文链接&quot;&gt;原文链接&lt;/a&gt;&lt;/p&gt;
 
 &lt;pre&gt;
 &lt;code&gt;
@@ -1189,8 +1238,8 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 
         <item>
                 <title>Nginx Sticky的使用及踩过的坑</title>
-                <description>&lt;h1 id=&quot;sticky&quot;&gt;什么是Sticky？&lt;/h1&gt;
-&lt;p&gt;为了理解Sticky的工作原理，我们可以先考虑一个问题：负载均衡怎么做？&lt;/p&gt;
+                <description>&lt;p&gt;#什么是Sticky？#
+为了理解Sticky的工作原理，我们可以先考虑一个问题：负载均衡怎么做？&lt;/p&gt;
 
 &lt;p&gt;DNS解析，在域名解析时分配给不同的服务器IP；&lt;/p&gt;
 
@@ -1202,8 +1251,8 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 
 &lt;p&gt;为方便叙述，文中的cookie都指sticky使用的cookie。&lt;/p&gt;
 
-&lt;h1 id=&quot;sticky-1&quot;&gt;Sticky工作原理&lt;/h1&gt;
-&lt;p&gt;Sticky是nginx的一个模块,通过分发和识别cookie，来使同一个客户端的请求落在同一台服务器上。sticky的处理过程如下（假设cookie名称为route）：&lt;/p&gt;
+&lt;p&gt;#Sticky工作原理
+Sticky是nginx的一个模块,通过分发和识别cookie，来使同一个客户端的请求落在同一台服务器上。sticky的处理过程如下（假设cookie名称为route）：&lt;/p&gt;
 
 &lt;p&gt;1.客户端首次发起请求，请求头未带route的cookie。nginx接收请求，发现请求头没有route，则以轮询方式将请求分配给后端服务器。&lt;/p&gt;
 
@@ -1220,12 +1269,13 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 &lt;p&gt;关于sticky的详细的配置过程在
 &lt;a href=&quot;http://nginx.org/en/docs/http/ngx_http_upstream_module.html#sticky&quot; title=&quot;nginx sticky详细配置&quot;&gt;这里&lt;/a&gt;。&lt;/p&gt;
 
-&lt;h1 id=&quot;section&quot;&gt;参数解析&lt;/h1&gt;
+&lt;p&gt;#参数解析&lt;/p&gt;
 
 &lt;p&gt;这里引用淘宝Tengine的文档：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;语法：session_sticky [cookie=name] [domain=your_domain] [path=your_path] [maxage=time] [mode=insert|rewrite|prefix] [option=indirect] [maxidle=time] [maxlife=time] [fallback=on|off] [hash=plain|md5]
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;语法：session_sticky [cookie=name] [domain=your_domain] [path=your_path] [maxage=time] [mode=insert|rewrite|prefix] [option=indirect] [maxidle=time] [maxlife=time] [fallback=on|off] [hash=plain|md5]
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;默认值：session_sticky cookie=route mode=insert fallback=on&lt;/p&gt;
 
@@ -1267,22 +1317,20 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 
 &lt;p&gt;hash不论是明文还是hash值，都有固定的数目。因为hash是server的标识，所以有多少个server，就有等同数量的hash值。&lt;/p&gt;
 
-&lt;h1 id=&quot;section-1&quot;&gt;一些例外&lt;/h1&gt;
+&lt;p&gt;#一些例外#&lt;/p&gt;
 
-&lt;h2 id=&quot;section-2&quot;&gt;同一客户端的请求，有可能落在不同的后端服务器上&lt;/h2&gt;
-&lt;p&gt;如果客户端启动时同时发起多个请求。由于这些请求都没带cookie，所以服务器会随机选择后端服务器，返回不同的cookie。当这些请求中的最后一个请求返回时，客户端的cookie才会稳定下来，值以最后返回的cookie为准。&lt;/p&gt;
+&lt;p&gt;##同一客户端的请求，有可能落在不同的后端服务器上##
+如果客户端启动时同时发起多个请求。由于这些请求都没带cookie，所以服务器会随机选择后端服务器，返回不同的cookie。当这些请求中的最后一个请求返回时，客户端的cookie才会稳定下来，值以最后返回的cookie为准。&lt;/p&gt;
 
-&lt;h2 id=&quot;cookie&quot;&gt;cookie不一定生效&lt;/h2&gt;
-&lt;p&gt;由于cookie最初由服务器端下发，如果客户端禁用cookie，则cookie不会生效。&lt;/p&gt;
+&lt;p&gt;##cookie不一定生效##
+由于cookie最初由服务器端下发，如果客户端禁用cookie，则cookie不会生效。&lt;/p&gt;
 
-&lt;h2 id=&quot;cookie-1&quot;&gt;客户端可能不带cookie&lt;/h2&gt;
-&lt;p&gt;Android客户端发送请求时，一般不会带上所有的cookie，需要明确指定哪些cookie会带上。如果希望用sticky做负载均衡，请对Android开发说加上cookie。&lt;/p&gt;
+&lt;p&gt;##客户端可能不带cookie##
+Android客户端发送请求时，一般不会带上所有的cookie，需要明确指定哪些cookie会带上。如果希望用sticky做负载均衡，请对Android开发说加上cookie。&lt;/p&gt;
 
-&lt;h1 id=&quot;section-3&quot;&gt;注意事项&lt;/h1&gt;
-&lt;ul&gt;
-  &lt;li&gt;cookie名称不要和业务使用的cookie重名。Sticky默认的cookie名称是route，可以改成任何值。但切记，不可以与业务中使用的cookie重名。&lt;/li&gt;
-  &lt;li&gt;客户端发的第一个请求是不带cookie的。服务器下发的cookie，在客户端下一次请求时才能生效。&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;#注意事项
+* cookie名称不要和业务使用的cookie重名。Sticky默认的cookie名称是route，可以改成任何值。但切记，不可以与业务中使用的cookie重名。
+* 客户端发的第一个请求是不带cookie的。服务器下发的cookie，在客户端下一次请求时才能生效。&lt;/p&gt;
 </description>
                 <link>http://spetacular.github.io/2015/08/01/nginx-sticky-problem.html</link>
                 <guid>http://spetacular.github.io/2015/08/01/nginx-sticky-problem</guid>
@@ -1425,13 +1473,14 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 
 &lt;p&gt;App的升级过程中，版本兼容是一个值得关注的问题，因为App要升级，服务器端的Restful接口也要进化，于是版本兼容要同时兼顾App和服务器端。&lt;/p&gt;
 
-&lt;h1 id=&quot;section&quot;&gt;一个例子&lt;/h1&gt;
-&lt;p&gt;版本兼容是向下兼容。接口升级后要保证低版本App能正常工作。&lt;/p&gt;
+&lt;p&gt;#一个例子#
+版本兼容是向下兼容。接口升级后要保证低版本App能正常工作。&lt;/p&gt;
 
 &lt;p&gt;例如“App 1.0”使用了下面接口完成修改用户信息功能。&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;GET api.demo.com/modify_userinfo
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;GET api.demo.com/modify_userinfo
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;采用GET方式提交用户输入。后来发现该接口可被CSRF攻击。&lt;/p&gt;
 
@@ -1441,8 +1490,8 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 
 &lt;p&gt;第二，服务器接口要为旧的“App 1.0”版本修复漏洞。但这时App已发布，不可能修改了。这时只能服务器端来改。例如限制user-agent为”App 1.0”的请求才有效，用户通过浏览器提交的请求无效。这样在一定程度上减少了CSRF的危害。&lt;/p&gt;
 
-&lt;h1 id=&quot;section-1&quot;&gt;版本兼容的两种情况&lt;/h1&gt;
-&lt;p&gt;从上面的例子来看，版本兼容可分为两种：&lt;/p&gt;
+&lt;p&gt;#版本兼容的两种情况#
+从上面的例子来看，版本兼容可分为两种：&lt;/p&gt;
 
 &lt;p&gt;大版本，指版本升级，接口的输入输出可能发生变化。&lt;/p&gt;
 
@@ -1450,8 +1499,8 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 
 &lt;p&gt;这两种情况都很常见。App未发布时，服务器接口从1.0升级到2.0，这时App开发者可以配合一下，使用2.0的接口；但对于已发布的App版本，只能由服务器端针对特定的App版本来修复漏洞。&lt;/p&gt;
 
-&lt;h1 id=&quot;section-2&quot;&gt;如何做&lt;/h1&gt;
-&lt;p&gt;App开发者需要配合，在请求接口时传入以下两项信息：&lt;/p&gt;
+&lt;p&gt;#如何做#
+App开发者需要配合，在请求接口时传入以下两项信息：&lt;/p&gt;
 
 &lt;ol&gt;
   &lt;li&gt;
@@ -1501,7 +1550,7 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 &lt;h2 id=&quot;section&quot;&gt;代码&lt;/h2&gt;
 &lt;p&gt;这里定义MaxWordSegmentation类，其中的run方法返回匹配到的结果。&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;class MaxWordSegmentation{
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;class MaxWordSegmentation{
 
 	private $dict = array();//保存字典的list
 
@@ -1512,7 +1561,7 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 	//读入词典文件到内存
 	function loadDict($pathToDict){
 		if(!file_exists($pathToDict)){
-			die(&#39;Can not find dict file!&#39;);
+			die('Can not find dict file!');
 		}
 		$dicts = array();
 		$handle = @fopen($pathToDict, &quot;r&quot;);
@@ -1534,7 +1583,7 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 	}
 
 	//按照词典进行分词。正向最大匹配法
-	function run($text,$encode = &#39;utf-8&#39;){
+	function run($text,$encode = 'utf-8'){
 		$minLen = 0;
 		$maxLen = 0;
 		//找出最长的单词长度及最短的单词长度
@@ -1571,11 +1620,12 @@ func alertView(View: UIAlertView!, clickedButtonAtIndex buttonIndex: Int){
 	}
 }
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;使用示例：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;$text = &#39;日前，奥迪全新SQ7运动版车型的无伪装谍照出人意料的被曝光出来，该车预计今年底或者明年初发布。可以看到，新车已经有一些专属设计明显的区别于普通版的车型。&#39;;
-$file = &#39;./dict.txt&#39;;	
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$text = '日前，奥迪全新SQ7运动版车型的无伪装谍照出人意料的被曝光出来，该车预计今年底或者明年初发布。可以看到，新车已经有一些专属设计明显的区别于普通版的车型。';
+$file = './dict.txt';	
 $obj = new MaxWordSegmentation($file);
 $ret = $obj-&amp;gt;run($text);
 var_dump($ret);
@@ -1587,6 +1637,7 @@ var_dump($ret);
 	}
 */
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;h2 id=&quot;section-1&quot;&gt;改进之处&lt;/h2&gt;
 &lt;p&gt;由于提取标签时，标签通常不会只有一个字，比如“奥迪”、“奔驰”、“宝马”等，子串长度都为2。如果字典中最短的词长为S，那么对对剩下的字符串重新进行匹配处理，不必等到剩余字串的长度为零才结束，只要匹配到S个字符就行。&lt;/p&gt;
@@ -1659,7 +1710,7 @@ var_dump($ret);
 
 &lt;p&gt;我把fiddler的url记录导出成一个txt文件。有几千条记录，于是写了个小程序，把url分下类。&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;&amp;lt;?php
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;?php
 $handle = @fopen(&quot;path/to/urls.txt&quot;, &quot;r&quot;);
 $urls = array();
 if ($handle) {
@@ -1676,10 +1727,10 @@ if ($handle) {
 }
 function getUrl($fullurl){
 	$array = parse_url($fullurl);
-	if(isset($array[&#39;host&#39;]) &amp;amp;&amp;amp; isset($array[&#39;path&#39;])){		
-		return $array[&#39;host&#39;].$array[&#39;path&#39;];
+	if(isset($array['host']) &amp;amp;&amp;amp; isset($array['path'])){		
+		return $array['host'].$array['path'];
 	}else{
-		return &#39;&#39;;
+		return '';
 	}
 }
 
@@ -1688,10 +1739,11 @@ foreach($urls as $url){
 }
 ?&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;结果如下：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;---------- PHP ----------
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;---------- PHP ----------
 pyhelp.qq.com/cgi-bin/getloc.so__
 message.t.qq.com/newMsgCount.php
 t.web2.qq.com/channel/poll
@@ -1705,6 +1757,7 @@ www.gstatic.com/chrome/crlset/1445/crl-set-14121586793162109453.crx.data__
 
 Output completed (0 sec consumed) - Normal Termination
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;*号标记的url恰好是控制广告出现的文件。看了下请求时间，00：01。&lt;/p&gt;
 
@@ -1772,7 +1825,7 @@ Output completed (0 sec consumed) - Normal Termination
 
 &lt;p&gt;This conversion contains several messages , which are stored in database in ascending order of their timing. As is shown in the following table.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;+----+------------------+--------+---------------------+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;+----+------------------+--------+---------------------+
 | id | content          | isread | pubtime             |
 +----+------------------+--------+---------------------+
 |  1 | hello            |      1 | 2014-05-22 11:53:00 |
@@ -1781,6 +1834,7 @@ Output completed (0 sec consumed) - Normal Termination
 |  4 | Me too           |      0 | 2014-05-22 11:56:00 |
 +----+------------------+--------+---------------------+
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;The “isread” field represents whether the message is read by someone.
 # Store Data In A Key ?#
@@ -1802,7 +1856,7 @@ The following figure shows how we use Redis as cache container.&lt;/p&gt;
 
 &lt;p&gt;The main reason for these disadvantages is that a conversion is a dynamically changing list. Each change will cause the cache out of date.&lt;/p&gt;
 
-&lt;h1 id=&quot;store-list-in-sorted-set&quot;&gt;Store List In Sorted Set&lt;/h1&gt;
+&lt;p&gt;#Store List In Sorted Set#&lt;/p&gt;
 
 &lt;p&gt;What Sorted Set is ? I quote the following content from Redis official website (&lt;a href=&quot;http://redis.io/topics/data-types#sorted-sets&quot; title=&quot;Redis-sorted-sets&quot;&gt;See this&lt;/a&gt;):&lt;/p&gt;
 
@@ -1822,11 +1876,11 @@ The following figure shows how we use Redis as cache container.&lt;/p&gt;
   &lt;li&gt;Set Message Read. Leave the cache unchanged and Edit the corresponding message’s cache.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h1 id=&quot;code-sample&quot;&gt;Code Sample&lt;/h1&gt;
+&lt;p&gt;#Code Sample#&lt;/p&gt;
 
 &lt;p&gt;Some Useful functions:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;//Add one or more members to a sorted set, or update its score if it already exists    
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;//Add one or more members to a sorted set, or update its score if it already exists    
 function zAdd(key, score, member)
 
 //Return a range of members in a sorted set, by index
@@ -1841,23 +1895,27 @@ function mSet(key,value, ...)
 //Get the values of all the given keys
 function mGet(key, ...)
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;Store message Id as index, and its “pubtime” as score.&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;pubtimestamp = strtotime(pubtime);
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;pubtimestamp = strtotime(pubtime);
 zAdd(key,pubtimestamp,id);
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;Store messages with mSet Command:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;mSet(key,value, ...);
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mSet(key,value, ...);
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;Retrieve messages like this:&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;indexes = zRange(key, start, stop)
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;indexes = zRange(key, start, stop)
 msgs = mGet(indexes)
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 </description>
                 <link>http://spetacular.github.io/2015/04/09/use-sorted-set-to-storage-dynamically-changing-list.html</link>
@@ -1885,7 +1943,7 @@ msgs = mGet(indexes)
 
 &lt;p&gt;举例来说，有这样一个表：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;mysql&amp;gt; select * from t_tmp;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mysql&amp;gt; select * from t_tmp;
 +-----+---------+---------------------+
 | FId | FCityId | FUpdateTime         |
 +-----+---------+---------------------+
@@ -1894,25 +1952,27 @@ msgs = mGet(indexes)
 |   3 |       2 | 2014-10-10 10:00:00 |
 +-----+---------+---------------------+
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;表1&lt;/p&gt;
 
 &lt;p&gt;希望从中找出每个FCityId的最新更新记录，即筛选出这样的结果：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;+-----+---------+---------------------+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;+-----+---------+---------------------+
 | FId | FCityId | FUpdateTime         |
 +-----+---------+---------------------+
 |   2 |       1 | 2014-10-11 00:00:00 |
 |   3 |       2 | 2014-10-10 10:00:00 |
 +-----+---------+---------------------+
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;表2&lt;/p&gt;
 
 &lt;h1 id=&quot;group-by&quot;&gt;Group By&lt;/h1&gt;
 &lt;p&gt;Po主最开始的方法是用group by（So Easy！）&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;select * from t_tmp group by FCityId order by FUpdateTime desc;` 结果却是错误的！
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;select * from t_tmp group by FCityId order by FUpdateTime desc;` 结果却是错误的！
 
 +-----+---------+---------------------+
 | FId | FCityId | FUpdateTime         |
@@ -1921,12 +1981,13 @@ msgs = mGet(indexes)
 |   1 |       1 | 2014-10-10 00:00:00 |
 +-----+---------+---------------------+
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;表3&lt;/p&gt;
 
 &lt;p&gt;其原因是：Group By 要先于 Order By执行。Group By执行分组之后，记录中只剩下1和3了：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;mysql&amp;gt; SELECT * FROM t_tmp GROUP BY FCityId LIMIT 0 , 30;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mysql&amp;gt; SELECT * FROM t_tmp GROUP BY FCityId LIMIT 0 , 30;
 +-----+---------+---------------------+
 | FId | FCityId | FUpdateTime         |
 +-----+---------+---------------------+
@@ -1934,6 +1995,7 @@ msgs = mGet(indexes)
 |   3 |       2 | 2014-10-10 10:00:00 |
 +-----+---------+---------------------+
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;表4&lt;/p&gt;
 
@@ -1947,7 +2009,7 @@ msgs = mGet(indexes)
 &lt;p&gt;很自然的一个解决方法就是：既然Group By先于Order By改变结果，那么就在Group By之前纠正结果。方法是子查询。
 如表4，Group By从头到尾扫一遍，留下了第1和第3两条记录。如果从尾到头扫一遍，就留下3和2两条记录。然后执行Order By，就能得到期望的结果。&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;mysql&amp;gt; SELECT * FROM (SELECT * FROM t_tmp ORDER BY FUpdateTime DESC)tmptable GROUP BY FCityId ORDER BY FUpdateTime DESC;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mysql&amp;gt; SELECT * FROM (SELECT * FROM t_tmp ORDER BY FUpdateTime DESC)tmptable GROUP BY FCityId ORDER BY FUpdateTime DESC;
 +-----+---------+---------------------+
 | FId | FCityId | FUpdateTime         |
 +-----+---------+---------------------+
@@ -1955,6 +2017,7 @@ msgs = mGet(indexes)
 |   3 |       2 | 2014-10-10 10:00:00 |
 +-----+---------+---------------------+
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;表5&lt;/p&gt;
 
@@ -1969,7 +2032,7 @@ msgs = mGet(indexes)
 
 &lt;p&gt;我们可以用LEFT JOIN去掉部分记录（即FId不按从大到小排列的记录）：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;mysql&amp;gt; SELECT m1. * FROM t_tmp m1 LEFT JOIN t_tmp m2 ON ( m1.FCityId = m2.FCity
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mysql&amp;gt; SELECT m1. * FROM t_tmp m1 LEFT JOIN t_tmp m2 ON ( m1.FCityId = m2.FCity
 Id AND m1.FId &amp;lt; m2.FId )  WHERE m2.FId IS NULL ORDER BY FUpdateTime DESC LIMIT 0
 , 30;
 +-----+---------+---------------------+
@@ -1979,6 +2042,7 @@ Id AND m1.FId &amp;lt; m2.FId )  WHERE m2.FId IS NULL ORDER BY FUpdateTime DESC 
 |   3 |       2 | 2014-10-10 10:00:00 |
 +-----+---------+---------------------+
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;表6&lt;/p&gt;
 
@@ -1987,16 +2051,18 @@ Id AND m1.FId &amp;lt; m2.FId )  WHERE m2.FId IS NULL ORDER BY FUpdateTime DESC 
 
 &lt;p&gt;直观但低效的方法：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;select * from (select * from messages ORDER BY id DESC) AS x GROUP BY name
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;select * from (select * from messages ORDER BY id DESC) AS x GROUP BY name
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;难懂但高效的方法：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;SELECT m1.*
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;SELECT m1.*
 FROM messages m1 LEFT JOIN messages m2
  	ON (m1.name = m2.name AND m1.id &amp;lt; m2.id)
 WHERE m2.id IS NULL;
 &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 </description>
                 <link>http://spetacular.github.io/2015/04/03/retrieve-the-last-record-in-each-group.html</link>

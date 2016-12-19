@@ -64,54 +64,61 @@
 <h1 id="section-1">生成扩展基本框架</h1>
 <p>运行以下命令：</p>
 
-<pre><code>cd /data/webdev/php-5.3.10/ext
+<div class="highlighter-rouge"><pre class="highlight"><code>cd /data/webdev/php-5.3.10/ext
 ./ext_skel helloyo
 vi helloyo/config.m4
 </code></pre>
+</div>
 
 <p>编辑文件，</p>
 
-<pre><code>dnl PHP_ARG_ENABLE(helloyo, whether to enable helloyo support,
+<div class="highlighter-rouge"><pre class="highlight"><code>dnl PHP_ARG_ENABLE(helloyo, whether to enable helloyo support,
 dnl Make sure that the comment is aligned:
 dnl [  --enable-helloyo           Enable helloyo support])
 </code></pre>
+</div>
 
 <p>其中dnl为注释，删掉dnl及第二行，最后的效果如下：</p>
 
-<pre><code>PHP_ARG_ENABLE(helloyo, whether to enable helloyo support,
+<div class="highlighter-rouge"><pre class="highlight"><code>PHP_ARG_ENABLE(helloyo, whether to enable helloyo support,
 [  --enable-helloyo           Enable helloyo support])
 </code></pre>
+</div>
 
 <p>保存退出。
 # 编写C代码 #
 进入helloyo目录，用ls命令看下文件列表：</p>
 
-<pre><code>/data/webdev/php-5.3.10/ext/helloyo # ls
+<div class="highlighter-rouge"><pre class="highlight"><code>/data/webdev/php-5.3.10/ext/helloyo # ls
 config.m4  config.w32  CREDITS  EXPERIMENTAL  helloyo.c  helloyo.php  php_helloyo.h  .svnignore  tests
 </code></pre>
+</div>
 
 <p>编辑php_helloyo.h，加入say_hello函数入口</p>
 
-<pre><code>vi php_helloyo.h
+<div class="highlighter-rouge"><pre class="highlight"><code>vi php_helloyo.h
 </code></pre>
+</div>
 
 <p><img src="http://spetacular.github.io/images/2014-10-10/vi_php_helloyo.png" alt="PHP扩展开发" /></p>
 
 <p>编辑helloyo.c，需要修改两处内容</p>
 
-<pre><code>vi helloyo.c
+<div class="highlighter-rouge"><pre class="highlight"><code>vi helloyo.c
 </code></pre>
+</div>
 
 <p>1.为保证say_hello外部可以使用，需要加入在zend_function_entry helloyo_functions数组里加入一行：</p>
 
-<pre><code>PHP_FE(say_hello,        NULL)           /* say hello to someone. */
+<div class="highlighter-rouge"><pre class="highlight"><code>PHP_FE(say_hello,        NULL)           /* say hello to someone. */
 </code></pre>
+</div>
 
 <p><img src="http://spetacular.github.io/images/2014-10-10/helloyo_function.png" alt="PHP扩展开发" /></p>
 
 <p>2.需要实现say_hello函数。在文件末尾加入以下代码：</p>
 
-<pre><code>PHP_FUNCTION(say_hello)
+<div class="highlighter-rouge"><pre class="highlight"><code>PHP_FUNCTION(say_hello)
 {
 
         char *arg = NULL;
@@ -126,6 +133,7 @@ config.m4  config.w32  CREDITS  EXPERIMENTAL  helloyo.c  helloyo.php  php_helloy
         RETURN_STRINGL(strg, len, 0);
 }
 </code></pre>
+</div>
 
 <p>保存退出。</p>
 
@@ -138,12 +146,13 @@ config.m4  config.w32  CREDITS  EXPERIMENTAL  helloyo.c  helloyo.php  php_helloy
   <p>The phpize command is used to prepare the build environment for a PHP extension.</p>
 </blockquote>
 
-<pre><code>/data/webdev/php-5.3.10/ext/helloyo # /usr/local/php5.3.10/bin/phpize   
+<div class="highlighter-rouge"><pre class="highlight"><code>/data/webdev/php-5.3.10/ext/helloyo # /usr/local/php5.3.10/bin/phpize   
 Configuring for:   
 PHP Api Version:         20090626  
 Zend Module Api No:      20090626  
 Zend Extension Api No:   220090626  
 </code></pre>
+</div>
 
 <p>完成后，目录下会生成configure文件：</p>
 
@@ -151,17 +160,19 @@ Zend Extension Api No:   220090626
 
 <p>2.然后运行如下命令</p>
 
-<pre><code>./configure --with-php-config=/usr/local/php5.3.10/bin/php-config
+<div class="highlighter-rouge"><pre class="highlight"><code>./configure --with-php-config=/usr/local/php5.3.10/bin/php-config
 make
 make test
 make install
 </code></pre>
+</div>
 
 <p>这样就会生成扩展helloyo.so了。其中helloyo.so的生成目录如下：</p>
 
-<pre><code>/data/webdev/php-5.3.10/ext/helloyo # make install
+<div class="highlighter-rouge"><pre class="highlight"><code>/data/webdev/php-5.3.10/ext/helloyo # make install
 Installing shared extensions:     /usr/local/php5.3.10/lib/php/extensions/no-debug-non-zts-20090626/
 </code></pre>
+</div>
 
 <p>如果不知道扩展目录，可以用phpinfo命令查看extension_dir路径，如下图所示：</p>
 
@@ -171,8 +182,9 @@ Installing shared extensions:     /usr/local/php5.3.10/lib/php/extensions/no-deb
 
 <p>只要找到php.ini，在文件中加入一行配置即可：</p>
 
-<pre><code>extension=helloyo.so
+<div class="highlighter-rouge"><pre class="highlight"><code>extension=helloyo.so
 </code></pre>
+</div>
 
 <p>问题时，在某种情况下，目录中有多个php.ini存在，如下</p>
 
@@ -186,8 +198,9 @@ Installing shared extensions:     /usr/local/php5.3.10/lib/php/extensions/no-deb
 
 <p>运行以下命令，编辑php.ini：</p>
 
-<pre><code>/usr/local/php5.3.10 # vi ./etc/php.ini
+<div class="highlighter-rouge"><pre class="highlight"><code>/usr/local/php5.3.10 # vi ./etc/php.ini
 </code></pre>
+</div>
 
 <p>最终效果如下：</p>
 
@@ -196,8 +209,9 @@ Installing shared extensions:     /usr/local/php5.3.10/lib/php/extensions/no-deb
 <h1 id="section-3">验证与运行</h1>
 <p>1.模块是否加载</p>
 
-<pre><code>/usr/local/php5.3.10 # ./bin/php –m
+<div class="highlighter-rouge"><pre class="highlight"><code>/usr/local/php5.3.10 # ./bin/php –m
 </code></pre>
+</div>
 
 <p>结果如下：</p>
 
@@ -208,9 +222,10 @@ Installing shared extensions:     /usr/local/php5.3.10/lib/php/extensions/no-deb
 <p>2.cli命令行
 命令如下：</p>
 
-<pre><code>/usr/local/php5.3.10 # ./bin/php -r "echo say_hello('davidyan');"
+<div class="highlighter-rouge"><pre class="highlight"><code>/usr/local/php5.3.10 # ./bin/php -r "echo say_hello('davidyan');"
 Hello,davidyan!
 </code></pre>
+</div>
 
 <p>效果如下：</p>
 
@@ -223,11 +238,12 @@ Hello,davidyan!
 
 <p>再写一小段程序：</p>
 
-<pre><code>public function ActionSayHello(){
+<div class="highlighter-rouge"><pre class="highlight"><code>public function ActionSayHello(){
 $name = $_GET['name'];
 echo say_hello($name);
 }
 </code></pre>
+</div>
 
 <p>访问sayhello?name=davidyan，结果如下：</p>
 
@@ -254,7 +270,7 @@ echo say_hello($name);
   
      
     	<li><a href="/categories.html#php-ref">
-    		php <span>7</span>
+    		php <span>5</span>
     	</a></li>
     
   
@@ -281,8 +297,8 @@ echo say_hello($name);
 				<div class="misc-content">
 					<div class="social">
 						<ul class="list-linear">
-							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="butbits" data-lang="en">Tweet</a></div></li>
-							<li><div class="twitter-follow"><a href="https://twitter.com/butbits" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
 						</ul>
 					</div>
 					<div class="comment">
@@ -344,8 +360,7 @@ echo say_hello($name);
 					<h4>about</h4>
 					<ul>
 						<li class="contact"><address><span class="author fn n">David</span> <!-- - <span class="fn email">blah@email.test</span></address></li> -->
-						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>
-						<li class="twitter"><a href="http://twitter.com/butbits/" rel="me">twitter.com/butbits</a></li>
+						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>				
 						<li class="twitter"><a href="http://weibo.com/mylxq/" rel="me">weibo.com/mylxq</a></li>
 						<li class="rss"><a href="/rss.xml">Subscribe to RSS Feed</a></li>
 					</ul>
