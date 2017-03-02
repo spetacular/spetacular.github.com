@@ -4,7 +4,7 @@
  <title>David's World</title>
  <link href="http://spetacular.github.io/atom.xml" rel="self"/>
  <link href="http://spetacular.github.io"/>
- <updated>2016-12-19T16:41:15+08:00</updated>
+ <updated>2017-03-02T17:47:46+08:00</updated>
  <id>http://spetacular.github.io</id>
  <author>
    <name>David</name>
@@ -1478,8 +1478,9 @@ Android客户端发送请求时，一般不会带上所有的cookie，需要明�
 
 &lt;p&gt;App的升级过程中，版本兼容是一个值得关注的问题，因为App要升级，服务器端的Restful接口也要进化，于是版本兼容要同时兼顾App和服务器端。&lt;/p&gt;
 
-&lt;p&gt;#一个例子#
-版本兼容是向下兼容。接口升级后要保证低版本App能正常工作。&lt;/p&gt;
+&lt;h1 id=&quot;section&quot;&gt;一个例子&lt;/h1&gt;
+
+&lt;p&gt;版本兼容是向下兼容。接口升级后要保证低版本App能正常工作。&lt;/p&gt;
 
 &lt;p&gt;例如“App 1.0”使用了下面接口完成修改用户信息功能。&lt;/p&gt;
 
@@ -1495,8 +1496,9 @@ Android客户端发送请求时，一般不会带上所有的cookie，需要明�
 
 &lt;p&gt;第二，服务器接口要为旧的“App 1.0”版本修复漏洞。但这时App已发布，不可能修改了。这时只能服务器端来改。例如限制user-agent为”App 1.0”的请求才有效，用户通过浏览器提交的请求无效。这样在一定程度上减少了CSRF的危害。&lt;/p&gt;
 
-&lt;p&gt;#版本兼容的两种情况#
-从上面的例子来看，版本兼容可分为两种：&lt;/p&gt;
+&lt;h1 id=&quot;section-1&quot;&gt;版本兼容的两种情况&lt;/h1&gt;
+
+&lt;p&gt;从上面的例子来看，版本兼容可分为两种：&lt;/p&gt;
 
 &lt;p&gt;大版本，指版本升级，接口的输入输出可能发生变化。&lt;/p&gt;
 
@@ -1504,8 +1506,9 @@ Android客户端发送请求时，一般不会带上所有的cookie，需要明�
 
 &lt;p&gt;这两种情况都很常见。App未发布时，服务器接口从1.0升级到2.0，这时App开发者可以配合一下，使用2.0的接口；但对于已发布的App版本，只能由服务器端针对特定的App版本来修复漏洞。&lt;/p&gt;
 
-&lt;p&gt;#如何做#
-App开发者需要配合，在请求接口时传入以下两项信息：&lt;/p&gt;
+&lt;h1 id=&quot;section-2&quot;&gt;如何做&lt;/h1&gt;
+
+&lt;p&gt;App开发者需要配合，在请求接口时传入以下两项信息：&lt;/p&gt;
 
 &lt;ol&gt;
   &lt;li&gt;
