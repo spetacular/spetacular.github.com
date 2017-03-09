@@ -12,7 +12,7 @@ git clone https://github.com/user/userApp.git name_you_want
 ```
 
 # git 多账户下 push出现403错误
-执行`git push origin`时出现如下错误：
+执行`git push origin master`时出现如下错误：
 >remote: Permission to spetacular/asyntask.git denied to someone.
 >fatal: unable to access 'https://github.com/spetacular/asyntask.git/': The requested URL returned error: 403
 
