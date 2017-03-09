@@ -83,11 +83,15 @@ chmod +x run.sh
 * * * * *  path-to/run.sh  > /dev/null 2>&1
 ```
 # 使用方式
+
 ##管理后台
+
 自带管理后台，可以轻松添加、编辑、删除、搜索任务。代码在[https://github.com/spetacular/asynadmin](https://github.com/spetacular/asynadmin)，请自行部署。
 [![管理后台截图](https://github.com/spetacular/asynadmin/raw/master/asynadmin.jpeg)](https://github.com/spetacular/asynadmin/raw/master/asynadmin.jpeg)
+
 ##编程方式
-可以集成到项目中，完整使用示例建`test.php`。
+
+可以集成到项目中，完整使用示例见`test.php`。
 例如添加周期任务：
 ```
 $name = '周期任务';
