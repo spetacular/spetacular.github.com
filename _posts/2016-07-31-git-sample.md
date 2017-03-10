@@ -38,3 +38,21 @@ git config --global --unset http.proxy
 
 git config --global --unset https.proxy
 ```
+
+# git 更新特定tag
+已经打过tag，但又发现需要微调，再次`git tag  1.0.0`时，会发生如下错误
+>fatal: tag '1.0.0' already exists
+
+1.删除本地tag:
+```
+ git tag -d 1.0.0
+ ```
+2.重新打tag：
+ ```
+ git tag  1.0.0
+ ```
+3.push到服务器
+ ```
+ git push --force origin refs/tags/1.0.0:refs/tags/1.0.0
+ ```
+
