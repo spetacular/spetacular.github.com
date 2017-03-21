@@ -5,10 +5,127 @@
         <description>David's World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Thu, 02 Mar 2017 17:47:46 +0800</lastBuildDate>
-        <pubDate>Thu, 02 Mar 2017 17:47:46 +0800</pubDate>
+        <lastBuildDate>Tue, 21 Mar 2017 18:02:58 +0800</lastBuildDate>
+        <pubDate>Tue, 21 Mar 2017 18:02:58 +0800</pubDate>
         <ttl>60</ttl>
 
+
+        <item>
+                <title>PHP异步任务队列管理器asyntask介绍</title>
+                <description>&lt;h1 id=&quot;phpasyntask&quot;&gt;PHP异步任务队列管理器asyntask&lt;/h1&gt;
+&lt;p&gt;asyntask是一个轻量级异步任务队列管理器，支持实时，定时，长时和周期任务。&lt;/p&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;项目由来&lt;/h2&gt;
+
+&lt;p&gt;本项目最初用于通知推送。例如用户发布评论，需要推送一条push给原作者。而到苹果的服务器的请求时间较长，如果等待苹果服务器的返回结果，则整个发布评论的接口的响应时间就太长了。因为推送push早1秒晚1秒对用户基本没影响，所以当用户发布评论时，只要数据到数据库，即可返回。与此同时创建一条异步任务，在1秒内给用户推送push。这样既保证了接口的响应速度，又不影响用户体验。该项目已经在线上环境运行1年多，执行了累计8千万条命令，运行稳定。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;优点&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;异步执行&lt;/li&gt;
+  &lt;li&gt;集成管理后台，可视化操作&lt;/li&gt;
+  &lt;li&gt;代码集成，可编程&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;section-2&quot;&gt;缺点&lt;/h2&gt;
+
+&lt;p&gt;并非真正实时，秒级误差。&lt;/p&gt;
+
+&lt;h1 id=&quot;section-3&quot;&gt;安装&lt;/h1&gt;
+&lt;p&gt;## 下载源码&lt;/p&gt;
+
+&lt;p&gt;直接使用：
+&lt;code class=&quot;highlighter-rouge&quot;&gt;
+git clone https://github.com/spetacular/asyntask.git
+&lt;/code&gt;
+命令下载到本地。&lt;/p&gt;
+
+&lt;p&gt;也可以点击 &lt;a href=&quot;https://github.com/spetacular/asyntask/archive/master.zip&quot;&gt;https://github.com/spetacular/asyntask/archive/master.zip&lt;/a&gt; 下载最新内容的压缩包，然后解压。
+## 通过 composer 来安装&lt;/p&gt;
+
+&lt;p&gt;在你的 composer 项目中的 composer.json 文件中，添加这部分：
+&lt;code class=&quot;highlighter-rouge&quot;&gt;&lt;span class=&quot;w&quot;&gt;
+   &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+       &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;require&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+           &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;davidyan/asyntask&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&amp;gt;=1.0&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+       &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+   &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;然后执行&lt;code class=&quot;highlighter-rouge&quot;&gt;composer install&lt;/code&gt;。调用示例如下：
+```
+include ‘./vendor/autoload.php’;
+$task = new AsynTask\Task();&lt;/p&gt;
+
+&lt;p&gt;//添加单次任务
+$name = ‘单次任务’;
+$cmd = ‘php abcd.php’;
+$params = array(
+	‘params’=&amp;gt;1
+);
+$task-&amp;gt;add_once_task($name,$cmd,$params);
+```&lt;/p&gt;
+
+&lt;h1 id=&quot;section-4&quot;&gt;配置&lt;/h1&gt;
+&lt;p&gt;1.asyntask的数据默认存储在Mysql数据库里，因此需要更改config.php里的配置：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;	'DB_HOST'=&amp;gt;'127.0.0.1',
+	'DB_NAME' =&amp;gt; 'asyntask',
+	'DB_USER' =&amp;gt; 'root',
+	'DB_PWD' =&amp;gt; '',
+	'DB_PORT' =&amp;gt; '3306',
+	'DB_CHARSET' =&amp;gt; 'utf8mb4',
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;2.导入数据表
+将resource文件夹里的db.sql导入数据库中。&lt;/p&gt;
+
+&lt;p&gt;3.配置健康检查脚本
+run.sh定期检查异步任务的运行状况，如果挂了，cron_asyn_task.php脚本。
+&lt;code class=&quot;highlighter-rouge&quot;&gt;
+chmod +x run.sh
+&lt;/code&gt;
+然后配置CronTab。运行&lt;code class=&quot;highlighter-rouge&quot;&gt;crontab -e&lt;/code&gt;，然后添加一行：
+&lt;code class=&quot;highlighter-rouge&quot;&gt;
+* * * * *  path-to/run.sh  &amp;gt; /dev/null 2&amp;gt;&amp;amp;1
+&lt;/code&gt;
+# 使用方式&lt;/p&gt;
+
+&lt;h2 id=&quot;section-5&quot;&gt;管理后台&lt;/h2&gt;
+
+&lt;p&gt;自带管理后台，可以轻松添加、编辑、删除、搜索任务。代码在&lt;a href=&quot;https://github.com/spetacular/asynadmin&quot;&gt;https://github.com/spetacular/asynadmin&lt;/a&gt;，请自行部署。
+&lt;a href=&quot;https://github.com/spetacular/asynadmin/raw/master/asynadmin.jpeg&quot;&gt;&lt;img src=&quot;https://github.com/spetacular/asynadmin/raw/master/asynadmin.jpeg&quot; alt=&quot;管理后台截图&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;section-6&quot;&gt;编程方式&lt;/h2&gt;
+
+&lt;p&gt;可以集成到项目中，完整使用示例见&lt;code class=&quot;highlighter-rouge&quot;&gt;test.php&lt;/code&gt;。
+例如添加周期任务：
+&lt;code class=&quot;highlighter-rouge&quot;&gt;
+$name = '周期任务';
+$cmd = 'php abc.php';
+$params = array(
+	'params'=&amp;gt;1
+);
+$timeOptions = array(
+	'day'=&amp;gt;1,
+	'hour'=&amp;gt;2,
+	'minute'=&amp;gt;3
+);
+$task-&amp;gt;add_loop_task($name,$cmd,$params,$timeOptions);
+&lt;/code&gt;
+## 周期任务示例&lt;/p&gt;
+
+&lt;p&gt;每天执行：day 1 hour 0 minute 0 每天零点执行&lt;/p&gt;
+
+&lt;p&gt;每小时执行：day 0 hour 1 minute 5 每小时的5分执行&lt;/p&gt;
+
+&lt;p&gt;每隔若干分钟执行：day 0 hour 0 minute 5 每隔5分钟执行&lt;/p&gt;
+</description>
+                <link>http://spetacular.github.io/2017/03/09/asyntask-desc.html</link>
+                <guid>http://spetacular.github.io/2017/03/09/asyntask-desc</guid>
+                <pubDate>Thu, 09 Mar 2017 00:00:00 +0800</pubDate>
+        </item>
 
         <item>
                 <title>Restful API中的JSON模板解析－JSONOut库的介绍</title>
@@ -179,6 +296,64 @@ echo JSONOut::toJSON($users,$tplContent,true);
                 <link>http://spetacular.github.io/2016/08/01/json-template-to-json.html</link>
                 <guid>http://spetacular.github.io/2016/08/01/json-template-to-json</guid>
                 <pubDate>Mon, 01 Aug 2016 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>Git使用Tips</title>
+                <description>&lt;h1 id=&quot;git-clone-&quot;&gt;git clone 重命名文件夹&lt;/h1&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git clone https://github.com/user/userApp.git name_you_want
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h1 id=&quot;git--push403&quot;&gt;git 多账户下 push出现403错误&lt;/h1&gt;
+&lt;p&gt;执行&lt;code class=&quot;highlighter-rouge&quot;&gt;git push origin master&lt;/code&gt;时出现如下错误：
+&amp;gt;remote: Permission to spetacular/asyntask.git denied to someone.
+&amp;gt;fatal: unable to access ‘https://github.com/spetacular/asyntask.git/’: The requested URL returned error: 403&lt;/p&gt;
+
+&lt;p&gt;这是由于.git/config的[remote “origin”]配置错误。可以更改此处代码。格式可以为以下两种情况：
+&lt;code class=&quot;highlighter-rouge&quot;&gt;
+url=https://spetacular@github.com/spetacular/asyntask.git
+url=ssh://git@github.com/spetacular/asyntask.git
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;如果不想更改全局配置，而只想临时使用：
+&lt;code class=&quot;highlighter-rouge&quot;&gt;
+git push https://spetacular@github.com/spetacular/asyntask.git master
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;git-&quot;&gt;git 设置和取消网络代理&lt;/h1&gt;
+&lt;p&gt;可设置为shadowsocks代理：
+```
+git config –global https.proxy http://127.0.0.1:1080&lt;/p&gt;
+
+&lt;p&gt;git config –global https.proxy https://127.0.0.1:1080&lt;/p&gt;
+
+&lt;p&gt;git config –global –unset http.proxy&lt;/p&gt;
+
+&lt;p&gt;git config –global –unset https.proxy
+```&lt;/p&gt;
+
+&lt;h1 id=&quot;git-tag&quot;&gt;git 更新特定tag&lt;/h1&gt;
+&lt;p&gt;已经打过tag，但又发现需要微调，再次&lt;code class=&quot;highlighter-rouge&quot;&gt;git tag  1.0.0&lt;/code&gt;时，会发生如下错误
+&amp;gt;fatal: tag ‘1.0.0’ already exists&lt;/p&gt;
+
+&lt;p&gt;1.删除本地tag:
+&lt;code class=&quot;highlighter-rouge&quot;&gt;
+ git tag -d 1.0.0
+&lt;/code&gt;
+2.重新打tag：
+ &lt;code class=&quot;highlighter-rouge&quot;&gt;
+ git tag  1.0.0
+&lt;/code&gt;
+3.push到服务器
+ &lt;code class=&quot;highlighter-rouge&quot;&gt;
+ git push --force origin refs/tags/1.0.0:refs/tags/1.0.0
+&lt;/code&gt;&lt;/p&gt;
+
+</description>
+                <link>http://spetacular.github.io/2016/07/31/git-sample.html</link>
+                <guid>http://spetacular.github.io/2016/07/31/git-sample</guid>
+                <pubDate>Sun, 31 Jul 2016 00:00:00 +0800</pubDate>
         </item>
 
         <item>
@@ -1816,261 +1991,6 @@ Output completed (0 sec consumed) - Normal Termination
                 <link>http://spetacular.github.io/2015/04/10/ad-position-disappear-in-midnight.html</link>
                 <guid>http://spetacular.github.io/2015/04/10/ad-position-disappear-in-midnight</guid>
                 <pubDate>Fri, 10 Apr 2015 00:00:00 +0800</pubDate>
-        </item>
-
-        <item>
-                <title>Redis Tips -- Use Sorted Set To Storage A Dynamically Changing List</title>
-                <description>&lt;p&gt;When I was developing an instant messenger (IM) system, I found that high concurrency is an essential feature while numerous clients are online chatting simultaneously. Therefore I use Redis to cache data in order to release pressure on database.&lt;/p&gt;
-
-&lt;p&gt;A typical scene of IM is chatting with someone else, as shown in the following figure.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-04-09/im-dialog.jpg&quot; alt=&quot;chat with someone&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;This conversion contains several messages , which are stored in database in ascending order of their timing. As is shown in the following table.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;+----+------------------+--------+---------------------+
-| id | content          | isread | pubtime             |
-+----+------------------+--------+---------------------+
-|  1 | hello            |      1 | 2014-05-22 11:53:00 |
-|  2 | Hi!              |      1 | 2014-05-22 11:54:00 |
-|  3 | Nice to meet you |      1 | 2014-05-22 11:55:00 |
-|  4 | Me too           |      0 | 2014-05-22 11:56:00 |
-+----+------------------+--------+---------------------+
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The “isread” field represents whether the message is read by someone.
-# Store Data In A Key ?#
-The following figure shows how we use Redis as cache container.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-04-09/traditional-query.png&quot; alt=&quot;traditional query&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;When we need to retrieve some data , the first step is to check whether the data is in the cache container. If cache is hit, We get the data and return; If cache is missing , we query the data from database and store it in cache so that  we can get it faster next time.&lt;/p&gt;
-
-&lt;p&gt;We can store a conversion in a key, so we can get all the containing messages from cache in one attempt.&lt;/p&gt;
-
-&lt;p&gt;But this method has several disadvantages:&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;When a new message arrives, the cache has to be refreshed to add latest message.&lt;/li&gt;
-  &lt;li&gt;When a message is set to Already Read status, the cache has to be destroyed to keep accuracy.&lt;/li&gt;
-  &lt;li&gt;When a message is deleted by its owner, the cache has to be refreshed again to remove that item.&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;The main reason for these disadvantages is that a conversion is a dynamically changing list. Each change will cause the cache out of date.&lt;/p&gt;
-
-&lt;p&gt;#Store List In Sorted Set#&lt;/p&gt;
-
-&lt;p&gt;What Sorted Set is ? I quote the following content from Redis official website (&lt;a href=&quot;http://redis.io/topics/data-types#sorted-sets&quot; title=&quot;Redis-sorted-sets&quot;&gt;See this&lt;/a&gt;):&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Redis Sorted Sets are, similarly to Redis Sets, non repeating collections of Strings. The difference is that every member of a Sorted Set is associated with score, that is used in order to take the sorted set ordered, from the smallest to the greatest score. While members are unique, scores may be repeated.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;We can store Ids of each message as index, and store each message separately, as shown in the following figure.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-04-09/sorted-set-query.png&quot; alt=&quot;Store List In Sorted Set&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;We deal with each case as follows:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;Send Message and Receive Message. Add Id of message into the cache.&lt;/li&gt;
-  &lt;li&gt;Delete Message. Remove Id of message from the cache.&lt;/li&gt;
-  &lt;li&gt;Set Message Read. Leave the cache unchanged and Edit the corresponding message’s cache.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;#Code Sample#&lt;/p&gt;
-
-&lt;p&gt;Some Useful functions:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;//Add one or more members to a sorted set, or update its score if it already exists    
-function zAdd(key, score, member)
-
-//Return a range of members in a sorted set, by index
-function zRange(key, start, stop)	
-
-//Remove one or more members from a sorted set
-function zRem(key, member)
-
-//Set multiple keys to multiple values
-function mSet(key,value, ...)
-
-//Get the values of all the given keys
-function mGet(key, ...)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Store message Id as index, and its “pubtime” as score.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;pubtimestamp = strtotime(pubtime);
-zAdd(key,pubtimestamp,id);
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Store messages with mSet Command:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mSet(key,value, ...);
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Retrieve messages like this:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;indexes = zRange(key, start, stop)
-msgs = mGet(indexes)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-</description>
-                <link>http://spetacular.github.io/2015/04/09/use-sorted-set-to-storage-dynamically-changing-list.html</link>
-                <guid>http://spetacular.github.io/2015/04/09/use-sorted-set-to-storage-dynamically-changing-list</guid>
-                <pubDate>Thu, 09 Apr 2015 00:00:00 +0800</pubDate>
-        </item>
-
-        <item>
-                <title>Mysql Tips -- 检索每个分组的最后一条记录</title>
-                <description>&lt;p&gt;有这样一类问题：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;检索论坛中某一版块所有主题的最新一条帖子&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;查找所有会话中最新一条消息&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;查找一类商品的最新报价&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;这类问题的共同点是：需要按某个字段分组，且每组只能取一条记录；按某个字段倒序。&lt;/p&gt;
-
-&lt;p&gt;举例来说，有这样一个表：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mysql&amp;gt; select * from t_tmp;
-+-----+---------+---------------------+
-| FId | FCityId | FUpdateTime         |
-+-----+---------+---------------------+
-|   1 |       1 | 2014-10-10 00:00:00 |
-|   2 |       1 | 2014-10-11 00:00:00 |
-|   3 |       2 | 2014-10-10 10:00:00 |
-+-----+---------+---------------------+
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;表1&lt;/p&gt;
-
-&lt;p&gt;希望从中找出每个FCityId的最新更新记录，即筛选出这样的结果：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;+-----+---------+---------------------+
-| FId | FCityId | FUpdateTime         |
-+-----+---------+---------------------+
-|   2 |       1 | 2014-10-11 00:00:00 |
-|   3 |       2 | 2014-10-10 10:00:00 |
-+-----+---------+---------------------+
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;表2&lt;/p&gt;
-
-&lt;h1 id=&quot;group-by&quot;&gt;Group By&lt;/h1&gt;
-&lt;p&gt;Po主最开始的方法是用group by（So Easy！）&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;select * from t_tmp group by FCityId order by FUpdateTime desc;` 结果却是错误的！
-
-+-----+---------+---------------------+
-| FId | FCityId | FUpdateTime         |
-+-----+---------+---------------------+
-|   3 |       2 | 2014-10-10 10:00:00 |
-|   1 |       1 | 2014-10-10 00:00:00 |
-+-----+---------+---------------------+
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;表3&lt;/p&gt;
-
-&lt;p&gt;其原因是：Group By 要先于 Order By执行。Group By执行分组之后，记录中只剩下1和3了：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mysql&amp;gt; SELECT * FROM t_tmp GROUP BY FCityId LIMIT 0 , 30;
-+-----+---------+---------------------+
-| FId | FCityId | FUpdateTime         |
-+-----+---------+---------------------+
-|   1 |       1 | 2014-10-10 00:00:00 |
-|   3 |       2 | 2014-10-10 10:00:00 |
-+-----+---------+---------------------+
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;表4&lt;/p&gt;
-
-&lt;p&gt;然后执行Order By，就变成了图3的结果。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;TIPS：执行顺序 Where &amp;gt; Group By &amp;gt; Order By&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h1 id=&quot;sub-select&quot;&gt;SUB SELECT&lt;/h1&gt;
-&lt;p&gt;很自然的一个解决方法就是：既然Group By先于Order By改变结果，那么就在Group By之前纠正结果。方法是子查询。
-如表4，Group By从头到尾扫一遍，留下了第1和第3两条记录。如果从尾到头扫一遍，就留下3和2两条记录。然后执行Order By，就能得到期望的结果。&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mysql&amp;gt; SELECT * FROM (SELECT * FROM t_tmp ORDER BY FUpdateTime DESC)tmptable GROUP BY FCityId ORDER BY FUpdateTime DESC;
-+-----+---------+---------------------+
-| FId | FCityId | FUpdateTime         |
-+-----+---------+---------------------+
-|   2 |       1 | 2014-10-11 00:00:00 |
-|   3 |       2 | 2014-10-10 10:00:00 |
-+-----+---------+---------------------+
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;表5&lt;/p&gt;
-
-&lt;p&gt;但子查询执行效率不高，容易形成慢SQL。&lt;/p&gt;
-
-&lt;h1 id=&quot;left-join&quot;&gt;LEFT JOIN&lt;/h1&gt;
-&lt;p&gt;再分析整个问题，其中蕴含着组内FId从大到小排列的条件，这种表内字段的自我比较，可以用JOIN命令来做。&lt;/p&gt;
-
-&lt;p&gt;如图：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-04-03/mysql_join.png&quot; alt=&quot;Mysql Join&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;我们可以用LEFT JOIN去掉部分记录（即FId不按从大到小排列的记录）：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mysql&amp;gt; SELECT m1. * FROM t_tmp m1 LEFT JOIN t_tmp m2 ON ( m1.FCityId = m2.FCity
-Id AND m1.FId &amp;lt; m2.FId )  WHERE m2.FId IS NULL ORDER BY FUpdateTime DESC LIMIT 0
-, 30;
-+-----+---------+---------------------+
-| FId | FCityId | FUpdateTime         |
-+-----+---------+---------------------+
-|   2 |       1 | 2014-10-11 00:00:00 |
-|   3 |       2 | 2014-10-10 10:00:00 |
-+-----+---------+---------------------+
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;表6&lt;/p&gt;
-
-&lt;h1 id=&quot;section&quot;&gt;通用方法&lt;/h1&gt;
-&lt;p&gt;经过以上的讨论，可以形成此类问题的较为通用的方法。&lt;/p&gt;
-
-&lt;p&gt;直观但低效的方法：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;select * from (select * from messages ORDER BY id DESC) AS x GROUP BY name
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;难懂但高效的方法：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;SELECT m1.*
-FROM messages m1 LEFT JOIN messages m2
- 	ON (m1.name = m2.name AND m1.id &amp;lt; m2.id)
-WHERE m2.id IS NULL;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-</description>
-                <link>http://spetacular.github.io/2015/04/03/retrieve-the-last-record-in-each-group.html</link>
-                <guid>http://spetacular.github.io/2015/04/03/retrieve-the-last-record-in-each-group</guid>
-                <pubDate>Fri, 03 Apr 2015 00:00:00 +0800</pubDate>
         </item>
 
 
