@@ -4,13 +4,91 @@
  <title>David's World</title>
  <link href="http://spetacular.github.io/atom.xml" rel="self"/>
  <link href="http://spetacular.github.io"/>
- <updated>2017-03-21T18:02:58+08:00</updated>
+ <updated>2017-03-22T16:38:49+08:00</updated>
  <id>http://spetacular.github.io</id>
  <author>
    <name>David</name>
    <email>blah@email.test</email>
  </author>
 
+ 
+ <entry>
+   <title>Docker:网络配置</title>
+   <link href="http://spetacular.github.io/2017/03/20/docker-network-settings.html"/>
+   <updated>2017-03-20T00:00:00+08:00</updated>
+   <id>http://spetacular.github.io/2017/03/20/docker-network-settings</id>
+   <content type="html">&lt;p&gt;Docker 一个常用用法是开放特定端口来对外提供服务，如 Mysql 占用3306端口，redis 占用 6379 端口。这样就牵扯到网络配置的问题（以 Mysql 为例）：  &lt;br /&gt;
+1. localhost(127.0.0.1)指向哪里？   &lt;br /&gt;
+2. &lt;a href=&quot;/2017/03/10/docker-basic-concept.html#host&quot;&gt;宿主机&lt;/a&gt;如何连接到Mysql服务所在的容器？ &lt;br /&gt;
+3. 另一台运行在容器内的php服务如何连接到 Mysql 服务器所在的容器？&lt;/p&gt;
+
+&lt;p&gt;Docker支持的网络模式如下：bridge（默认）、host、container、network-name、none。&lt;/p&gt;
+
+&lt;h1 id=&quot;bridge&quot;&gt;桥接 bridge&lt;/h1&gt;
+&lt;p&gt;Docker 默认的网络模式是 bridge 。在该模式下，docker 创建了一个 bridge，名称通常为 &lt;code class=&quot;highlighter-rouge&quot;&gt;docker0&lt;/code&gt; 。 &lt;br /&gt;
+可以用&lt;code class=&quot;highlighter-rouge&quot;&gt;ifconfig&lt;/code&gt;来查看：
+&lt;code class=&quot;highlighter-rouge&quot;&gt;
+docker0   Link encap:Ethernet  HWaddr **:**:**:**:**:**
+          inet addr:192.168.0.1  Bcast:0.0.0.0  Mask:255.255.240.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:305002 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:407006 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:30331811 (30.3 MB)  TX bytes:752905683 (752.9 MB)
+&lt;/code&gt;
+宿主机和容器通过bridge进行通信，如图所示：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2016/docker-networking-bridge-mode.jpeg&quot; alt=&quot;docker桥接bridge模式&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;容器内的localhost指向容器内部。&lt;/p&gt;
+
+&lt;h1 id=&quot;host&quot;&gt;本机 host&lt;/h1&gt;
+&lt;p&gt;当使用 &lt;code class=&quot;highlighter-rouge&quot;&gt;--net=host&lt;/code&gt;启动容器时，网络配置为 host 模式。该模式下，容器和宿主机共享网络。形象地讲，容器和宿主机共享一个网卡，在容器内的网络访问如同直接在宿主机上操作一样。例如：
+&lt;code class=&quot;highlighter-rouge&quot;&gt;
+docker run --rm -it --net=host ubuntu:trusty bash
+&lt;/code&gt;
+容器内的localhost指向宿主机。
+&lt;img src=&quot;/images/2016/docker-networking-host-mode.jpeg&quot; alt=&quot;docker桥接host模式&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;container&quot;&gt;container&lt;/h1&gt;
+&lt;p&gt;Docker可以指定一个容器复用另一个容器的网络设置。这种模式适用于由多个容器搭建整套系统的情况，例如搭建PHP开发环境时，希望Mysql、Redis都使用PHP容器的网络配置，即可以使用该模式。&lt;/p&gt;
+
+&lt;h1 id=&quot;network-name&quot;&gt;network-name&lt;/h1&gt;
+&lt;p&gt;Docker允许用户使用Docker network driver或[第三方network driver插件]（https://docs.docker.com/engine/extend/legacy_plugins/#network-plugins）创建自定义网络，然后多个容器都可以使用相同的网络。常见的第三方etwork driver插件有：&lt;a href=&quot;https://github.com/contiv/netplugin&quot;&gt;Contiv Networking&lt;/a&gt;、&lt;a href=&quot;https://github.com/openstack/kuryr&quot;&gt;Kuryr Network Plugin&lt;/a&gt;、&lt;a href=&quot;https://www.weave.works/docs/net/latest/introducing-weave/&quot;&gt;Weave Network Plugin&lt;/a&gt;。&lt;/p&gt;
+
+&lt;h1 id=&quot;none&quot;&gt;none&lt;/h1&gt;
+&lt;p&gt;顾名思义，该模式下没有网络连接。例如我的宿主机ip为192.168.0.59，在容器内访问宿主机就提示无网络。
+&lt;code class=&quot;highlighter-rouge&quot;&gt;
+docker run -it --net=none my_ubuntu bash
+root@6533968160dd:/# ping 192.168.0.59
+connect: Network is unreachable
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;!-- # Docker为什么没有 nat 模式 --&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Docker:基本概念</title>
+   <link href="http://spetacular.github.io/2017/03/10/docker-basic-concept.html"/>
+   <updated>2017-03-10T00:00:00+08:00</updated>
+   <id>http://spetacular.github.io/2017/03/10/docker-basic-concept</id>
+   <content type="html">&lt;h1 id=&quot;image&quot;&gt;&lt;a href=&quot;#image&quot;&gt;镜像&lt;/a&gt;&lt;/h1&gt;
+&lt;p&gt;Docker镜像Image是一个就像具有&lt;a href=&quot;https://zh.wikipedia.org/wiki/Time_Machine&quot;&gt;Time Machine&lt;/a&gt;功能的虚拟机，保存着特定时刻的一个快照。这个快照包含了已安装的程序、共享库、配置文件、环境变量、用户组等信息。构建Image时，以上内容不会改变。这意味着可以利用Image快速复制出多个相同的运行实体（容器）。&lt;/p&gt;
+
+&lt;h1 id=&quot;container&quot;&gt;&lt;a href=&quot;#container&quot;&gt;容器&lt;/a&gt;&lt;/h1&gt;
+&lt;p&gt;Docker容器container是镜像Image的运行实体。一个镜像可以生成多个相同的容器，每个容器的代码、运行环境、系统工具、系统库都完全相同。这在环境部署、服务扩容等方面具有重大作用。&lt;/p&gt;
+
+&lt;h1 id=&quot;registry&quot;&gt;&lt;a href=&quot;#registry&quot;&gt;仓库&lt;/a&gt;&lt;/h1&gt;
+&lt;p&gt;Docker仓库Registry是一个镜像存储和分发的服务。一个 Docker Registry中可以包含多个仓库（Repository）；每个仓库可以包含多个标签（Tag）；每个标签对应一个镜像。&lt;/p&gt;
+
+&lt;h1 id=&quot;build&quot;&gt;&lt;a href=&quot;#build&quot;&gt;构建&lt;/a&gt;&lt;/h1&gt;
+&lt;p&gt;利用 &lt;a href=&quot;https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#run&quot;&gt;Dockerfile&lt;/a&gt; 定制镜像时，可以用&lt;code class=&quot;highlighter-rouge&quot;&gt;docker build&lt;/code&gt;命令，将指令构建为文件系统。&lt;/p&gt;
+
+&lt;h1 id=&quot;host&quot;&gt;&lt;a href=&quot;#host&quot;&gt;宿主机&lt;/a&gt;&lt;/h1&gt;
+&lt;p&gt;宿主机就是运行Docker容器的机器。例如我在mac上用&lt;a href=&quot;https://docs.docker.com/docker-for-mac/&quot;&gt;Docker for Mac&lt;/a&gt;，执行&lt;code class=&quot;highlighter-rouge&quot;&gt;docker pull ubuntu&lt;/code&gt;来拉取一个ubuntu镜像然后运行，那么宿主机指的是mac。&lt;/p&gt;
+</content>
+ </entry>
  
  <entry>
    <title>PHP异步任务队列管理器asyntask介绍</title>
@@ -1698,300 +1776,6 @@ Android客户端发送请求时，一般不会带上所有的cookie，需要明�
 
 &lt;p&gt;服务器端开发者需要根据App版本和接口版本标识，来提供向下兼容&lt;/p&gt;
 
-</content>
- </entry>
- 
- <entry>
-   <title>利用中文分词正向最大匹配法解决自动提取标签问题</title>
-   <link href="http://spetacular.github.io/2015/05/05/use-max-word-segmentation-to-extract-tags.html"/>
-   <updated>2015-05-05T00:00:00+08:00</updated>
-   <id>http://spetacular.github.io/2015/05/05/use-max-word-segmentation-to-extract-tags</id>
-   <content type="html">&lt;p&gt;写文章时，会有自动提取标签的需求；写新闻时，会有查找主题或关键字的需求。如下图，就是分析新闻页面的内容，匹配相关车型。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-05-05/example.png&quot; alt=&quot;自动提取标签匹配&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;图1&lt;/p&gt;
-
-&lt;p&gt;解决的方法很多，最常见的是基于字典的中文分词。&lt;/p&gt;
-
-&lt;p&gt;为了解决自动提取标签的问题，我们需要以下几个步骤：&lt;/p&gt;
-
-&lt;p&gt;1.制作字典。字典保存着奥迪、奔驰、宝马等车型信息&lt;/p&gt;
-
-&lt;p&gt;2.分析新闻的正文，查看是否有字典中的词。如果有，就提取出来。&lt;/p&gt;
-
-&lt;p&gt;中文分词也有很多种方法，基于词典的算法有最大匹配、最小匹配、逐词匹配和最佳匹配，高大上的NLP算法有隐马尔科夫。这里采用最大匹配法。&lt;/p&gt;
-
-&lt;p&gt;最大匹配法，顾名思义，就是先匹配最长的词，再匹配较短的词。例如图1，假如字典中有“奥迪Q7”和“奥迪”两个词，最大匹配法会优先匹配“奥迪Q7”，而不会先匹配“奥迪”。&lt;/p&gt;
-
-&lt;p&gt;全流程如下图所示：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-05-05/max.png&quot; alt=&quot;中文分词最大匹配法流程图&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;图2&lt;/p&gt;
-
-&lt;h2 id=&quot;section&quot;&gt;代码&lt;/h2&gt;
-&lt;p&gt;这里定义MaxWordSegmentation类，其中的run方法返回匹配到的结果。&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;class MaxWordSegmentation{
-
-	private $dict = array();//保存字典的list
-
-	function __construct($pathToDict){
-		$this-&amp;gt;dict = $this-&amp;gt;loadDict($pathToDict);
-	}
-	
-	//读入词典文件到内存
-	function loadDict($pathToDict){
-		if(!file_exists($pathToDict)){
-			die('Can not find dict file!');
-		}
-		$dicts = array();
-		$handle = @fopen($pathToDict, &quot;r&quot;);
-		if ($handle) {
-			while (!feof($handle)) {
-				$word = fgets($handle, 4096);
-				//这里的词需要用trim去掉换行符
-				$word = trim($word);
-				$dicts[$word] = 1;
-			}
-			fclose($handle);
-		}
-		return $dicts;
-	}
-
-	//查看词是否在字典中
-	function inDict($word){
-		return array_key_exists($word,$this-&amp;gt;dict);
-	}
-
-	//按照词典进行分词。正向最大匹配法
-	function run($text,$encode = 'utf-8'){
-		$minLen = 0;
-		$maxLen = 0;
-		//找出最长的单词长度及最短的单词长度
-		foreach($this-&amp;gt;dict as $key=&amp;gt;$value){
-			$iLen = mb_strlen($key,$encode);
-			if($minLen &amp;gt; $iLen || $minLen == 0 ){
-				$minLen = $iLen;
-			}
-
-			if($maxLen &amp;lt; $iLen){
-				$maxLen = $iLen;
-			}
-		}
-		
-
-		$sLen = mb_strlen($text, $encode);
-		$result = array();
-		for($start = 0;$start &amp;lt; $sLen;$start ++){//外层正文循环	
-			for($maxLoop = $maxLen;$maxLoop &amp;gt;= $minLen;$maxLoop --){//内层字典循环
-				$word = mb_substr ($text , $start, $maxLoop , $encode);
-				//是否匹配成功
-				if($this-&amp;gt;inDict($word,$this-&amp;gt;dict)){//字典查找
-					//添加到输出列表
-					if(!in_array($word,$result)){
-						$result[] = $word;
-					}
-					break;
-				}
-			}
-			
-			
-		}
-		return $result;
-	}
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;使用示例：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$text = '日前，奥迪全新SQ7运动版车型的无伪装谍照出人意料的被曝光出来，该车预计今年底或者明年初发布。可以看到，新车已经有一些专属设计明显的区别于普通版的车型。';
-$file = './dict.txt';	
-$obj = new MaxWordSegmentation($file);
-$ret = $obj-&amp;gt;run($text);
-var_dump($ret);
-/*
-结果如下：
-	array(1) {
-	  [0]=&amp;gt;
-	  string(15) &quot;奥迪全新SQ7&quot;
-	}
-*/
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h2 id=&quot;section-1&quot;&gt;改进之处&lt;/h2&gt;
-&lt;p&gt;由于提取标签时，标签通常不会只有一个字，比如“奥迪”、“奔驰”、“宝马”等，子串长度都为2。如果字典中最短的词长为S，那么对对剩下的字符串重新进行匹配处理，不必等到剩余字串的长度为零才结束，只要匹配到S个字符就行。&lt;/p&gt;
-
-&lt;h2 id=&quot;section-2&quot;&gt;算法分析&lt;/h2&gt;
-&lt;p&gt;假设字典中最短的词长为S，最长的词长为L，正文的长度为N。&lt;/p&gt;
-
-&lt;p&gt;外层正文循环：N&lt;/p&gt;
-
-&lt;p&gt;内层字典循环：L-S&lt;/p&gt;
-
-&lt;p&gt;内层的inDict字典查找最关键，这里采用数组模拟hashtable实现了个O(1)的实现。&lt;/p&gt;
-
-&lt;p&gt;所以总的循环次数是(L-S)*N，而(L-S)是个常数，所以时间复杂度是O(N)&lt;/p&gt;
-
-&lt;h2 id=&quot;section-3&quot;&gt;代码下载&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://spetacular.github.io/html/maxword.zip&quot; title=&quot;点此下载&quot;&gt;点此下载&lt;/a&gt;&lt;/p&gt;
-
-</content>
- </entry>
- 
- <entry>
-   <title>深夜中消失的广告位</title>
-   <link href="http://spetacular.github.io/2015/04/10/ad-position-disappear-in-midnight.html"/>
-   <updated>2015-04-10T00:00:00+08:00</updated>
-   <id>http://spetacular.github.io/2015/04/10/ad-position-disappear-in-midnight</id>
-   <content type="html">&lt;p&gt;旧文重发。这篇博客记录了Po主在&lt;a href=&quot;http://t.qq.com&quot; title=&quot;腾讯微博&quot;&gt;腾讯微博&lt;/a&gt;时的解决的一个Bug，不是大问题，但追查的过程很有意思。也以此纪念一下。&lt;/p&gt;
-
-&lt;h1 id=&quot;section&quot;&gt;诡秘的空白广告位&lt;/h1&gt;
-&lt;p&gt;一碗水，放置一晚上，会发生什么呢？&lt;/p&gt;
-
-&lt;p&gt;会蒸发，会流失，可能会被小猫喝掉，或被不注意的人踢翻。&lt;/p&gt;
-
-&lt;p&gt;把一个页面打开，放置一晚上，会出现什么变化呢？&lt;/p&gt;
-
-&lt;p&gt;拿腾讯微博首页来说，每隔30秒去查看计数，隔1分钟去拉取新消息，隔3分钟去看每日任务完成了没。&lt;/p&gt;
-
-&lt;p&gt;这些都是正常的请求，但为什么好好的广告会消失了呢。&lt;/p&gt;
-
-&lt;p&gt;初始状态，正常显示广告。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-04-10/normal-ad.png&quot; alt=&quot;normal ad&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;放置一个晚上后，广告消失，剩下空白！&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-04-10/bad-ad.png&quot; alt=&quot;bad ad&quot; /&gt;&lt;/p&gt;
-
-&lt;h1 id=&quot;section-1&quot;&gt;找出真凶&lt;/h1&gt;
-&lt;p&gt;广告位原先存在，后来消失，一定是有什么改动了dom结构。&lt;/p&gt;
-
-&lt;p&gt;经过观察，发现广告位消失的重现规则是这样的：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;页面加载时，正常&lt;/li&gt;
-  &lt;li&gt;白天放置一段时间，正常&lt;/li&gt;
-  &lt;li&gt;放置一个晚上，异常。&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;由1和2知道，可能存在某种超时或定时操作，改变了dom结构；由3知道，这个时机发生在晚上。&lt;/p&gt;
-
-&lt;p&gt;于是我设想，在一个整晚，页面肯定通过超时或定时请求了某个js文件，而这个js文件会更改dom结构。&lt;/p&gt;
-
-&lt;h1 id=&quot;section-2&quot;&gt;抓包&lt;/h1&gt;
-&lt;p&gt;只知道发生在晚上，但具体什么时候不清楚，所以我尝试用fiddler抓包。&lt;/p&gt;
-
-&lt;p&gt;下班前，我打开腾讯微博首页和fiddler，看着一行行记录，我知道，第二天肯定会有些异常出现。&lt;/p&gt;
-
-&lt;p&gt;第二天，打开电脑，先查看腾讯微博首页。果然，广告位空白了。&lt;/p&gt;
-
-&lt;p&gt;我把fiddler的url记录导出成一个txt文件。有几千条记录，于是写了个小程序，把url分下类。&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;?php
-$handle = @fopen(&quot;path/to/urls.txt&quot;, &quot;r&quot;);
-$urls = array();
-if ($handle) {
-    while (!feof($handle)) {
-        $buffer = fgets($handle, 4096);		
-		$url = getUrl($buffer);
-		if(in_array($url,$urls) || empty($url)){
-			continue;
-		}else{
-			array_push($urls,$url);
-		}
-    }
-    fclose($handle);
-}
-function getUrl($fullurl){
-	$array = parse_url($fullurl);
-	if(isset($array['host']) &amp;amp;&amp;amp; isset($array['path'])){		
-		return $array['host'].$array['path'];
-	}else{
-		return '';
-	}
-}
-
-foreach($urls as $url){
-	echo $url.&quot;\n&quot;;
-}
-?&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;结果如下：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;---------- PHP ----------
-pyhelp.qq.com/cgi-bin/getloc.so__
-message.t.qq.com/newMsgCount.php
-t.web2.qq.com/channel/poll
-api.t.qq.com/side/get.json
-clients2.google.com/service/update2/crx
-www.gstatic.com/chrome/crlset/1444/crl-set-10054177008346624430.crx.data__
-qos.report.qq.com/collect
-www.google.com/dl/chrome/components/recovery/recovery/win/101.3.21.140/install.crx__
-**api.t.qq.com/asyn/mysidebar_n_new.php**
-www.gstatic.com/chrome/crlset/1445/crl-set-14121586793162109453.crx.data__
-
-Output completed (0 sec consumed) - Normal Termination
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;*号标记的url恰好是控制广告出现的文件。看了下请求时间，00：01。&lt;/p&gt;
-
-&lt;p&gt;这个结果，印证了以前的判断。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-04-10/json-result.png&quot; alt=&quot;json result&quot; /&gt;&lt;/p&gt;
-
-&lt;h1 id=&quot;section-3&quot;&gt;原因分析&lt;/h1&gt;
-&lt;p&gt;mysidebar_n_new.php是一个JSONP，获取数据后将值传递给回调函数mySidebar，该函数负责将数据中的dom结构加载到相应的位置。&lt;/p&gt;
-
-&lt;p&gt;广告位是app_ad和app_ad3_1。这里广告的逻辑是这样的，腾讯微博这边只输出dom结构，然后引用广告平台的一段js来填入内容。&lt;/p&gt;
-
-&lt;p&gt;而这里的app_ad和app_ad3_1，不管页面逻辑如下，强行将dom结构替换，替换的同时没有去请求广告平台的js，导致有位置没内容，就出现了空白。&lt;/p&gt;
-
-&lt;h1 id=&quot;section-4&quot;&gt;解决方案&lt;/h1&gt;
-&lt;p&gt;确定了原因是晚上0点加载了mysidebar_n_new.php但没有进行相应处理，那么可能的解决方案有以下几种：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;如果非必要，可以不加载吗？&lt;/p&gt;
-
-    &lt;p&gt;不可。跟开发该功能的同事确认，是为了解决特定问题而加载的。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;能否不进行ajax方式更新，而改为reload？&lt;/p&gt;
-
-    &lt;p&gt;不可。如果用户0点正在看，强制刷新会影响用户体验&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;更改mysidebar_n_new.php&lt;/p&gt;
-
-    &lt;p&gt;因为页面加载时也会请求这个文件，要改的话，需要判断加载的时间。不是一个优雅的解决方式。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;js在加载mysidebar_n_new.php时进行相应处理&lt;/p&gt;
-
-    &lt;p&gt;这种方式较好，解铃还需系铃人。&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&quot;section-5&quot;&gt;总结&lt;/h1&gt;
-&lt;p&gt;这件事情很简单，就是晚上0点加载了一个文件，但没有进行相应处理，引起了广告位空白。
-这使我想起一段话：&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;“蛮多复杂的事情呢，他又蛮简单，就象你在新兵连学的立正、稍息，那是最标准的。”&lt;/p&gt;
-
-  &lt;p&gt;“但是蛮多简单的事情后面呢，又蛮复杂，就象我刚才跟你一说，你连立正都找不到怎么回事了。”&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;这段话来自《士兵突击》团长王庆瑞。&lt;/p&gt;
 </content>
  </entry>
  

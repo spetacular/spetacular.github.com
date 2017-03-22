@@ -7,11 +7,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<title>PHP异步任务队列管理器asyntask介绍</title>
+	<title>Docker:网络配置</title>
 	<meta name="author" content="David">
 	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
 	<link href='/assets/themes/the-program/css/style.css' rel="stylesheet" media="all">
-	<link href="http://feeds.feedburner.com/" rel="alternate" title="PHP异步任务队列管理器asyntask介绍" type="application/atom+xml">
+	<link href="http://feeds.feedburner.com/" rel="alternate" title="Docker:网络配置" type="application/atom+xml">
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.0.6/modernizr.min.js"></script>
 </head>
 <body>
@@ -43,129 +43,68 @@
 			<header>
 				<div class="unit-head">
 					<div class="unit-inner unit-head-inner">
-						<h1 class="h2 entry-title">PHP异步任务队列管理器asyntask介绍</h1>
+						<h1 class="h2 entry-title">Docker:网络配置</h1>
 					</div><!-- unit-inner -->
 				</div><!-- unit-head -->
 			</header>
 
 			<div class="bd">
 				<div class="entry-content">
-					<h1 id="phpasyntask">PHP异步任务队列管理器asyntask</h1>
-<p>asyntask是一个轻量级异步任务队列管理器，支持实时，定时，长时和周期任务。</p>
+					<p>Docker 一个常用用法是开放特定端口来对外提供服务，如 Mysql 占用3306端口，redis 占用 6379 端口。这样就牵扯到网络配置的问题（以 Mysql 为例）：  <br />
+1. localhost(127.0.0.1)指向哪里？   <br />
+2. <a href="/2017/03/10/docker-basic-concept.html#host">宿主机</a>如何连接到Mysql服务所在的容器？ <br />
+3. 另一台运行在容器内的php服务如何连接到 Mysql 服务器所在的容器？</p>
 
-<h2 id="section">项目由来</h2>
+<p>Docker支持的网络模式如下：bridge（默认）、host、container、network-name、none。</p>
 
-<p>本项目最初用于通知推送。例如用户发布评论，需要推送一条push给原作者。而到苹果的服务器的请求时间较长，如果等待苹果服务器的返回结果，则整个发布评论的接口的响应时间就太长了。因为推送push早1秒晚1秒对用户基本没影响，所以当用户发布评论时，只要数据到数据库，即可返回。与此同时创建一条异步任务，在1秒内给用户推送push。这样既保证了接口的响应速度，又不影响用户体验。该项目已经在线上环境运行1年多，执行了累计8千万条命令，运行稳定。</p>
-
-<h2 id="section-1">优点</h2>
-
-<ul>
-  <li>异步执行</li>
-  <li>集成管理后台，可视化操作</li>
-  <li>代码集成，可编程</li>
-</ul>
-
-<h2 id="section-2">缺点</h2>
-
-<p>并非真正实时，秒级误差。</p>
-
-<h1 id="section-3">安装</h1>
-<p>## 下载源码</p>
-
-<p>直接使用：
+<h1 id="bridge">桥接 bridge</h1>
+<p>Docker 默认的网络模式是 bridge 。在该模式下，docker 创建了一个 bridge，名称通常为 <code class="highlighter-rouge">docker0</code> 。 <br />
+可以用<code class="highlighter-rouge">ifconfig</code>来查看：
 <code class="highlighter-rouge">
-git clone https://github.com/spetacular/asyntask.git
+docker0   Link encap:Ethernet  HWaddr **:**:**:**:**:**
+          inet addr:192.168.0.1  Bcast:0.0.0.0  Mask:255.255.240.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:305002 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:407006 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:30331811 (30.3 MB)  TX bytes:752905683 (752.9 MB)
 </code>
-命令下载到本地。</p>
+宿主机和容器通过bridge进行通信，如图所示：</p>
 
-<p>也可以点击 <a href="https://github.com/spetacular/asyntask/archive/master.zip">https://github.com/spetacular/asyntask/archive/master.zip</a> 下载最新内容的压缩包，然后解压。
-## 通过 composer 来安装</p>
+<p><img src="/images/2016/docker-networking-bridge-mode.jpeg" alt="docker桥接bridge模式" /></p>
 
-<p>在你的 composer 项目中的 composer.json 文件中，添加这部分：
-<code class="highlighter-rouge"><span class="w">
-   </span><span class="p">{</span><span class="w">
-       </span><span class="nt">"require"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-           </span><span class="nt">"davidyan/asyntask"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&gt;=1.0"</span><span class="w">
-       </span><span class="p">}</span><span class="w">
-   </span><span class="p">}</span><span class="w">
-</span></code></p>
+<p>容器内的localhost指向容器内部。</p>
 
-<p>然后执行<code class="highlighter-rouge">composer install</code>。调用示例如下：
-```
-include ‘./vendor/autoload.php’;
-$task = new AsynTask\Task();</p>
-
-<p>//添加单次任务
-$name = ‘单次任务’;
-$cmd = ‘php abcd.php’;
-$params = array(
-	‘params’=&gt;1
-);
-$task-&gt;add_once_task($name,$cmd,$params);
-```</p>
-
-<h1 id="section-4">配置</h1>
-<p>1.asyntask的数据默认存储在Mysql数据库里，因此需要更改config.php里的配置：</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>	'DB_HOST'=&gt;'127.0.0.1',
-	'DB_NAME' =&gt; 'asyntask',
-	'DB_USER' =&gt; 'root',
-	'DB_PWD' =&gt; '',
-	'DB_PORT' =&gt; '3306',
-	'DB_CHARSET' =&gt; 'utf8mb4',
-</code></pre>
-</div>
-
-<p>2.导入数据表
-将resource文件夹里的db.sql导入数据库中。</p>
-
-<p>3.配置健康检查脚本
-run.sh定期检查异步任务的运行状况，如果挂了，cron_asyn_task.php脚本。
+<h1 id="host">本机 host</h1>
+<p>当使用 <code class="highlighter-rouge">--net=host</code>启动容器时，网络配置为 host 模式。该模式下，容器和宿主机共享网络。形象地讲，容器和宿主机共享一个网卡，在容器内的网络访问如同直接在宿主机上操作一样。例如：
 <code class="highlighter-rouge">
-chmod +x run.sh
+docker run --rm -it --net=host ubuntu:trusty bash
 </code>
-然后配置CronTab。运行<code class="highlighter-rouge">crontab -e</code>，然后添加一行：
+容器内的localhost指向宿主机。
+<img src="/images/2016/docker-networking-host-mode.jpeg" alt="docker桥接host模式" /></p>
+
+<h1 id="container">container</h1>
+<p>Docker可以指定一个容器复用另一个容器的网络设置。这种模式适用于由多个容器搭建整套系统的情况，例如搭建PHP开发环境时，希望Mysql、Redis都使用PHP容器的网络配置，即可以使用该模式。</p>
+
+<h1 id="network-name">network-name</h1>
+<p>Docker允许用户使用Docker network driver或[第三方network driver插件]（https://docs.docker.com/engine/extend/legacy_plugins/#network-plugins）创建自定义网络，然后多个容器都可以使用相同的网络。常见的第三方etwork driver插件有：<a href="https://github.com/contiv/netplugin">Contiv Networking</a>、<a href="https://github.com/openstack/kuryr">Kuryr Network Plugin</a>、<a href="https://www.weave.works/docs/net/latest/introducing-weave/">Weave Network Plugin</a>。</p>
+
+<h1 id="none">none</h1>
+<p>顾名思义，该模式下没有网络连接。例如我的宿主机ip为192.168.0.59，在容器内访问宿主机就提示无网络。
 <code class="highlighter-rouge">
-* * * * *  path-to/run.sh  &gt; /dev/null 2&gt;&amp;1
-</code>
-# 使用方式</p>
+docker run -it --net=none my_ubuntu bash
+root@6533968160dd:/# ping 192.168.0.59
+connect: Network is unreachable
+</code></p>
 
-<h2 id="section-5">管理后台</h2>
-
-<p>自带管理后台，可以轻松添加、编辑、删除、搜索任务。代码在<a href="https://github.com/spetacular/asynadmin">https://github.com/spetacular/asynadmin</a>，请自行部署。
-<a href="https://github.com/spetacular/asynadmin/raw/master/asynadmin.jpeg"><img src="https://github.com/spetacular/asynadmin/raw/master/asynadmin.jpeg" alt="管理后台截图" /></a></p>
-
-<h2 id="section-6">编程方式</h2>
-
-<p>可以集成到项目中，完整使用示例见<code class="highlighter-rouge">test.php</code>。
-例如添加周期任务：
-<code class="highlighter-rouge">
-$name = '周期任务';
-$cmd = 'php abc.php';
-$params = array(
-	'params'=&gt;1
-);
-$timeOptions = array(
-	'day'=&gt;1,
-	'hour'=&gt;2,
-	'minute'=&gt;3
-);
-$task-&gt;add_loop_task($name,$cmd,$params,$timeOptions);
-</code>
-## 周期任务示例</p>
-
-<p>每天执行：day 1 hour 0 minute 0 每天零点执行</p>
-
-<p>每小时执行：day 0 hour 1 minute 5 每小时的5分执行</p>
-
-<p>每隔若干分钟执行：day 0 hour 0 minute 5 每隔5分钟执行</p>
+<!-- # Docker为什么没有 nat 模式 -->
 
 					<div class="meta">
 						<p class="date-publish">
 							Published: 
-							<date class="date-pub" title="2017-03-09T00:00:00+08:00" datetime="2017-03-09T00:00:00+08:00" pubdate>
+							<date class="date-pub" title="2017-03-20T00:00:00+08:00" datetime="2017-03-20T00:00:00+08:00" pubdate>
 							<span class="month"><abbr>March</abbr></span>
-							<span class="day">09</span>
+							<span class="day">20</span>
 							<span class="year">2017</span>
 							</date>
 						</p>
@@ -177,8 +116,8 @@ $task-&gt;add_loop_task($name,$cmd,$params,$timeOptions);
 
   
      
-    	<li><a href="/categories.html#php-ref">
-    		php <span>6</span>
+    	<li><a href="/categories.html#docker-ref">
+    		docker <span>2</span>
     	</a></li>
     
   
@@ -193,7 +132,7 @@ $task-&gt;add_loop_task($name,$cmd,$params,$timeOptions);
 
   
      
-    	<li><a href="/tags.html#php-ref">php <span>2</span></a></li>
+    	<li><a href="/tags.html#docker-ref">docker <span>2</span></a></li>
     
   
 
@@ -240,13 +179,9 @@ $task-&gt;add_loop_task($name,$cmd,$params,$timeOptions);
 					<nav class="pagination">
 						<ul>
 							
-							<li class="prev"><a class="internal" rel="prev"  href="/2016/08/01/json-template-to-json.html" title="View Restful API中的JSON模板解析－JSONOut库的介绍">&laquo; Restful API中的JSON模板解析－JSONOut库的介绍</a></li>
+							<li class="prev"><a class="internal" rel="prev"  href="/2017/03/10/docker-basic-concept.html" title="View Docker:基本概念">&laquo; Docker:基本概念</a></li>
 							
 							
-							<li class="pipe"> | </li>
-							
-							
-							<li class="next"><a class="internal" rel="next"  href="/2017/03/10/docker-basic-concept.html" title="View Docker:基本概念">Docker:基本概念 &raquo;</a></li>
 							
 						</ul>
 					</nav>
@@ -294,7 +229,7 @@ $task-&gt;add_loop_task($name,$cmd,$params,$timeOptions);
 		};
 	load('//platform.twitter.com/widgets.js', 'tweetjs');
 	// load('https://apis.google.com/js/plusone.js', 'gplus1js'); // Checkout http://j.mp/ApDgMr for usage html for this is <div class="g-plusone" data-size="medium"></div>
-	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2017/03/09/asyntask-desc.html" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
+	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2017/03/20/docker-network-settings.html" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
 	}(document, 'script'));
 </script>
 <script>

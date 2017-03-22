@@ -9,6 +9,8 @@ http://spetacular.github.io/rss.xml
 http://spetacular.github.io/sitemap.txt
 http://spetacular.github.io/tags
 
+http://spetacular.github.io/2017/03/20/docker-network-settings.html
+http://spetacular.github.io/2017/03/10/docker-basic-concept.html
 http://spetacular.github.io/2017/03/09/asyntask-desc.html
 http://spetacular.github.io/2016/08/01/json-template-to-json.html
 http://spetacular.github.io/2016/07/31/git-sample.html
