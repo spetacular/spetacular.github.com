@@ -6,10 +6,12 @@ tagline: "Supporting tagline"
 tags : [docker]
 ---
 
-Docker 一个常用用法是开放特定端口来对外提供服务，如 Mysql 占用3306端口，redis 占用 6379 端口。这样就牵扯到网络配置的问题（以 Mysql 为例）：    
+Docker运行容器时，一个常见的问题是：localhost(127.0.0.1)指向哪里？这涉及到Docker的网络配置问题。
+
+<!-- Docker 一个常用用法是开放特定端口来对外提供服务，如 Mysql 占用3306端口，redis 占用 6379 端口。这样就牵扯到网络配置的问题（以 Mysql 为例）：    
 1. localhost(127.0.0.1)指向哪里？     
 2. [宿主机](/2017/03/10/docker-basic-concept.html#host)如何连接到Mysql服务所在的容器？   
-3. 另一台运行在容器内的php服务如何连接到 Mysql 服务器所在的容器？
+3. 另一台运行在容器内的php服务如何连接到 Mysql 服务器所在的容器？ -->
 
 Docker支持的网络模式如下：bridge（默认）、host、container、network-name、none。
 

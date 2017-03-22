@@ -5,17 +5,19 @@
         <description>David's World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Wed, 22 Mar 2017 16:38:49 +0800</lastBuildDate>
-        <pubDate>Wed, 22 Mar 2017 16:38:49 +0800</pubDate>
+        <lastBuildDate>Wed, 22 Mar 2017 17:28:55 +0800</lastBuildDate>
+        <pubDate>Wed, 22 Mar 2017 17:28:55 +0800</pubDate>
         <ttl>60</ttl>
 
 
         <item>
                 <title>Docker:网络配置</title>
-                <description>&lt;p&gt;Docker 一个常用用法是开放特定端口来对外提供服务，如 Mysql 占用3306端口，redis 占用 6379 端口。这样就牵扯到网络配置的问题（以 Mysql 为例）：  &lt;br /&gt;
-1. localhost(127.0.0.1)指向哪里？   &lt;br /&gt;
-2. &lt;a href=&quot;/2017/03/10/docker-basic-concept.html#host&quot;&gt;宿主机&lt;/a&gt;如何连接到Mysql服务所在的容器？ &lt;br /&gt;
-3. 另一台运行在容器内的php服务如何连接到 Mysql 服务器所在的容器？&lt;/p&gt;
+                <description>&lt;p&gt;Docker运行容器时，一个常见的问题是：localhost(127.0.0.1)指向哪里？这涉及到Docker的网络配置问题。&lt;/p&gt;
+
+&lt;!-- Docker 一个常用用法是开放特定端口来对外提供服务，如 Mysql 占用3306端口，redis 占用 6379 端口。这样就牵扯到网络配置的问题（以 Mysql 为例）：    
+1. localhost(127.0.0.1)指向哪里？     
+2. [宿主机](/2017/03/10/docker-basic-concept.html#host)如何连接到Mysql服务所在的容器？   
+3. 另一台运行在容器内的php服务如何连接到 Mysql 服务器所在的容器？ --&gt;
 
 &lt;p&gt;Docker支持的网络模式如下：bridge（默认）、host、container、network-name、none。&lt;/p&gt;
 
