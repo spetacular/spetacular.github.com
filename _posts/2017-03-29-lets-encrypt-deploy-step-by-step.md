@@ -17,6 +17,7 @@ tags : [服务器,证书,HTTPS]
 ```    
 
 然后配置一个 HTTP 服务，以 Nginx 为例：
+
 ```
     NGINX
     server {
@@ -31,9 +32,10 @@ tags : [服务器,证书,HTTPS]
             rewrite ^/(.*)$ https://yoursite.com/$1 permanent;
         }
     }
-```  
+``` 
  
- 然后重启nginx。
+然后重启nginx。
+
  
 ```    
  sudo service nginx reload

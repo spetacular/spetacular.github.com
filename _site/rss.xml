@@ -5,8 +5,8 @@
         <description>David's World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Wed, 29 Mar 2017 16:31:42 +0800</lastBuildDate>
-        <pubDate>Wed, 29 Mar 2017 16:31:42 +0800</pubDate>
+        <lastBuildDate>Wed, 29 Mar 2017 16:39:46 +0800</lastBuildDate>
+        <pubDate>Wed, 29 Mar 2017 16:39:46 +0800</pubDate>
         <ttl>60</ttl>
 
 
@@ -24,21 +24,21 @@
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;p&gt;然后配置一个 HTTP 服务，以 Nginx 为例：
-```
-    NGINX
+&lt;p&gt;然后配置一个 HTTP 服务，以 Nginx 为例：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    NGINX
     server {
-        server_name www.yoursite.com yoursite.com;&lt;/p&gt;
+        server_name www.yoursite.com yoursite.com;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    location ^~ /.well-known/acme-challenge/ {
-        alias /home/xxx/www/challenges/;
-        try_files $uri =404;
-    }
+        location ^~ /.well-known/acme-challenge/ {
+            alias /home/xxx/www/challenges/;
+            try_files $uri =404;
+        }
 
-    location / {
-        rewrite ^/(.*)$ https://yoursite.com/$1 permanent;
+        location / {
+            rewrite ^/(.*)$ https://yoursite.com/$1 permanent;
+        }
     }
-} ```  
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 

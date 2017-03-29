@@ -62,21 +62,21 @@
 </code></pre>
 </div>
 
-<p>然后配置一个 HTTP 服务，以 Nginx 为例：
-```
-    NGINX
+<p>然后配置一个 HTTP 服务，以 Nginx 为例：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>    NGINX
     server {
-        server_name www.yoursite.com yoursite.com;</p>
+        server_name www.yoursite.com yoursite.com;
 
-<div class="highlighter-rouge"><pre class="highlight"><code>    location ^~ /.well-known/acme-challenge/ {
-        alias /home/xxx/www/challenges/;
-        try_files $uri =404;
-    }
+        location ^~ /.well-known/acme-challenge/ {
+            alias /home/xxx/www/challenges/;
+            try_files $uri =404;
+        }
 
-    location / {
-        rewrite ^/(.*)$ https://yoursite.com/$1 permanent;
+        location / {
+            rewrite ^/(.*)$ https://yoursite.com/$1 permanent;
+        }
     }
-} ```  
 </code></pre>
 </div>
 
