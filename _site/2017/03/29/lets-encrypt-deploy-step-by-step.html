@@ -1,0 +1,346 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7 ie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8 ie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9 ie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>教程：配置 Let's Encrypt 免费HTTPS证书</title>
+	<meta name="author" content="David">
+	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
+	<link href='/assets/themes/the-program/css/style.css' rel="stylesheet" media="all">
+	<link href="http://feeds.feedburner.com/" rel="alternate" title="教程：配置 Let's Encrypt 免费HTTPS证书" type="application/atom+xml">
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.0.6/modernizr.min.js"></script>
+</head>
+<body>
+
+<div id="page" class="hentry">
+	<header class="the-header">
+		<div class="unit-head">
+			<div class="unit-inner unit-head-inner">
+				<nav class="nav-global">
+					<ul>
+						<li class="logo"><a href="/">David's World</a></li>
+						<li class="archive"><a href="/archive.html">archive</a></li>
+						<li class="page"><a href="/pages.html">pages</a></li>
+						<li class="category"><a href="/categories.html">categories</a></li>
+						<li class="tag"><a href="/tags.html">tags</a></li>
+					</ul>
+				</nav>
+			</div><!-- unit-inner -->
+		</div><!-- unit-head -->
+	</header>
+	<div class="body" role="main">
+		<div class="unit-body">
+			<div class="unit-inner unit-body-inner">
+				<div class="entry-content">
+					
+<article class="unit-article layout-post">
+	<div class="unit-inner unit-article-inner">
+		<div class="content">
+			<header>
+				<div class="unit-head">
+					<div class="unit-inner unit-head-inner">
+						<h1 class="h2 entry-title">教程：配置 Let's Encrypt 免费HTTPS证书</h1>
+					</div><!-- unit-inner -->
+				</div><!-- unit-head -->
+			</header>
+
+			<div class="bd">
+				<div class="entry-content">
+					<h2 id="section">目录定义</h2>
+<ol>
+  <li>存放验证域名的文件，即acme-dir，默认存储在/home/xxx/www/challenges/</li>
+  <li>存放最终结果证书的目录，如本文中的/data/ssl</li>
+</ol>
+
+<h2 id="section-1">存放验证域名文件的目录</h2>
+<div class="highlighter-rouge"><pre class="highlight"><code>     mkdir ~/www/challenges/
+ ```    
+然后配置一个 HTTP 服务，以 Nginx 为例：
+  ```
+    NGINX
+    server {
+        server_name www.yoursite.com yoursite.com;
+
+        location ^~ /.well-known/acme-challenge/ {
+            alias /home/xxx/www/challenges/;
+            try_files $uri =404;
+        }
+
+        location / {
+            rewrite ^/(.*)$ https://yoursite.com/$1 permanent;
+        }
+    }
+ ```  
+ 
+ 然后重启nginx。
+ 
+ ```    
+ sudo service nginx reload
+ ```
+ 
+## 创建存放证书的目录
+
+</code></pre>
+</div>
+<div class="highlighter-rouge"><pre class="highlight"><code>mkdir /data/ssl
+cd /data/ssl ```
+</code></pre>
+</div>
+
+<h2 id="rsa--lets-encrypt-">创建一个 RSA 私钥用于 Let’s Encrypt 识别你的身份</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>    openssl genrsa 4096 &gt; account.key
+</code></pre>
+</div>
+
+<h2 id="rsa-">创建 RSA 私钥（兼容性好）：</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>    openssl genrsa 4096 &gt; domain.key
+</code></pre>
+</div>
+
+<h2 id="common-name-">Common Name 必须为你的域名，其它的随便填</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>    openssl req -new -sha256 -key domain.key -out domain.csr
+```  
+
+## 获取脚本
+
+</code></pre>
+</div>
+<div class="highlighter-rouge"><pre class="highlight"><code>wget https://raw.githubusercontent.com/diafygi/acme-tiny/master/acme_tiny.py ```
+</code></pre>
+</div>
+
+<h2 id="csr-">指定账户私钥、CSR 以及验证目录，执行脚本：</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>    python acme_tiny.py --account-key ./account.key --csr ./domain.csr --acme-dir /home/xxx/www/challenges/ &gt; ./signed.crt
+</code></pre>
+</div>
+
+<p>如果一切正常，当前目录下就会生成一个 signed.crt，这就是申请好的证书文件。
+## 证书融合</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>    wget -O - https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem &gt; intermediate.pem
+cat signed.crt intermediate.pem &gt; chained.pem
+    wget -O - https://letsencrypt.org/certs/isrgrootx1.pem &gt; root.pem
+cat intermediate.pem root.pem &gt; full_chained.pem
+</code></pre>
+</div>
+
+<h2 id="ssl">ssl配置</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>    server {
+        listen 443;
+        server_name www.text.wiki;
+        root   /data/htdocs/textwiki;
+        autoindex on;
+        index index.php index.html;
+        ssl on;
+        ssl_certificate /data/ssl/chained.pem;
+        ssl_certificate_key /data/ssl/domain.key;
+        ssl_protocols              TLSv1 TLSv1.1 TLSv1.2;
+        ssl_trusted_certificate    /data/ssl/full_chained.pem;
+
+        location / {
+                    try_files $uri $uri/ /index.php;
+
+                    location ~ \.php$ {
+                        fastcgi_pass unix:/var/run/php5-fpm.sock;
+                        fastcgi_param  SCRIPT_FILENAME /data/htdocs/textwiki$fastcgi_script_name;
+                        include        fastcgi_params;
+                    }
+                }
+        }
+</code></pre>
+</div>
+
+<h2 id="section-2">自动更新脚本</h2>
+<ol>
+  <li>新建文件<code class="highlighter-rouge">vi renew_cert.sh</code></li>
+  <li>填写如下内容</li>
+</ol>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>    <span class="c">#!/bin/bash</span>
+    cd /data/ssl/
+    python acme_tiny.py --account-key account.key --csr domain.csr --acme-dir /home/xxx/www/challenges/ &gt; signed.crt <span class="o">||</span> <span class="nb">exit
+    </span>wget -O - https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem &gt; intermediate.pem
+    cat signed.crt intermediate.pem &gt; chained.pem
+    wget -O - https://letsencrypt.org/certs/isrgrootx1.pem &gt; root.pem
+cat intermediate.pem root.pem &gt; full_chained.pem
+    service nginx reload
+</code></pre>
+</div>
+<ol>
+  <li>chmod +x renew_cert.sh</li>
+</ol>
+
+<h2 id="crontab">加入crontab</h2>
+
+<p>crontab 中使用绝对路径比较保险，crontab -e 加入以下内容：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>    0 0 1 * * /data/ssl/renew_cert.sh &gt;/dev/null 2&gt;&amp;1
+</code></pre>
+</div>
+
+<h2 id="section-3">最关键的是，如果服务器有防火墙，请放开服务器的443入口</h2>
+
+<h2 id="section-4">说明</h2>
+<p>本文注重实战，跟着教程一步一步配置即可，想了解原理的同学，可以参考如下网址：
+<a href="https://letsencrypt.org/">Let’s Encrypt官网</a>
+<a href="https://imququ.com/post/letsencrypt-certificate.html">Let’s Encrypt，免费好用的 HTTPS 证书</a>
+<a href="https://ksmx.me/letsencrypt-ssl-https/">Let’s Encrypt 给网站加 HTTPS 完全指南</a></p>
+
+					<div class="meta">
+						<p class="date-publish">
+							Published: 
+							<date class="date-pub" title="2017-03-29T00:00:00+08:00" datetime="2017-03-29T00:00:00+08:00" pubdate>
+							<span class="month"><abbr>March</abbr></span>
+							<span class="day">29</span>
+							<span class="year">2017</span>
+							</date>
+						</p>
+						<ul class="list-category list-linear">
+							<li class="list-head">category: </li>
+							
+							
+
+
+  
+     
+    	<li><a href="/categories.html#服务器-ref">
+    		服务器 <span>4</span>
+    	</a></li>
+    
+  
+
+
+						</ul>
+						<ul class="list-tag list-linear">
+							<li class="list-head">tags: </li>
+							
+							
+
+
+  
+     
+    	<li><a href="/tags.html#服务器-ref">服务器 <span>1</span></a></li>
+     
+    	<li><a href="/tags.html#证书-ref">证书 <span>1</span></a></li>
+     
+    	<li><a href="/tags.html#HTTPS-ref">HTTPS <span>1</span></a></li>
+    
+  
+
+
+
+						</ul>
+					</div><!-- meta -->
+				</div><!-- entry-content -->
+				<div class="misc-content">
+					<div class="social">
+						<ul class="list-linear">
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+						</ul>
+					</div>
+					<div class="comment">
+					
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    
+    var disqus_developer = 1;
+    var disqus_shortname = 'davidblogs'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+					</div>
+				</div><!-- misc-content -->
+			</div><!-- bd -->
+			<footer class="unit-foot">
+				<div class="unit-inner unit-foot-inner">
+					<nav class="pagination">
+						<ul>
+							
+							<li class="prev"><a class="internal" rel="prev"  href="/2017/03/20/docker-network-settings.html" title="View Docker:网络配置">&laquo; Docker:网络配置</a></li>
+							
+							
+							
+						</ul>
+					</nav>
+					<p class="gotop">
+						<a href="#page">Back to Top</a>
+					</p>
+				</div>
+			</footer>
+
+		</div><!-- content -->
+	</div><!-- unit-inner -->
+</article>
+
+
+				</div>
+			</div><!-- unit-inner -->
+		</div><!-- unit-body -->
+	</div><!-- body -->
+	<footer class="the-footer">
+		<div class="unit-foot">
+			<div class="unit-inner unit-foot-inner">
+				<div class="misc vcard">
+					<h4>about</h4>
+					<ul>
+						<li class="contact"><address><span class="author fn n">David</span> <!-- - <span class="fn email">blah@email.test</span></address></li> -->
+						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>				
+						<li class="twitter"><a href="http://weibo.com/mylxq/" rel="me">weibo.com/mylxq</a></li>
+						<li class="rss"><a href="/rss.xml">Subscribe to RSS Feed</a></li>
+					</ul>
+				</div><!-- misc -->
+				<p class="licence">
+					With the help of <a href="http://jekyllbootstrap.com/">Jekyll-bootstrap</a>.<br>
+					Powered by <a href="https://github.com/mojombo/jekyll">Jekyll</a>.
+				</p>
+			</div><!-- unit-foot-inner -->
+		</div><!-- unit-foot -->
+	</footer>
+</div><!-- page -->
+<script>
+	(function(d, s) {
+		var js, fjs = d.getElementsByTagName(s)[0], load = function(url, id) {
+		if (d.getElementById(id)) {return;}
+		js = d.createElement(s); js.src = url; js.id = id;
+		fjs.parentNode.insertBefore(js, fjs);
+		};
+	load('//platform.twitter.com/widgets.js', 'tweetjs');
+	// load('https://apis.google.com/js/plusone.js', 'gplus1js'); // Checkout http://j.mp/ApDgMr for usage html for this is <div class="g-plusone" data-size="medium"></div>
+	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2017/03/29/lets-encrypt-deploy-step-by-step.html" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
+	}(document, 'script'));
+</script>
+<script>
+/*! A fix for the iOS orientationchange zoom bug.Script by @scottjehl, rebound by @wilto. MIT License.*/
+(function(j){var i=j.document;if(!i.querySelectorAll){return}var l=i.querySelectorAll("meta[name=viewport]")[0],a=l&&l.getAttribute("content"),h=a+", maximum-scale=1.0",d=a+", maximum-scale=10.0",g=true,c=j.orientation,k=0;if(!l){return}function f(){l.setAttribute("content",d);g=true}function b(){l.setAttribute("content",h);g=false}function e(m){c=Math.abs(j.orientation);k=Math.abs(m.gamma);if(k>8&&c===0){if(g){b()}}else{if(!g){f()}}}j.addEventListener("orientationchange",f,false);j.addEventListener("deviceorientation",e,false)})(this);
+</script>
+  
+  
+
+
+
+</body>
+</html>
+

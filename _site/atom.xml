@@ -4,13 +4,165 @@
  <title>David's World</title>
  <link href="http://spetacular.github.io/atom.xml" rel="self"/>
  <link href="http://spetacular.github.io"/>
- <updated>2017-03-22T17:28:55+08:00</updated>
+ <updated>2017-03-29T16:23:40+08:00</updated>
  <id>http://spetacular.github.io</id>
  <author>
    <name>David</name>
    <email>blah@email.test</email>
  </author>
 
+ 
+ <entry>
+   <title>教程：配置 Let's Encrypt 免费HTTPS证书</title>
+   <link href="http://spetacular.github.io/2017/03/29/lets-encrypt-deploy-step-by-step.html"/>
+   <updated>2017-03-29T00:00:00+08:00</updated>
+   <id>http://spetacular.github.io/2017/03/29/lets-encrypt-deploy-step-by-step</id>
+   <content type="html">&lt;h2 id=&quot;section&quot;&gt;目录定义&lt;/h2&gt;
+&lt;ol&gt;
+  &lt;li&gt;存放验证域名的文件，即acme-dir，默认存储在/home/xxx/www/challenges/&lt;/li&gt;
+  &lt;li&gt;存放最终结果证书的目录，如本文中的/data/ssl&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;存放验证域名文件的目录&lt;/h2&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;     mkdir ~/www/challenges/
+ ```    
+然后配置一个 HTTP 服务，以 Nginx 为例：
+  ```
+    NGINX
+    server {
+        server_name www.yoursite.com yoursite.com;
+
+        location ^~ /.well-known/acme-challenge/ {
+            alias /home/xxx/www/challenges/;
+            try_files $uri =404;
+        }
+
+        location / {
+            rewrite ^/(.*)$ https://yoursite.com/$1 permanent;
+        }
+    }
+ ```  
+ 
+ 然后重启nginx。
+ 
+ ```    
+ sudo service nginx reload
+ ```
+ 
+## 创建存放证书的目录
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mkdir /data/ssl
+cd /data/ssl ```
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;rsa--lets-encrypt-&quot;&gt;创建一个 RSA 私钥用于 Let’s Encrypt 识别你的身份&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    openssl genrsa 4096 &amp;gt; account.key
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;rsa-&quot;&gt;创建 RSA 私钥（兼容性好）：&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    openssl genrsa 4096 &amp;gt; domain.key
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;common-name-&quot;&gt;Common Name 必须为你的域名，其它的随便填&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    openssl req -new -sha256 -key domain.key -out domain.csr
+```  
+
+## 获取脚本
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;wget https://raw.githubusercontent.com/diafygi/acme-tiny/master/acme_tiny.py ```
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;csr-&quot;&gt;指定账户私钥、CSR 以及验证目录，执行脚本：&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    python acme_tiny.py --account-key ./account.key --csr ./domain.csr --acme-dir /home/xxx/www/challenges/ &amp;gt; ./signed.crt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;如果一切正常，当前目录下就会生成一个 signed.crt，这就是申请好的证书文件。
+## 证书融合&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    wget -O - https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem &amp;gt; intermediate.pem
+cat signed.crt intermediate.pem &amp;gt; chained.pem
+    wget -O - https://letsencrypt.org/certs/isrgrootx1.pem &amp;gt; root.pem
+cat intermediate.pem root.pem &amp;gt; full_chained.pem
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;ssl&quot;&gt;ssl配置&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    server {
+        listen 443;
+        server_name www.text.wiki;
+        root   /data/htdocs/textwiki;
+        autoindex on;
+        index index.php index.html;
+        ssl on;
+        ssl_certificate /data/ssl/chained.pem;
+        ssl_certificate_key /data/ssl/domain.key;
+        ssl_protocols              TLSv1 TLSv1.1 TLSv1.2;
+        ssl_trusted_certificate    /data/ssl/full_chained.pem;
+
+        location / {
+                    try_files $uri $uri/ /index.php;
+
+                    location ~ \.php$ {
+                        fastcgi_pass unix:/var/run/php5-fpm.sock;
+                        fastcgi_param  SCRIPT_FILENAME /data/htdocs/textwiki$fastcgi_script_name;
+                        include        fastcgi_params;
+                    }
+                }
+        }
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;section-2&quot;&gt;自动更新脚本&lt;/h2&gt;
+&lt;ol&gt;
+  &lt;li&gt;新建文件&lt;code class=&quot;highlighter-rouge&quot;&gt;vi renew_cert.sh&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;填写如下内容&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    &lt;span class=&quot;c&quot;&gt;#!/bin/bash&lt;/span&gt;
+    cd /data/ssl/
+    python acme_tiny.py --account-key account.key --csr domain.csr --acme-dir /home/xxx/www/challenges/ &amp;gt; signed.crt &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;exit
+    &lt;/span&gt;wget -O - https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem &amp;gt; intermediate.pem
+    cat signed.crt intermediate.pem &amp;gt; chained.pem
+    wget -O - https://letsencrypt.org/certs/isrgrootx1.pem &amp;gt; root.pem
+cat intermediate.pem root.pem &amp;gt; full_chained.pem
+    service nginx reload
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;ol&gt;
+  &lt;li&gt;chmod +x renew_cert.sh&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;crontab&quot;&gt;加入crontab&lt;/h2&gt;
+
+&lt;p&gt;crontab 中使用绝对路径比较保险，crontab -e 加入以下内容：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    0 0 1 * * /data/ssl/renew_cert.sh &amp;gt;/dev/null 2&amp;gt;&amp;amp;1
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;section-3&quot;&gt;最关键的是，如果服务器有防火墙，请放开服务器的443入口&lt;/h2&gt;
+
+&lt;h2 id=&quot;section-4&quot;&gt;说明&lt;/h2&gt;
+&lt;p&gt;本文注重实战，跟着教程一步一步配置即可，想了解原理的同学，可以参考如下网址：
+&lt;a href=&quot;https://letsencrypt.org/&quot;&gt;Let’s Encrypt官网&lt;/a&gt;
+&lt;a href=&quot;https://imququ.com/post/letsencrypt-certificate.html&quot;&gt;Let’s Encrypt，免费好用的 HTTPS 证书&lt;/a&gt;
+&lt;a href=&quot;https://ksmx.me/letsencrypt-ssl-https/&quot;&gt;Let’s Encrypt 给网站加 HTTPS 完全指南&lt;/a&gt;&lt;/p&gt;
+</content>
+ </entry>
  
  <entry>
    <title>Docker:网络配置</title>
@@ -1721,63 +1873,6 @@ Android客户端发送请求时，一般不会带上所有的cookie，需要明�
 
 &lt;li&gt;&lt;a class=&quot;gallery&quot; href=&quot;/images/2015-06-20/IMG_0153.JPG&quot; title=&quot;手办&quot;&gt;&lt;img data-original=&quot;/images/2015-06-20/thumb/IMG_0153.JPG&quot;&gt;&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-</content>
- </entry>
- 
- <entry>
-   <title>Restful接口设计：如何做版本兼容</title>
-   <link href="http://spetacular.github.io/2015/06/01/how-to-deal-with-version-compatibility.html"/>
-   <updated>2015-06-01T00:00:00+08:00</updated>
-   <id>http://spetacular.github.io/2015/06/01/how-to-deal-with-version-compatibility</id>
-   <content type="html">&lt;p&gt;现在App大多采用Restful接口，与服务器完成资源交换。这种实现方式隐藏了服务器端的具体实现，做到了对App端的透明服务。服务器端如何变更，甚至换一种语言实现，只要对外接口不变，App依然不受影响。&lt;/p&gt;
-
-&lt;p&gt;App的升级过程中，版本兼容是一个值得关注的问题，因为App要升级，服务器端的Restful接口也要进化，于是版本兼容要同时兼顾App和服务器端。&lt;/p&gt;
-
-&lt;h1 id=&quot;section&quot;&gt;一个例子&lt;/h1&gt;
-
-&lt;p&gt;版本兼容是向下兼容。接口升级后要保证低版本App能正常工作。&lt;/p&gt;
-
-&lt;p&gt;例如“App 1.0”使用了下面接口完成修改用户信息功能。&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;GET api.demo.com/modify_userinfo
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;采用GET方式提交用户输入。后来发现该接口可被CSRF攻击。&lt;/p&gt;
-
-&lt;p&gt;这时要做两件事：&lt;/p&gt;
-
-&lt;p&gt;第一，服务器接口要为新的“App 1.1”提供升级，需要将GET方式改为POST，并且增加Token验证。这是CSRF的一般防范方法，具体请参看 &lt;a href=&quot;http://drops.wooyun.org/papers/155&quot; title=&quot;CSRF简单介绍及利用方法&quot;&gt;《CSRF简单介绍及利用方法》&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;第二，服务器接口要为旧的“App 1.0”版本修复漏洞。但这时App已发布，不可能修改了。这时只能服务器端来改。例如限制user-agent为”App 1.0”的请求才有效，用户通过浏览器提交的请求无效。这样在一定程度上减少了CSRF的危害。&lt;/p&gt;
-
-&lt;h1 id=&quot;section-1&quot;&gt;版本兼容的两种情况&lt;/h1&gt;
-
-&lt;p&gt;从上面的例子来看，版本兼容可分为两种：&lt;/p&gt;
-
-&lt;p&gt;大版本，指版本升级，接口的输入输出可能发生变化。&lt;/p&gt;
-
-&lt;p&gt;小版本，指版本修复，只针对某个版本修改接口，其它接口保持不变。&lt;/p&gt;
-
-&lt;p&gt;这两种情况都很常见。App未发布时，服务器接口从1.0升级到2.0，这时App开发者可以配合一下，使用2.0的接口；但对于已发布的App版本，只能由服务器端针对特定的App版本来修复漏洞。&lt;/p&gt;
-
-&lt;h1 id=&quot;section-2&quot;&gt;如何做&lt;/h1&gt;
-
-&lt;p&gt;App开发者需要配合，在请求接口时传入以下两项信息：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;App版本标识，一般包括App名称、版本、平台（Android、IOS等）、SDK版本等。一般放在user-agent里，例如微信的user-agent如下：&lt;/p&gt;
-
-    &lt;p&gt;Mozilla/5.0 (iPhone; CPU iPhone OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B176 MicroMessenger/6.2.2&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;接口版本标识，指采用接口的版本，例如可以在Request Header里加入majarversion=2.0，表明使用的是2.0的接口。&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;服务器端开发者需要根据App版本和接口版本标识，来提供向下兼容&lt;/p&gt;
-
 </content>
  </entry>
  
