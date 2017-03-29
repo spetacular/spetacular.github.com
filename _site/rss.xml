@@ -5,8 +5,8 @@
         <description>David's World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Wed, 29 Mar 2017 16:41:28 +0800</lastBuildDate>
-        <pubDate>Wed, 29 Mar 2017 16:41:28 +0800</pubDate>
+        <lastBuildDate>Wed, 29 Mar 2017 16:42:05 +0800</lastBuildDate>
+        <pubDate>Wed, 29 Mar 2017 16:42:05 +0800</pubDate>
         <ttl>60</ttl>
 
 
@@ -149,9 +149,9 @@ cat intermediate.pem root.pem &amp;gt; full_chained.pem
 &lt;h2 id=&quot;section-5&quot;&gt;最关键的是，如果服务器有防火墙，请放开服务器的443入口&lt;/h2&gt;
 
 &lt;h2 id=&quot;section-6&quot;&gt;说明&lt;/h2&gt;
-&lt;p&gt;本文注重实战，跟着教程一步一步配置即可，想了解原理的同学，可以参考如下网址：
-&lt;a href=&quot;https://letsencrypt.org/&quot;&gt;Let’s Encrypt官网&lt;/a&gt;
-&lt;a href=&quot;https://imququ.com/post/letsencrypt-certificate.html&quot;&gt;Let’s Encrypt，免费好用的 HTTPS 证书&lt;/a&gt;
+&lt;p&gt;本文注重实战，跟着教程一步一步配置即可，想了解原理的同学，可以参考如下网址：   &lt;br /&gt;
+&lt;a href=&quot;https://letsencrypt.org/&quot;&gt;Let’s Encrypt官网&lt;/a&gt;  &lt;br /&gt;
+&lt;a href=&quot;https://imququ.com/post/letsencrypt-certificate.html&quot;&gt;Let’s Encrypt，免费好用的 HTTPS 证书&lt;/a&gt;  &lt;br /&gt;
 &lt;a href=&quot;https://ksmx.me/letsencrypt-ssl-https/&quot;&gt;Let’s Encrypt 给网站加 HTTPS 完全指南&lt;/a&gt;&lt;/p&gt;
 </description>
                 <link>http://spetacular.github.io/2017/03/29/lets-encrypt-deploy-step-by-step.html</link>
