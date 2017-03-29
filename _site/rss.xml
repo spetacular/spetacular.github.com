@@ -5,8 +5,8 @@
         <description>David's World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Wed, 29 Mar 2017 16:23:40 +0800</lastBuildDate>
-        <pubDate>Wed, 29 Mar 2017 16:23:40 +0800</pubDate>
+        <lastBuildDate>Wed, 29 Mar 2017 16:31:42 +0800</lastBuildDate>
+        <pubDate>Wed, 29 Mar 2017 16:31:42 +0800</pubDate>
         <ttl>60</ttl>
 
 
@@ -19,37 +19,39 @@
 &lt;/ol&gt;
 
 &lt;h2 id=&quot;section-1&quot;&gt;存放验证域名文件的目录&lt;/h2&gt;
+
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;     mkdir ~/www/challenges/
- ```    
-然后配置一个 HTTP 服务，以 Nginx 为例：
-  ```
-    NGINX
-    server {
-        server_name www.yoursite.com yoursite.com;
-
-        location ^~ /.well-known/acme-challenge/ {
-            alias /home/xxx/www/challenges/;
-            try_files $uri =404;
-        }
-
-        location / {
-            rewrite ^/(.*)$ https://yoursite.com/$1 permanent;
-        }
-    }
- ```  
- 
- 然后重启nginx。
- 
- ```    
- sudo service nginx reload
- ```
- 
-## 创建存放证书的目录
-
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mkdir /data/ssl
-cd /data/ssl ```
+
+&lt;p&gt;然后配置一个 HTTP 服务，以 Nginx 为例：
+```
+    NGINX
+    server {
+        server_name www.yoursite.com yoursite.com;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    location ^~ /.well-known/acme-challenge/ {
+        alias /home/xxx/www/challenges/;
+        try_files $uri =404;
+    }
+
+    location / {
+        rewrite ^/(.*)$ https://yoursite.com/$1 permanent;
+    }
+} ```  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;然后重启nginx。&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;   
+ sudo service nginx reload
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;section-2&quot;&gt;创建存放证书的目录&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    mkdir /data/ssl
+    cd /data/ssl
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
@@ -59,7 +61,7 @@ cd /data/ssl ```
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h2 id=&quot;rsa-&quot;&gt;创建 RSA 私钥（兼容性好）：&lt;/h2&gt;
+&lt;h2 id=&quot;rsa-&quot;&gt;创建 RSA 私钥（兼容性好）&lt;/h2&gt;
 
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    openssl genrsa 4096 &amp;gt; domain.key
 &lt;/code&gt;&lt;/pre&gt;
@@ -68,13 +70,12 @@ cd /data/ssl ```
 &lt;h2 id=&quot;common-name-&quot;&gt;Common Name 必须为你的域名，其它的随便填&lt;/h2&gt;
 
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    openssl req -new -sha256 -key domain.key -out domain.csr
-```  
-
-## 获取脚本
-
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;wget https://raw.githubusercontent.com/diafygi/acme-tiny/master/acme_tiny.py ```
+
+&lt;h2 id=&quot;section-3&quot;&gt;获取脚本&lt;/h2&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    wget https://raw.githubusercontent.com/diafygi/acme-tiny/master/acme_tiny.py
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
@@ -121,11 +122,10 @@ cat intermediate.pem root.pem &amp;gt; full_chained.pem
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h2 id=&quot;section-2&quot;&gt;自动更新脚本&lt;/h2&gt;
-&lt;ol&gt;
-  &lt;li&gt;新建文件&lt;code class=&quot;highlighter-rouge&quot;&gt;vi renew_cert.sh&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;填写如下内容&lt;/li&gt;
-&lt;/ol&gt;
+&lt;h2 id=&quot;section-4&quot;&gt;自动更新脚本&lt;/h2&gt;
+&lt;p&gt;1.新建文件&lt;code class=&quot;highlighter-rouge&quot;&gt;vi renew_cert.sh&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;2.填写如下内容&lt;/p&gt;
 
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    &lt;span class=&quot;c&quot;&gt;#!/bin/bash&lt;/span&gt;
     cd /data/ssl/
@@ -137,21 +137,19 @@ cat intermediate.pem root.pem &amp;gt; full_chained.pem
     service nginx reload
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
-&lt;ol&gt;
-  &lt;li&gt;chmod +x renew_cert.sh&lt;/li&gt;
-&lt;/ol&gt;
+&lt;p&gt;3.&lt;code class=&quot;highlighter-rouge&quot;&gt;chmod +x renew_cert.sh&lt;/code&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;crontab&quot;&gt;加入crontab&lt;/h2&gt;
 
-&lt;p&gt;crontab 中使用绝对路径比较保险，crontab -e 加入以下内容：&lt;/p&gt;
+&lt;p&gt;crontab 中加入自动更新脚本，每月自动更新，crontab -e 加入以下内容：&lt;/p&gt;
 
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    0 0 1 * * /data/ssl/renew_cert.sh &amp;gt;/dev/null 2&amp;gt;&amp;amp;1
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h2 id=&quot;section-3&quot;&gt;最关键的是，如果服务器有防火墙，请放开服务器的443入口&lt;/h2&gt;
+&lt;h2 id=&quot;section-5&quot;&gt;最关键的是，如果服务器有防火墙，请放开服务器的443入口&lt;/h2&gt;
 
-&lt;h2 id=&quot;section-4&quot;&gt;说明&lt;/h2&gt;
+&lt;h2 id=&quot;section-6&quot;&gt;说明&lt;/h2&gt;
 &lt;p&gt;本文注重实战，跟着教程一步一步配置即可，想了解原理的同学，可以参考如下网址：
 &lt;a href=&quot;https://letsencrypt.org/&quot;&gt;Let’s Encrypt官网&lt;/a&gt;
 &lt;a href=&quot;https://imququ.com/post/letsencrypt-certificate.html&quot;&gt;Let’s Encrypt，免费好用的 HTTPS 证书&lt;/a&gt;

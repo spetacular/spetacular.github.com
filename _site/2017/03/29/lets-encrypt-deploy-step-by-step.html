@@ -57,37 +57,39 @@
 </ol>
 
 <h2 id="section-1">存放验证域名文件的目录</h2>
+
 <div class="highlighter-rouge"><pre class="highlight"><code>     mkdir ~/www/challenges/
- ```    
-然后配置一个 HTTP 服务，以 Nginx 为例：
-  ```
-    NGINX
-    server {
-        server_name www.yoursite.com yoursite.com;
-
-        location ^~ /.well-known/acme-challenge/ {
-            alias /home/xxx/www/challenges/;
-            try_files $uri =404;
-        }
-
-        location / {
-            rewrite ^/(.*)$ https://yoursite.com/$1 permanent;
-        }
-    }
- ```  
- 
- 然后重启nginx。
- 
- ```    
- sudo service nginx reload
- ```
- 
-## 创建存放证书的目录
-
 </code></pre>
 </div>
-<div class="highlighter-rouge"><pre class="highlight"><code>mkdir /data/ssl
-cd /data/ssl ```
+
+<p>然后配置一个 HTTP 服务，以 Nginx 为例：
+```
+    NGINX
+    server {
+        server_name www.yoursite.com yoursite.com;</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>    location ^~ /.well-known/acme-challenge/ {
+        alias /home/xxx/www/challenges/;
+        try_files $uri =404;
+    }
+
+    location / {
+        rewrite ^/(.*)$ https://yoursite.com/$1 permanent;
+    }
+} ```  
+</code></pre>
+</div>
+
+<p>然后重启nginx。</p>
+
+<p><code class="highlighter-rouge">   
+ sudo service nginx reload
+</code></p>
+
+<h2 id="section-2">创建存放证书的目录</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>    mkdir /data/ssl
+    cd /data/ssl
 </code></pre>
 </div>
 
@@ -97,7 +99,7 @@ cd /data/ssl ```
 </code></pre>
 </div>
 
-<h2 id="rsa-">创建 RSA 私钥（兼容性好）：</h2>
+<h2 id="rsa-">创建 RSA 私钥（兼容性好）</h2>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>    openssl genrsa 4096 &gt; domain.key
 </code></pre>
@@ -106,13 +108,12 @@ cd /data/ssl ```
 <h2 id="common-name-">Common Name 必须为你的域名，其它的随便填</h2>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>    openssl req -new -sha256 -key domain.key -out domain.csr
-```  
-
-## 获取脚本
-
 </code></pre>
 </div>
-<div class="highlighter-rouge"><pre class="highlight"><code>wget https://raw.githubusercontent.com/diafygi/acme-tiny/master/acme_tiny.py ```
+
+<h2 id="section-3">获取脚本</h2>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>    wget https://raw.githubusercontent.com/diafygi/acme-tiny/master/acme_tiny.py
 </code></pre>
 </div>
 
@@ -159,11 +160,10 @@ cat intermediate.pem root.pem &gt; full_chained.pem
 </code></pre>
 </div>
 
-<h2 id="section-2">自动更新脚本</h2>
-<ol>
-  <li>新建文件<code class="highlighter-rouge">vi renew_cert.sh</code></li>
-  <li>填写如下内容</li>
-</ol>
+<h2 id="section-4">自动更新脚本</h2>
+<p>1.新建文件<code class="highlighter-rouge">vi renew_cert.sh</code></p>
+
+<p>2.填写如下内容</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>    <span class="c">#!/bin/bash</span>
     cd /data/ssl/
@@ -175,21 +175,19 @@ cat intermediate.pem root.pem &gt; full_chained.pem
     service nginx reload
 </code></pre>
 </div>
-<ol>
-  <li>chmod +x renew_cert.sh</li>
-</ol>
+<p>3.<code class="highlighter-rouge">chmod +x renew_cert.sh</code></p>
 
 <h2 id="crontab">加入crontab</h2>
 
-<p>crontab 中使用绝对路径比较保险，crontab -e 加入以下内容：</p>
+<p>crontab 中加入自动更新脚本，每月自动更新，crontab -e 加入以下内容：</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>    0 0 1 * * /data/ssl/renew_cert.sh &gt;/dev/null 2&gt;&amp;1
 </code></pre>
 </div>
 
-<h2 id="section-3">最关键的是，如果服务器有防火墙，请放开服务器的443入口</h2>
+<h2 id="section-5">最关键的是，如果服务器有防火墙，请放开服务器的443入口</h2>
 
-<h2 id="section-4">说明</h2>
+<h2 id="section-6">说明</h2>
 <p>本文注重实战，跟着教程一步一步配置即可，想了解原理的同学，可以参考如下网址：
 <a href="https://letsencrypt.org/">Let’s Encrypt官网</a>
 <a href="https://imququ.com/post/letsencrypt-certificate.html">Let’s Encrypt，免费好用的 HTTPS 证书</a>

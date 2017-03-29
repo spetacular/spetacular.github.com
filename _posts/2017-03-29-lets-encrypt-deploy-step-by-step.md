@@ -11,11 +11,13 @@ tags : [服务器,证书,HTTPS]
 2. 存放最终结果证书的目录，如本文中的/data/ssl
 
 ## 存放验证域名文件的目录
+
 ```
      mkdir ~/www/challenges/
- ```    
+```    
+
 然后配置一个 HTTP 服务，以 Nginx 为例：
-  ```
+```
     NGINX
     server {
         server_name www.yoursite.com yoursite.com;
@@ -29,13 +31,13 @@ tags : [服务器,证书,HTTPS]
             rewrite ^/(.*)$ https://yoursite.com/$1 permanent;
         }
     }
- ```  
+```  
  
  然后重启nginx。
  
- ```    
+```    
  sudo service nginx reload
- ```
+```
  
 ## 创建存放证书的目录
 
@@ -50,7 +52,7 @@ tags : [服务器,证书,HTTPS]
     openssl genrsa 4096 > account.key
 ```
 
-## 创建 RSA 私钥（兼容性好）：
+## 创建 RSA 私钥（兼容性好）
 
 ```
     openssl genrsa 4096 > domain.key
@@ -60,7 +62,7 @@ tags : [服务器,证书,HTTPS]
 
 ```
     openssl req -new -sha256 -key domain.key -out domain.csr
-```  
+```
 
 ## 获取脚本
 
@@ -112,8 +114,9 @@ cat intermediate.pem root.pem > full_chained.pem
 ```
 
 ## 自动更新脚本
-1. 新建文件`vi renew_cert.sh`
-2. 填写如下内容
+1.新建文件`vi renew_cert.sh`
+
+2.填写如下内容
 
 ```
     #!/bin/bash
@@ -125,11 +128,11 @@ cat intermediate.pem root.pem > full_chained.pem
 cat intermediate.pem root.pem > full_chained.pem
     service nginx reload
 ```
-3. chmod +x renew_cert.sh
+3.`chmod +x renew_cert.sh`
 
 ## 加入crontab
 
-crontab 中使用绝对路径比较保险，crontab -e 加入以下内容：
+crontab 中加入自动更新脚本，每月自动更新，crontab -e 加入以下内容：
 
 ```
     0 0 1 * * /data/ssl/renew_cert.sh >/dev/null 2>&1
