@@ -35,9 +35,7 @@ tags : [服务器,证书,HTTPS]
 ``` 
  
 然后重启nginx。
-
- 
-```    
+```  
  sudo service nginx reload
 ```
  

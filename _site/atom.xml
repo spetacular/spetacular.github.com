@@ -4,7 +4,7 @@
  <title>David's World</title>
  <link href="http://spetacular.github.io/atom.xml" rel="self"/>
  <link href="http://spetacular.github.io"/>
- <updated>2017-03-29T16:39:46+08:00</updated>
+ <updated>2017-03-29T16:41:28+08:00</updated>
  <id>http://spetacular.github.io</id>
  <author>
    <name>David</name>
@@ -47,9 +47,8 @@
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;p&gt;然后重启nginx。&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;   
+&lt;p&gt;然后重启nginx。
+&lt;code class=&quot;highlighter-rouge&quot;&gt; 
  sudo service nginx reload
 &lt;/code&gt;&lt;/p&gt;
 
