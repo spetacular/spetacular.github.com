@@ -141,7 +141,7 @@ crontab 中加入自动更新脚本，每月自动更新，crontab -e 加入以�
 ## 最关键的是，如果服务器有防火墙，请放开服务器的443入口
 
 ## 说明
-本文注重实战，跟着教程一步一步配置即可，想了解原理的同学，可以参考如下网址：
-[Let's Encrypt官网](https://letsencrypt.org/)
-[Let's Encrypt，免费好用的 HTTPS 证书](https://imququ.com/post/letsencrypt-certificate.html)
-[Let's Encrypt 给网站加 HTTPS 完全指南](https://ksmx.me/letsencrypt-ssl-https/)
+本文注重实战，跟着教程一步一步配置即可，想了解原理的同学，可以参考如下网址：     
+[Let's Encrypt官网](https://letsencrypt.org/)    
+[Let's Encrypt，免费好用的 HTTPS 证书](https://imququ.com/post/letsencrypt-certificate.html)    
+[Let's Encrypt 给网站加 HTTPS 完全指南](https://ksmx.me/letsencrypt-ssl-https/)    
