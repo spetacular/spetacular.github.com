@@ -4,7 +4,7 @@
  <title>David's World</title>
  <link href="http://spetacular.github.io/atom.xml" rel="self"/>
  <link href="http://spetacular.github.io"/>
- <updated>2017-03-31T20:22:47+08:00</updated>
+ <updated>2017-03-31T20:27:13+08:00</updated>
  <id>http://spetacular.github.io</id>
  <author>
    <name>David</name>
@@ -69,7 +69,7 @@
 
 &lt;h1 id=&quot;section-2&quot;&gt;2.开发模式自定义菜单创建&lt;/h1&gt;
 
-&lt;p&gt;在开发模式下，可以通过自定义菜单创建接口来创建小程序的菜单。文档地址为https://mp.weixin.qq.com/wiki下的“自定义菜单”页面。&lt;/p&gt;
+&lt;p&gt;在开发模式下，可以通过自定义菜单创建接口来创建小程序的菜单。文档地址为&lt;a href=&quot;https://mp.weixin.qq.com/wiki&quot;&gt;https://mp.weixin.qq.com/wiki&lt;/a&gt;下的“自定义菜单”页面。&lt;/p&gt;
 
 &lt;p&gt;接口地址如下：
 &lt;code class=&quot;highlighter-rouge&quot;&gt;
