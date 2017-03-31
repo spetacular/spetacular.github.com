@@ -9,6 +9,7 @@ http://spetacular.github.io/rss.xml
 http://spetacular.github.io/sitemap.txt
 http://spetacular.github.io/tags
 
+http://spetacular.github.io/2017/03/31/weixin-mp-open-minapp-in-menu.html
 http://spetacular.github.io/2017/03/29/lets-encrypt-deploy-step-by-step.html
 http://spetacular.github.io/2017/03/20/docker-network-settings.html
 http://spetacular.github.io/2017/03/10/docker-basic-concept.html
