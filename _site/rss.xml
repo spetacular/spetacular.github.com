@@ -5,14 +5,18 @@
         <description>David's World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Fri, 07 Apr 2017 17:53:38 +0800</lastBuildDate>
-        <pubDate>Fri, 07 Apr 2017 17:53:38 +0800</pubDate>
+        <lastBuildDate>Fri, 07 Apr 2017 18:16:13 +0800</lastBuildDate>
+        <pubDate>Fri, 07 Apr 2017 18:16:13 +0800</pubDate>
         <ttl>60</ttl>
 
 
         <item>
                 <title>Editor.md开源在线 Markdown 编辑器增加本地自动保存功能</title>
-                <description>&lt;p&gt;&lt;a href=&quot;http://pandao.github.io/editor.md/&quot;&gt;Editor.md&lt;/a&gt; 是一款开源 Markdown 在线编辑器。在编辑较长文章时，为防止疏忽造成内容丢失，可以添加自动保存功能，&lt;/p&gt;
+                <description>&lt;p&gt;&lt;a href=&quot;http://pandao.github.io/editor.md/&quot;&gt;Editor.md&lt;/a&gt; 是一款开源 Markdown 在线编辑器。在编辑较长文章时，为防止疏忽造成内容丢失，可以添加自动保存功能。&lt;/p&gt;
+
+&lt;p&gt;预览地址：&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.text.wiki/md/&quot;&gt;https://www.text.wiki/md/&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;利用localStorage来暂存数据。当文本框有改动时，将内容存到localStorage里；当页面再次加载时，读取localStorage的值。&lt;/p&gt;
 

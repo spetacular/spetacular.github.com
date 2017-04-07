@@ -6,7 +6,11 @@ tagline: "Supporting tagline"
 tags : [js,markdown]
 ---
 
-[Editor.md](http://pandao.github.io/editor.md/) 是一款开源 Markdown 在线编辑器。在编辑较长文章时，为防止疏忽造成内容丢失，可以添加自动保存功能，
+[Editor.md](http://pandao.github.io/editor.md/) 是一款开源 Markdown 在线编辑器。在编辑较长文章时，为防止疏忽造成内容丢失，可以添加自动保存功能。
+
+预览地址：
+
+[https://www.text.wiki/md/](https://www.text.wiki/md/)
 
 利用localStorage来暂存数据。当文本框有改动时，将内容存到localStorage里；当页面再次加载时，读取localStorage的值。
 
