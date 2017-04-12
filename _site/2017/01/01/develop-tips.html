@@ -7,11 +7,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<title>Editor.md开源在线 Markdown 编辑器增加本地自动保存功能</title>
+	<title>开发知识点记录</title>
 	<meta name="author" content="David">
 	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
 	<link href='/assets/themes/the-program/css/style.css' rel="stylesheet" media="all">
-	<link href="http://feeds.feedburner.com/" rel="alternate" title="Editor.md开源在线 Markdown 编辑器增加本地自动保存功能" type="application/atom+xml">
+	<link href="http://feeds.feedburner.com/" rel="alternate" title="开发知识点记录" type="application/atom+xml">
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.0.6/modernizr.min.js"></script>
 </head>
 <body>
@@ -43,54 +43,57 @@
 			<header>
 				<div class="unit-head">
 					<div class="unit-inner unit-head-inner">
-						<h1 class="h2 entry-title">Editor.md开源在线 Markdown 编辑器增加本地自动保存功能</h1>
+						<h1 class="h2 entry-title">开发知识点记录</h1>
 					</div><!-- unit-inner -->
 				</div><!-- unit-head -->
 			</header>
 
 			<div class="bd">
 				<div class="entry-content">
-					<p><a href="http://pandao.github.io/editor.md/">Editor.md</a> 是一款开源 Markdown 在线编辑器。在编辑较长文章时，为防止疏忽造成内容丢失，可以添加自动保存功能。</p>
+					<h1 id="cron-">cron 任务没执行的原因</h1>
 
-<p>预览地址：</p>
+<p>查看 cron 日志，日志路径一般在：</p>
 
-<p><a href="https://www.text.wiki/md/">https://www.text.wiki/md/</a></p>
-
-<p>利用localStorage来暂存数据。当文本框有改动时，将内容存到localStorage里；当页面再次加载时，读取localStorage的值。</p>
-
-<p>假设页面创建的编辑器命名为 mdEditor ,则只需将以下js加入页面即可：</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;script&gt;
-    var key = 'default_md_key';
-    mdEditor.on("load", function(){
-        var content = localStorage.getItem(key);
-        if(content){
-            var f = confirm("您上次编辑的文章未提交，是否恢复？内容：\n"+content);
-            if(f == true){
-                testEditor.setValue(content)
-            }
-        }
-    })
-
-    mdEditor.on("change", function(){
-        localStorage.setItem(key,this.getValue())
-    })
-&lt;/script&gt;
+<div class="highlighter-rouge"><pre class="highlight"><code>/var/log/cron.log
 </code></pre>
 </div>
 
-<p>用户向服务器提交数据并保存成功后，可以删掉key。</p>
+<p>或者</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>localStorage.removeItem(key);
+<div class="highlighter-rouge"><pre class="highlight"><code>/var/log/syslog
 </code></pre>
 </div>
+
+<p>这样就能看到类似这样的错误：</p>
+
+<blockquote>
+  <p>Error: bad username; while reading /etc/crontab
+(<em>system</em>) ERROR (Syntax error, this crontab file will be ignored)</p>
+</blockquote>
+
+<p>然后按图索骥，查找失败原因。</p>
+
+<h1 id="cron--1">cron 启动、关闭、重启、重载、查看服务状态</h1>
+<div class="highlighter-rouge"><pre class="highlight"><code>	service cron start    //启动服务
+　　	service cron stop     //关闭服务
+　　	service cron restart  //重启服务
+　　	service cron reload   //重新载入配置
+　　	service cron status   //查看服务状态 
+</code></pre>
+</div>
+
+<h1 id="section">命令行输错命令如何快速撤销？</h1>
+<p>最笨的方法可以按删除键，一个一个删除；
+<img src="/images/2016/withdraw-input-1.gif" alt="撤销命令" />
+最快的办法是Ctrl + U，一键清理。
+<img src="/images/2016/withdraw-input-2.gif" alt="撤销命令" /></p>
 
 					<div class="meta">
 						<p class="date-publish">
 							Published: 
-							<date class="date-pub" title="2017-04-07T00:00:00+08:00" datetime="2017-04-07T00:00:00+08:00" pubdate>
-							<span class="month"><abbr>April</abbr></span>
-							<span class="day">07</span>
+							<date class="date-pub" title="2017-01-01T00:00:00+08:00" datetime="2017-01-01T00:00:00+08:00" pubdate>
+							<span class="month"><abbr>January</abbr></span>
+							<span class="day">01</span>
 							<span class="year">2017</span>
 							</date>
 						</p>
@@ -102,8 +105,8 @@
 
   
      
-    	<li><a href="/categories.html#微信-ref">
-    		微信 <span>2</span>
+    	<li><a href="/categories.html#linux-ref">
+    		linux <span>1</span>
     	</a></li>
     
   
@@ -118,9 +121,7 @@
 
   
      
-    	<li><a href="/tags.html#js-ref">js <span>2</span></a></li>
-     
-    	<li><a href="/tags.html#markdown-ref">markdown <span>1</span></a></li>
+    	<li><a href="/tags.html#linux-ref">linux <span>1</span></a></li>
     
   
 
@@ -167,13 +168,13 @@
 					<nav class="pagination">
 						<ul>
 							
-							<li class="prev"><a class="internal" rel="prev"  href="/2017/03/31/weixin-mp-open-minapp-in-menu.html" title="View 小程序新能力：公众号自定义菜单点击打开相关小程序">&laquo; 小程序新能力：公众号自定义菜单点击打开相关小程序</a></li>
+							<li class="prev"><a class="internal" rel="prev"  href="/2016/08/01/json-template-to-json.html" title="View Restful API中的JSON模板解析－JSONOut库的介绍">&laquo; Restful API中的JSON模板解析－JSONOut库的介绍</a></li>
 							
 							
 							<li class="pipe"> | </li>
 							
 							
-							<li class="next"><a class="internal" rel="next"  href="/2017/04/10/nginx-cache.html" title="View Nginx缓存最佳实践">Nginx缓存最佳实践 &raquo;</a></li>
+							<li class="next"><a class="internal" rel="next"  href="/2017/03/09/asyntask-desc.html" title="View PHP异步任务队列管理器asyntask介绍">PHP异步任务队列管理器asyntask介绍 &raquo;</a></li>
 							
 						</ul>
 					</nav>
@@ -221,7 +222,7 @@
 		};
 	load('//platform.twitter.com/widgets.js', 'tweetjs');
 	// load('https://apis.google.com/js/plusone.js', 'gplus1js'); // Checkout http://j.mp/ApDgMr for usage html for this is <div class="g-plusone" data-size="medium"></div>
-	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2017/04/07/editor-md-auto-save-markdown.html" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
+	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2017/01/01/develop-tips.html" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
 	}(document, 'script'));
 </script>
 <script>
