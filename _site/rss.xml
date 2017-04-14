@@ -5,8 +5,8 @@
         <description>David's World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Wed, 12 Apr 2017 11:54:12 +0800</lastBuildDate>
-        <pubDate>Wed, 12 Apr 2017 11:54:12 +0800</pubDate>
+        <lastBuildDate>Fri, 14 Apr 2017 18:53:09 +0800</lastBuildDate>
+        <pubDate>Fri, 14 Apr 2017 18:53:09 +0800</pubDate>
         <ttl>60</ttl>
 
 
@@ -1026,6 +1026,38 @@ $task-&amp;gt;add_loop_task($name,$cmd,$params,$timeOptions);
 &lt;img src=&quot;/images/2016/withdraw-input-1.gif&quot; alt=&quot;撤销命令&quot; /&gt;
 最快的办法是Ctrl + U，一键清理。
 &lt;img src=&quot;/images/2016/withdraw-input-2.gif&quot; alt=&quot;撤销命令&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;dockercontainer-cmd&quot;&gt;docker显示容器命令(container CMD)详情&lt;/h1&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker inspect  -f &quot; &quot; $(docker ps -a -q)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;# php生成形容’HH:MM:SS’格式的时间
+&lt;code class=&quot;highlighter-rouge&quot;&gt;
+gmstrftime('%H:%M:%S',$time)
+&lt;/code&gt;
+例如
+&lt;code class=&quot;highlighter-rouge&quot;&gt;
+echo gmstrftime('%H:%M:%S',3786);
+//Output: 01:03:06
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;chrome-&quot;&gt;chrome 下上传图片/文件慢的解决办法&lt;/h1&gt;
+
+&lt;p&gt;最近用flow.js做的上传图片功能，突然变得很慢，要10秒左右才能打开上传对话框。查了一下，是mac chrome的一个bug。设置图片格式时，如果采用如下写法：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;input type=&quot;file&quot; accept=&quot;image/*&quot;&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;则会重现。有网友反映，windows 10, chrome 53下也会有此问题。解决办法是，将image/*换为具体的格式：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;input type=&quot;file&quot; accept=&quot;image/png, image/jpeg, image/gif&quot;&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;参考：&lt;a href=&quot;http://stackoverflow.com/questions/39187857/inputfile-accept-image-open-dialog-so-slow-with-chrome&quot;&gt;open dialog so slow with Chrome&lt;/a&gt;&lt;/p&gt;
+
 </description>
                 <link>http://spetacular.github.io/2017/01/01/develop-tips.html</link>
                 <guid>http://spetacular.github.io/2017/01/01/develop-tips</guid>

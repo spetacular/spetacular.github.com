@@ -41,3 +41,35 @@ tags : [linux]
 ![撤销命令](/images/2016/withdraw-input-1.gif)
 最快的办法是Ctrl + U，一键清理。
 ![撤销命令](/images/2016/withdraw-input-2.gif)
+
+# docker显示容器命令(container CMD)详情
+
+```
+docker inspect  -f "{{.Name}} {{.Config.Cmd}}" $(docker ps -a -q)
+```
+# php生成形容'HH:MM:SS'格式的时间
+```
+gmstrftime('%H:%M:%S',$time)
+```
+例如
+```
+echo gmstrftime('%H:%M:%S',3786);
+//Output: 01:03:06
+```
+
+# chrome 下上传图片/文件慢的解决办法
+
+最近用flow.js做的上传图片功能，突然变得很慢，要10秒左右才能打开上传对话框。查了一下，是mac chrome的一个bug。设置图片格式时，如果采用如下写法：
+
+```
+<input type="file" accept="image/*">
+```
+
+则会重现。有网友反映，windows 10, chrome 53下也会有此问题。解决办法是，将image/*换为具体的格式：
+
+```
+<input type="file" accept="image/png, image/jpeg, image/gif">
+```
+
+参考：[open dialog so slow with Chrome](http://stackoverflow.com/questions/39187857/inputfile-accept-image-open-dialog-so-slow-with-chrome)
+
