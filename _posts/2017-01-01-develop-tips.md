@@ -28,6 +28,7 @@ tags : [linux]
 然后按图索骥，查找失败原因。
 
 # cron 启动、关闭、重启、重载、查看服务状态
+
 ```
 	service cron start    //启动服务
 　　	service cron stop     //关闭服务
@@ -44,14 +45,16 @@ tags : [linux]
 
 # docker显示容器命令(container CMD)详情
 
-```
-docker inspect  -f "{{.Name}} {{.Config.Cmd}}" $(docker ps -a -q)
-```
+<script src="https://gist.github.com/spetacular/1df9fba67d5854f4ad203b19c9cc919c.js"></script>
+
 # php生成形容'HH:MM:SS'格式的时间
+
 ```
 gmstrftime('%H:%M:%S',$time)
 ```
+
 例如
+
 ```
 echo gmstrftime('%H:%M:%S',3786);
 //Output: 01:03:06

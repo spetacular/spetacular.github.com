@@ -5,10 +5,1012 @@
         <description>David's World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Fri, 14 Apr 2017 18:53:09 +0800</lastBuildDate>
-        <pubDate>Fri, 14 Apr 2017 18:53:09 +0800</pubDate>
+        <lastBuildDate>Fri, 28 Apr 2017 16:10:40 +0800</lastBuildDate>
+        <pubDate>Fri, 28 Apr 2017 16:10:40 +0800</pubDate>
         <ttl>60</ttl>
 
+
+        <item>
+                <title>Postman 及 Newman 使用开发指南（六）：利用 Newman 进行冒烟测试</title>
+                <description>&lt;p&gt;大家提到“冒烟测试”，大部分人会援引&lt;a href=&quot;https://msdn.microsoft.com/zh-cn/library/ms182613(v=vs.90).aspx&quot;&gt;微软的定义&lt;/a&gt;：&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;在软件中，“冒烟测试”这一术语描述的是在将代码更改签入到产品的源树中之前对这些更改进行验证的过程。在检查了代码后，冒烟测试是确定和修复软件缺陷的最经济有效的方法。冒烟测试设计用于确认代码中的更改会按预期运行，且不会破坏整个版本的稳定性。&lt;/p&gt;
+
+  &lt;p&gt;“冒烟测试”这一术语源自硬件行业。该术语源于此做法：对一个硬件或硬件组件进行更改或修复后，直接给设备加电。如果没有冒烟，则该组件就通过了测试。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;对于 API 接口来说，冒烟测试就是跑一遍测试，看看所有的返回结果是否符合预期。判断一次冒烟测试是否通过的标准，可以简化一下两条：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;网络请求正常&lt;/li&gt;
+  &lt;li&gt;返回内容符合预期&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;本节我们用 Newman 编写冒烟测试案例，并生成自定义报表，附带邮件发送功能。本节的例子完整代码参考 &lt;a href=&quot;https://github.com/spetacular/newman-smoking-test&quot;&gt;https://github.com/spetacular/newman-smoking-test&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;nodejs-&quot;&gt;nodejs 脚本&lt;/h1&gt;
+
+&lt;p&gt;脚本用到了两个插件：&lt;a href=&quot;https://github.com/postmanlabs/newman&quot;&gt;Newman&lt;/a&gt; 和 &lt;a href=&quot;https://nodemailer.com/&quot;&gt;Nodemailer&lt;/a&gt; 。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;npm install newman --save
+npm install nodemailer --save
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;脚本 smoke.js:&lt;/p&gt;
+
+&lt;p&gt;将 &lt;code class=&quot;highlighter-rouge&quot;&gt;---&lt;/code&gt; 包含的部分换成正确的配置即可。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;newman&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'newman'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// require newman in your project &lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;nodemailer&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'nodemailer'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;fs&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'fs'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;export_file&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'./htmlResults_for_mail.html'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;collection_file&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'./postman_echo.postman_collection.json'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// call newman.run to pass `options` object and wait for callback &lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;newman&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;collection&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;require&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;collection_file&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;reporters&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'cli'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'html'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;
+    &lt;span class=&quot;na&quot;&gt;reporter&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;html&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;export&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;export_file&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;template&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'./template.hbs'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; 
+&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;err&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;summary&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;err&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;err&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'collection run complete!'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;dir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;summary&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;network_total&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;summary&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'run'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'stats'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'requests'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'total'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;network_failed&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;summary&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'run'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'stats'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'requests'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'failed'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;network_success&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;network_total&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;network_failed&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;unit_total&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;summary&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'run'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'stats'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'assertions'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'total'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;unit_failed&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;summary&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'run'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'stats'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'assertions'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'failed'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;unit_success&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;unit_total&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;unit_failed&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;stats&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;网络请求&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;network_total&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;次，成功&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;network_success&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;次，失败&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;network_failed&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;次。\n共执行单元测试&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;unit_total&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;次，成功&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;unit_success&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;次，失败&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;unit_failed&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;次&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;network_failed&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;unit_failed&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Something Is WRONG&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;tracelog&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;stringify&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;summary&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'run'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'failures'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;stats&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;tracelog&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Everything Is OK&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;sub&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;tracelog&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;transporter&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;nodemailer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;createTransport&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;
+		&lt;span class=&quot;na&quot;&gt;service&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;QQex|Gmail&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+		&lt;span class=&quot;na&quot;&gt;auth&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+			&lt;span class=&quot;na&quot;&gt;user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;---发件人邮箱---&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+			&lt;span class=&quot;na&quot;&gt;pass&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;---发件人邮箱密码---&quot;&lt;/span&gt;
+		&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+	&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+    
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;html&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;fs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;readFileSync&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;export_file&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'---收件人地址---'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+	&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;mailOptions&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+		&lt;span class=&quot;na&quot;&gt;from&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;---发件人邮箱地址---&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+		&lt;span class=&quot;na&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+		&lt;span class=&quot;na&quot;&gt;subject&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;冒烟测试问题报告:&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;sub&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;html&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;html&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;attachments&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:[{&lt;/span&gt;   
+                &lt;span class=&quot;na&quot;&gt;filename&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'results.html'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                &lt;span class=&quot;na&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;export_file&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                &lt;span class=&quot;na&quot;&gt;contentType&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'text/html'&lt;/span&gt; 
+                &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+                &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;   
+                    &lt;span class=&quot;na&quot;&gt;filename&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'tracelog.txt'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                    &lt;span class=&quot;na&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;tracelog&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                    &lt;span class=&quot;na&quot;&gt;contentType&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'text/plain'&lt;/span&gt;
+                &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;
+	&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+	&lt;span class=&quot;nx&quot;&gt;transporter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;sendMail&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;mailOptions&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+		&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+			&lt;span class=&quot;k&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+		&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+			&lt;span class=&quot;nx&quot;&gt;fn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+		&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+	&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h1 id=&quot;html-&quot;&gt;自定义 HTML 模板&lt;/h1&gt;
+
+&lt;p&gt;由于大部分邮件客户端只支持 inline 的 CSS 样式，所以我们将样式写到元素里。&lt;/p&gt;
+
+&lt;p&gt;template.hbs 文件：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;!DOCTYPE html&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;html&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;lang=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;head&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;meta&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;charset=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;UTF-8&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;title&amp;gt;&lt;/span&gt;Smoke Test Report&lt;span class=&quot;nt&quot;&gt;&amp;lt;/title&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/head&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;body&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;container&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span class=&quot;nt&quot;&gt;&amp;lt;h1&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;color:red;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;SomeThing Is Wrong! Check The Following Contents and Attachments To Find Out!&lt;span class=&quot;nt&quot;&gt;&amp;lt;/h1&amp;gt;&amp;lt;hr/&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;h3&amp;gt;&lt;/span&gt;Smoke Test Report&lt;span class=&quot;nt&quot;&gt;&amp;lt;/h3&amp;gt;&lt;/span&gt;  
+    
+        
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;Collection:   &lt;span class=&quot;nt&quot;&gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;Desc:     &lt;span class=&quot;nt&quot;&gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
+        
+    
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;Exec At:  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;Version:  Newman v&lt;span class=&quot;nt&quot;&gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
+
+    
+        
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;table&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;margin-top: 10px;border-collapse: collapse; border: 1px solid #aaa;width: 50%;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;tbody&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;tr&amp;gt;&amp;lt;th&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: baseline;padding: 5px 15px 5px 6px;background-color: #d5d5d5;border: 1px solid #aaa;text-align: left;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Item&lt;span class=&quot;nt&quot;&gt;&amp;lt;/th&amp;gt;&amp;lt;th&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: baseline;padding: 5px 15px 5px 6px;background-color: #d5d5d5;border: 1px solid #aaa;text-align: left;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Total&lt;span class=&quot;nt&quot;&gt;&amp;lt;/th&amp;gt;&amp;lt;th&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: baseline;padding: 5px 15px 5px 6px;background-color: #d5d5d5;border: 1px solid #aaa;text-align: left;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Failed&lt;span class=&quot;nt&quot;&gt;&amp;lt;/th&amp;gt;&amp;lt;/tr&amp;gt;&lt;/span&gt;
+            
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;tr&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Iterations&lt;span class=&quot;nt&quot;&gt;&amp;lt;/td&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;/td&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;tr&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Requests&lt;span class=&quot;nt&quot;&gt;&amp;lt;/td&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;/td&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;tr&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Prerequest Scripts&lt;span class=&quot;nt&quot;&gt;&amp;lt;/td&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;/td&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;tr&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Test Scripts&lt;span class=&quot;nt&quot;&gt;&amp;lt;/td&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;/td&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;tr&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Assertions&lt;span class=&quot;nt&quot;&gt;&amp;lt;/td&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;/td&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;span&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;color:red;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;/span&amp;gt;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&lt;/span&gt;
+  
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;/tbody&amp;gt;&amp;lt;/table&amp;gt;&lt;/span&gt;
+        
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;br/&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;table&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;margin-top: 10px;border-collapse: collapse; border: 1px solid #aaa;width: 50%;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;tbody&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;tr&amp;gt;&amp;lt;th&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: baseline;padding: 5px 15px 5px 6px;background-color: #d5d5d5;border: 1px solid #aaa;text-align: left;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Stats&lt;span class=&quot;nt&quot;&gt;&amp;lt;/th&amp;gt;&amp;lt;th&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: baseline;padding: 5px 15px 5px 6px;background-color: #d5d5d5;border: 1px solid #aaa;text-align: left;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Value&lt;span class=&quot;nt&quot;&gt;&amp;lt;/th&amp;gt;&amp;lt;/tr&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;tr&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Total run duration&lt;span class=&quot;nt&quot;&gt;&amp;lt;/td&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;tr&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Total data received&lt;span class=&quot;nt&quot;&gt;&amp;lt;/td&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt; (approx)&lt;span class=&quot;nt&quot;&gt;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;tr&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Average response time&lt;span class=&quot;nt&quot;&gt;&amp;lt;/td&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;tr&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;strong&amp;gt;&lt;/span&gt;Total Failures&lt;span class=&quot;nt&quot;&gt;&amp;lt;/strong&amp;gt;&amp;lt;/td&amp;gt;&amp;lt;td&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;span&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;style=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;color:red;&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&amp;lt;/span&amp;gt;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;/tbody&amp;gt;&amp;lt;/table&amp;gt;&lt;/span&gt;
+      
+
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/body&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/html&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;最后发送邮件的效果如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_newman_mail.jpeg&quot; alt=&quot;newman冒烟测试效果&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;完整代码参考 &lt;a href=&quot;https://github.com/spetacular/newman-smoking-test&quot;&gt;https://github.com/spetacular/newman-smoking-test&lt;/a&gt;&lt;/p&gt;
+</description>
+                <link>http://spetacular.github.io/2017/04/27/postman-use-newman-for-smoking-test.html</link>
+                <guid>http://spetacular.github.io/2017/04/27/postman-use-newman-for-smoking-test</guid>
+                <pubDate>Thu, 27 Apr 2017 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>Postman 及 Newman 使用开发指南（五）：Newman 简介</title>
+                <description>&lt;p&gt;&lt;a href=&quot;https://www.npmjs.com/package/newman&quot;&gt;Newman&lt;/a&gt; 是 Postman 推出的一个 nodejs 库。利用 Newman，我们可以很方便地运行和测试集合，并用之构造自动化测试和持续集成。&lt;/p&gt;
+
+&lt;h1 id=&quot;section&quot;&gt;安装运行&lt;/h1&gt;
+
+&lt;p&gt;可以使用 npm 来 newman。如果还未安装 npm，可以 &lt;a href=&quot;https://nodejs.org/en/download/&quot;&gt;点此安装&lt;/a&gt; 。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;npm install newman --global;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;上一节中，我们将 Echo 集合导出，命名为 postman_echo.postman_collection.json。&lt;/p&gt;
+
+&lt;p&gt;在命令行运行如下命令即可，即可启动测试。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;newman run postman_echo.postman_collection.json
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;运行界面如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_newman_run.gif&quot; alt=&quot;newman run动画&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;section-1&quot;&gt;编程实现&lt;/h1&gt;
+
+&lt;p&gt;新建文件 &lt;code class=&quot;highlighter-rouge&quot;&gt;test_echo.js&lt;/code&gt;，内容如下：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;var newman = require('newman'); // require newman in your project
+
+// call newman.run to pass `options` object and wait for callback
+newman.run({
+    collection: require('./postman_echo.postman_collection.json'),
+    reporters: 'cli'
+}, function (err) {
+	if (err) { throw err; }
+    console.log('collection run complete!');
+});
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;然后在命令行运行如下命令：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;node test_echo.js
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;执行效果和直接运行 newman 完全一致。&lt;/p&gt;
+
+&lt;h1 id=&quot;section-2&quot;&gt;结果导出方式&lt;/h1&gt;
+
+&lt;p&gt;Postman 提供了5种导出方法：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;cli：命令行&lt;/li&gt;
+  &lt;li&gt;html：网页&lt;/li&gt;
+  &lt;li&gt;json&lt;/li&gt;
+  &lt;li&gt;junit：以 xml 格式导出&lt;/li&gt;
+  &lt;li&gt;teamcity：导出到持续集成（Continuous Integration）工具 &lt;a href=&quot;https://www.jetbrains.com/teamcity/&quot;&gt;TeamCity&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;另外 Postman 的 html 导出方式支持自定义导出模板。如果不指定模板，将采用 &lt;a href=&quot;https://github.com/postmanlabs/newman/blob/develop/lib/reporters/html/template-default.hbs&quot;&gt;默认模板&lt;/a&gt;。&lt;/p&gt;
+
+&lt;h1 id=&quot;api&quot;&gt;API参考&lt;/h1&gt;
+
+&lt;p&gt;Newman 的核心方法是 &lt;code class=&quot;highlighter-rouge&quot;&gt;newman.run(options: *object* , callback: *function*) =&amp;gt; run: EventEmitter&lt;/code&gt;。其中：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;options 为Newman运行时的设置项。&lt;/li&gt;
+  &lt;li&gt;callback 为回调函数，会回传 error 和 summary 信息。&lt;/li&gt;
+  &lt;li&gt;run 为函数主体，可监听事件。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;options-&quot;&gt;options 设置项&lt;/h2&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;参数&lt;/th&gt;
+      &lt;th&gt;是否必需&lt;/th&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;类型&lt;/th&gt;
+      &lt;th&gt;解释&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;options&lt;/td&gt;
+      &lt;td&gt;是&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;object&lt;/td&gt;
+      &lt;td&gt;包含 run 一个集合所需的所有信息。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;options.collection&lt;/td&gt;
+      &lt;td&gt;是&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;object|string|&lt;a href=&quot;https://github.com/postmanlabs/postman-collection/wiki#Collection&quot;&gt;PostmanCollection&lt;/a&gt;&lt;/td&gt;
+      &lt;td&gt;指定 collection。可以传递collection 对象，也可以传递 URL 或本地  JSON 文件路径。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;options.environment&lt;/td&gt;
+      &lt;td&gt;否&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;object|string&lt;/td&gt;
+      &lt;td&gt;指定环境变量。可以传递“键=&amp;gt;值“对的对象，也可以传递 URL 或本地文件路径。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;options.globals&lt;/td&gt;
+      &lt;td&gt;否&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;object|string&lt;/td&gt;
+      &lt;td&gt;指定全局变量。可以传递对象，URL 或本地文件路径。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;options.iterationCount&lt;/td&gt;
+      &lt;td&gt;否&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;number，默认值为1&lt;/td&gt;
+      &lt;td&gt;指定循环的次数。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;options.iterationData&lt;/td&gt;
+      &lt;td&gt;否&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;string&lt;/td&gt;
+      &lt;td&gt;当循环多次时，指定作为数据源的 JSON、CSV、URL的路径。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;options.folder&lt;/td&gt;
+      &lt;td&gt;否&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;string&lt;/td&gt;
+      &lt;td&gt;集合中文件夹的名称或 ID。设置此项后，只有该文件夹才会执行。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;options.timeoutRequest&lt;/td&gt;
+      &lt;td&gt;否&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;number，默认值无穷大&lt;/td&gt;
+      &lt;td&gt;请求超时时间，以毫秒为单位。默认不超时。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;options.delayRequest&lt;/td&gt;
+      &lt;td&gt;否&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;number，默认值为 0&lt;/td&gt;
+      &lt;td&gt;请求之间的时间间隔，以毫秒为单位。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;options.ignoreRedirects&lt;/td&gt;
+      &lt;td&gt;否&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;boolean，默认值为 false&lt;/td&gt;
+      &lt;td&gt;是否允许 3xx 跳转。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;options.insecure&lt;/td&gt;
+      &lt;td&gt;否&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;boolean，默认值为 false&lt;/td&gt;
+      &lt;td&gt;是否禁止 SSL 验证和允许自签名证书。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;options.bail&lt;/td&gt;
+      &lt;td&gt;否&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;boolean，默认值为 false&lt;/td&gt;
+      &lt;td&gt;遇到错误时是否终止运行。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;options.suppressExitCode&lt;/td&gt;
+      &lt;td&gt;否&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;boolean，默认值为 false&lt;/td&gt;
+      &lt;td&gt;是否覆盖退出码（Exit Code）。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;options.reporters&lt;/td&gt;
+      &lt;td&gt;否&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;string|array&lt;/td&gt;
+      &lt;td&gt;指定 reporter。可选 cli、json、html 和 junit。指定一种report时，用 string 即可，如  &lt;code class=&quot;highlighter-rouge&quot;&gt;cli&lt;/code&gt;；指定多种时，用array，如&lt;code class=&quot;highlighter-rouge&quot;&gt;['cli','html']。&lt;/code&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;options.reporter&lt;/td&gt;
+      &lt;td&gt;否&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;object&lt;/td&gt;
+      &lt;td&gt;指定特定 reporter 的属性。例如 &lt;code class=&quot;highlighter-rouge&quot;&gt;reporter : { junit : { export : './xmlResults.xml' } }&lt;/code&gt; 或&lt;code class=&quot;highlighter-rouge&quot;&gt; reporter : { html : { export : './htmlResults.html', template: './customTemplate.hbs' } }&lt;/code&gt;。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;options.color&lt;/td&gt;
+      &lt;td&gt;否&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;boolean&lt;/td&gt;
+      &lt;td&gt;强制在 CLI 里使用彩色输出。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;options.noColor&lt;/td&gt;
+      &lt;td&gt;否&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;boolean&lt;/td&gt;
+      &lt;td&gt;强制在 CLI 里禁止彩色输出。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;options.sslClientCert&lt;/td&gt;
+      &lt;td&gt;否&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;string&lt;/td&gt;
+      &lt;td&gt;public client certificate file 路径&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;options.sslClientKey&lt;/td&gt;
+      &lt;td&gt;否&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;string&lt;/td&gt;
+      &lt;td&gt;private client key file 路径&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;options.sslClientPassphrase&lt;/td&gt;
+      &lt;td&gt;否&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;string&lt;/td&gt;
+      &lt;td&gt;secret client key passphrase&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;callback&lt;/td&gt;
+      &lt;td&gt;是&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;function&lt;/td&gt;
+      &lt;td&gt;run 完成之后，会调用 callback 函数，会回传 error 和 summary 信息。&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h2 id=&quot;callback-&quot;&gt;callback 回调&lt;/h2&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;参数&lt;/th&gt;
+      &lt;th&gt;类型&lt;/th&gt;
+      &lt;th&gt;解释&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;error&lt;/td&gt;
+      &lt;td&gt;object&lt;/td&gt;
+      &lt;td&gt;致命错误信息，如 Newman 无法处理的异常。&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;summary&lt;/td&gt;
+      &lt;td&gt;object&lt;/td&gt;
+      &lt;td&gt;本次 run 的所有汇总信息&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;summary.error&lt;/td&gt;
+      &lt;td&gt;object&lt;/td&gt;
+      &lt;td&gt;错误信息&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;summary.collection&lt;/td&gt;
+      &lt;td&gt;object&lt;/td&gt;
+      &lt;td&gt;集合信息&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;summary.environment&lt;/td&gt;
+      &lt;td&gt;object&lt;/td&gt;
+      &lt;td&gt;环境变量&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;summary.globals&lt;/td&gt;
+      &lt;td&gt;object&lt;/td&gt;
+      &lt;td&gt;全局变量&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;summary.run&lt;/td&gt;
+      &lt;td&gt;object&lt;/td&gt;
+      &lt;td&gt;本次 run 的信息&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;summary.run.stats&lt;/td&gt;
+      &lt;td&gt;object&lt;/td&gt;
+      &lt;td&gt;统计信息&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;summary.run.failures&lt;/td&gt;
+      &lt;td&gt;array.&amp;lt;object&amp;gt;&lt;/td&gt;
+      &lt;td&gt;失败信息&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;summary.run.executions&lt;/td&gt;
+      &lt;td&gt;array.&amp;lt;object&amp;gt;&lt;/td&gt;
+      &lt;td&gt;每个请求的信息&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h2 id=&quot;run-&quot;&gt;run 事件&lt;/h2&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;事件&lt;/th&gt;
+      &lt;th&gt;描述&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;start&lt;/td&gt;
+      &lt;td&gt;开始run collection&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;beforeIteration&lt;/td&gt;
+      &lt;td&gt;一次循环开始之前&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;beforeItem&lt;/td&gt;
+      &lt;td&gt;一个条目开始处理之前&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;beforePrerequest&lt;/td&gt;
+      &lt;td&gt;pre-request 脚本开始执行之前&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;prerequest&lt;/td&gt;
+      &lt;td&gt;pre-request 脚本执行完毕&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;beforeRequest&lt;/td&gt;
+      &lt;td&gt;HTTP请求发送之前&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;request&lt;/td&gt;
+      &lt;td&gt;HTTP响应接收之后&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;beforeTest&lt;/td&gt;
+      &lt;td&gt;测试脚本执行之前&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;test&lt;/td&gt;
+      &lt;td&gt;测试脚本执行之后&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;beforeScript&lt;/td&gt;
+      &lt;td&gt;任意脚本（测试脚本或pre-request 脚本）开始执行之前&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;script&lt;/td&gt;
+      &lt;td&gt;任意脚本（测试脚本或pre-request 脚本）执行之后&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;item&lt;/td&gt;
+      &lt;td&gt;一个条目执行完毕之后&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;iteration&lt;/td&gt;
+      &lt;td&gt;一个循环执行完毕之后&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;assertion&lt;/td&gt;
+      &lt;td&gt;测试脚本里每个测试用例被执行之后&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;console&lt;/td&gt;
+      &lt;td&gt;console方法被调用时触发&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;exception&lt;/td&gt;
+      &lt;td&gt;脚本错误出现时触发&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;beforeDone&lt;/td&gt;
+      &lt;td&gt;run结束之前&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;done&lt;/td&gt;
+      &lt;td&gt;run结束，无论有没有错误都触发&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;完整参考请查看 &lt;a href=&quot;https://github.com/postmanlabs/newman&quot;&gt;https://github.com/postmanlabs/newman&lt;/a&gt; 。&lt;/p&gt;
+</description>
+                <link>http://spetacular.github.io/2017/04/25/newman-develop-tutorial.html</link>
+                <guid>http://spetacular.github.io/2017/04/25/newman-develop-tutorial</guid>
+                <pubDate>Tue, 25 Apr 2017 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>Postman 及 Newman 使用开发指南（四）：Postman Collection 与 Runner</title>
+                <description>&lt;p&gt;在 Postman 里，集合（Collection）是一个很重要的概念，它可以将多个请求进行分组。在每个集合内部，又可向下细分为不同的文件夹。结构化的优点是利于后续查看和维护。&lt;/p&gt;
+
+&lt;h1 id=&quot;collection&quot;&gt;集合 Collection&lt;/h1&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;创建&lt;/h2&gt;
+
+&lt;p&gt;创建集合有两种方法：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;在左边栏处点击新建。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_collection.jpeg&quot; alt=&quot;postman创建集合&quot; /&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;保存或另存请求时，直接新建。&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;/images/2017/postman_collection_add.jpeg&quot; alt=&quot;postman创建集合&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;管理&lt;/h2&gt;
+
+&lt;p&gt;点击每个集合右侧的“&amp;lt;”和“…”，会分别展开集合详情和集合操作页面。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_collection_detail.jpeg&quot; alt=&quot;postman创建管理&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;集合详情介绍该集合的名称、简介（支持 Markdown 语法），并可分享、编辑、复制、导出、删除等。点击蓝色的 “Run” 按钮，会进入 Runner 页面。&lt;/p&gt;
+
+&lt;p&gt;集合操作则列出对集合的常用操作：分享、重命名、编辑、新增文件夹、复制、导出、删除。Pro 版还有监控和发布文档功能。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-2&quot;&gt;导出功能&lt;/h2&gt;
+
+&lt;p&gt;导出功能是一个非常重要的功能。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_export.jpeg&quot; alt=&quot;postman集合导出&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;导出文件后，你可以分享给同事，在其它电脑上导入，而且可以在命令行中使用。推荐使用v2版本。&lt;/p&gt;
+
+&lt;h1 id=&quot;runner&quot;&gt;Runner&lt;/h1&gt;
+
+&lt;p&gt;Runner 是一个对集合中请求进行测试的工具。它会检测每个请求的测试用例，最终返回结果汇总和统计数据。&lt;/p&gt;
+
+&lt;p&gt;有两种方式进入 Runner：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;集合详情页，点击蓝色的 “Run” 按钮。&lt;/li&gt;
+  &lt;li&gt;Postman 左上角 “Runner” 按钮。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;进入后，可以选择一个集合，或集合中的某一文件夹进行测试。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_runner_ui.jpeg&quot; alt=&quot;postman Runner&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;在 Start Run 之前，可以选择环境，确定循环次数，确定发送请求的时间间隔，日志保存选项，并可以上传相关的文件。&lt;/p&gt;
+
+&lt;p&gt;点击 Start Run，Runner工具开始按照设置运行。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_runner_running.jpeg&quot; alt=&quot;postman Runner正在运行&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;全部完成后，展示测试数据。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_runner_done.jpeg&quot; alt=&quot;postman runner 结果汇总&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;在此页面，可以查看汇总信息，导出结果，重试该测试。&lt;/p&gt;
+
+&lt;p&gt;Runner提供了批量测试的功能，Run 一下，就知道接口响应是否符合预期。更重要的是，Runner 可以在命令行运行，即可编程。借助此工具，我们就可以完成定时脚本、健康检测、冒烟测试等功能。下节，我将介绍 ”Run in Command Line“ 的工具：Newman 。&lt;/p&gt;
+</description>
+                <link>http://spetacular.github.io/2017/04/23/postman-collection-and-runner.html</link>
+                <guid>http://spetacular.github.io/2017/04/23/postman-collection-and-runner</guid>
+                <pubDate>Sun, 23 Apr 2017 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>Postman 及 Newman 使用开发指南（三）：Postman Test 与接口测试</title>
+                <description>&lt;p&gt;API 开发、测试、维护的过程中，我们希望接口各司其职，并且一贯如此。做到这一点，我们需要检查下列选项：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;网络连接是否正常&lt;/li&gt;
+  &lt;li&gt;响应时间是否控制在1秒以下&lt;/li&gt;
+  &lt;li&gt;HTTP 返回状态码是否为200&lt;/li&gt;
+  &lt;li&gt;符合一定的JSON或XML格式&lt;/li&gt;
+  &lt;li&gt;返回内容是否包含特定字符串&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;只有所有的选项都符合预期，我们才会认为接口正常工作。&lt;/p&gt;
+
+&lt;p&gt;Postman Builder页面提供了接口测试的功能。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_tests.jpeg&quot; alt=&quot;单元测试&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;书写测试用例的方法是，在tests数组中增加一个元素，key为测试用例的名称，value为表达式。如果执行过后表达式的值为 true ，表明通过测试；反之，未通过测试。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;tests[&quot;Body matches string&quot;] = responseBody.has(&quot;string_you_want_to_search&quot;);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Postman 常见的测试用例如下：&lt;/p&gt;
+
+&lt;p&gt;设置环境变量&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;postman.setEnvironmentVariable(&quot;key&quot;, &quot;value&quot;);
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;获取环境变量&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;postman.getEnvironmentVariable(&quot;key&quot;);
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;设置全局变量&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;postman.setGlobalVariable(&quot;key&quot;, &quot;value&quot;);
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;获取全局变量&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;postman.getGlobalVariable(&quot;key&quot;); 
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;返回内容是否包含特定字符串&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;tests[&quot;Body matches string&quot;] = responseBody.has(&quot;string_you_want_to_search&quot;);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;将 XML 转化为 JSON&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;var jsonObject = xml2Json(responseBody);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;返回内容是否为特定字符串&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;tests[&quot;Body is correct&quot;] = responseBody === &quot;response_body_string&quot;;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;检查 JSON 数据的某个字段是否等于特定值&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;var data = JSON.parse(responseBody);
+tests[&quot;Your test name&quot;] = data.value === 100;
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;检查是否存在 Content-Type（区分大小写）&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;tests[&quot;Content-Type is present&quot;] = postman.getResponseHeader(&quot;Content-Type&quot;); //Note: the getResponseHeader() method returns the header value, if it exists.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;检查是否存在 Content-Type（区分大小写）&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;tests[&quot;Content-Type is present&quot;] = responseHeaders.hasOwnProperty(&quot;Content-Type&quot;);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;响应时间小于 200ms&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;tests[&quot;Response time is less than 200ms&quot;] = responseTime &amp;lt; 200;
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;HTTP 返回状态码为 200&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;tests[&quot;Status code is 200&quot;] = responseCode.code === 200;
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;HTTP 返回状态码包含特定字符串&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;tests[&quot;Status code name has string&quot;] = responseCode.name.has(&quot;Created&quot;);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;POST 请求成功的状态码&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;tests[&quot;Successful POST request&quot;] = responseCode.code === 201 || responseCode.code === 202;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;利用 TinyValidator 来检查 JSON 是否符合特定格式&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;var schema = {
+ &quot;items&quot;: {
+ &quot;type&quot;: &quot;boolean&quot;
+ }
+};
+var data1 = [true, false];
+var data2 = [true, 123];
+
+tests[&quot;Valid Data1&quot;] = tv4.validate(data1, schema);
+tests[&quot;Valid Data2&quot;] = tv4.validate(data2, schema);
+console.log(&quot;Validation failed: &quot;, tv4.error);
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;该例子的样本文件如下：&lt;/p&gt;
+
+&lt;p&gt;JSON 文件：&lt;a href=&quot;http://www.getpostman.com/samples/test_data_file.json&quot;&gt;Download JSON file&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;CSV 文件：&lt;a href=&quot;http://www.getpostman.com/samples/test_data_file.csv&quot;&gt;Download CSV file&lt;/a&gt;&lt;/p&gt;
+</description>
+                <link>http://spetacular.github.io/2017/04/22/postman-api-test.html</link>
+                <guid>http://spetacular.github.io/2017/04/22/postman-api-test</guid>
+                <pubDate>Sat, 22 Apr 2017 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>Postman 及 Newman 使用开发指南（二）：Postman 环境变量与全局变量</title>
+                <description>&lt;p&gt;使用API的常见场景是开发人员有自己的本机开发（dev）环境，团队之间共用测试（staging）环境，对外提供生产（production）环境。&lt;/p&gt;
+
+&lt;p&gt;本文假设各种环境的链接如下：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;dev http://localhost
+staging http://staging
+production https://production
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;开发人员对&lt;code class=&quot;highlighter-rouge&quot;&gt;/users&lt;/code&gt;接口进行调试时，如果没有环境变量，则可能要不断地输入以下链接进行替换：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-reStructuredText&quot;&gt;http://localhost/users
+http://staging/users
+https://production/users
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Postman 提供了环境变量（Environment Variable），来解决这个问题。&lt;/p&gt;
+
+&lt;h1 id=&quot;section&quot;&gt;环境变量&lt;/h1&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;管理&lt;/h2&gt;
+
+&lt;p&gt;Postman 环境变量相关按钮放置在Builder页面的右上角。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_env.jpeg&quot; alt=&quot;postman环境变量相关按钮&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;点击最右的 ⚙️ 图标，可以添加、编辑、查看环境。首先，我们添加一个staging的环境，下属变量url设置为&lt;code class=&quot;highlighter-rouge&quot;&gt;http://staging&lt;/code&gt; 。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_add_env.jpeg&quot; alt=&quot;postman环境变量相关按钮&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;再添加dev和production环境。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_env_lists.jpeg&quot; alt=&quot;postman环境变量相关按钮&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;section-2&quot;&gt;使用示例&lt;/h2&gt;
+
+&lt;p&gt;我们将环境切换为&lt;code class=&quot;highlighter-rouge&quot;&gt;dev&lt;/code&gt;，在地址栏输入{{url}}/users，查看“Code”代码：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;GET /users HTTP/1.1
+Host: localhost
+Cache-Control: no-cache
+Postman-Token: 9a0ae49e-8983-55f2-7585-a4ea721863da
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;可见，Postman 自动将{{url}}解析为&lt;code class=&quot;highlighter-rouge&quot;&gt;http://localhost&lt;/code&gt;。&lt;/p&gt;
+
+&lt;h1 id=&quot;section-3&quot;&gt;全局变量&lt;/h1&gt;
+
+&lt;p&gt;API测试时，也常有这样的场景：首先要进行登录，登录后获取用户名，而用户名将在后续请求中使用。&lt;/p&gt;
+
+&lt;p&gt;Postman 提供了全局变量（Global Variable），来解决类似问题。&lt;/p&gt;
+
+&lt;h1 id=&quot;section-4&quot;&gt;设置全局变量&lt;/h1&gt;
+
+&lt;p&gt;至少有三种方式来设置全局变量：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Postman 全局变量的按钮放置在Builder页面的右上角，👁️ 图标。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_var.jpeg&quot; alt=&quot;postman全局变量相关按钮&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;点击“Global”对应的“Edit”即可进入管理页面：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_set_var.jpeg&quot; alt=&quot;postman全局变量相关按钮&quot; /&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Pre-request Script&lt;/li&gt;
+  &lt;li&gt;Tests&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;其中方式2和方式3都可以用以下命令设置全局变量：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nx&quot;&gt;postman&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;setGlobalVariable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;variable_key&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;variable_value&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h1 id=&quot;section-5&quot;&gt;示例&lt;/h1&gt;
+
+&lt;p&gt;我们首先通过上节的方式1添加一个全局变量：&lt;code class=&quot;highlighter-rouge&quot;&gt;leap_year_2016&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_var_false.jpeg&quot; alt=&quot;postman全局变量&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;我们访问 Postman 官方示例中判断年份是否为闰年的链接：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;https://postman-echo.com/time/leap?timestamp=2016-10-10
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;然后在Tests里添加如下代码：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;jsonData&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;responseBody&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;postman&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;setGlobalVariable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'leap_year_2016'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;jsonData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;leap&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_var_leap.jpeg&quot; alt=&quot;postman全局变量&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;发送请求后，由于2016年是闰年，所以全局变量&lt;code class=&quot;highlighter-rouge&quot;&gt;leap_year_2016&lt;/code&gt;值应变为true。&lt;/p&gt;
+
+&lt;p&gt;查看一下：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_var_true.jpeg&quot; alt=&quot;postman全局变量&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;leap_year_2016=true&lt;/code&gt;，符合预期。&lt;/p&gt;
+</description>
+                <link>http://spetacular.github.io/2017/04/21/postman-environment-variable-and-global-variable.html</link>
+                <guid>http://spetacular.github.io/2017/04/21/postman-environment-variable-and-global-variable</guid>
+                <pubDate>Fri, 21 Apr 2017 00:00:00 +0800</pubDate>
+        </item>
+
+        <item>
+                <title>Postman 及 Newman 使用开发指南（一）：Postman 简介</title>
+                <description>&lt;p&gt;&lt;a href=&quot;https://www.getpostman.com/&quot;&gt;Postman&lt;/a&gt; 是一款帮助开发者分享、测试、文档化、监控API接口的工具。它最开始是一个 &lt;a href=&quot;https://chrome.google.com/webstore/detail/postman/fhbjgbiflinjbdggehcddcbncdddomop&quot;&gt;Chrome插件&lt;/a&gt; ，但现在提供了 Mac、Windwos、Linux、Chrome 全平台的支持。&lt;/p&gt;
+
+&lt;h1 id=&quot;section&quot;&gt;简介&lt;/h1&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;下载安装&lt;/h2&gt;
+
+&lt;p&gt;Postman 目前提供了全平台的版本，读者可以到以下地址进行下载安装。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.getpostman.com/&quot;&gt;https://www.getpostman.com/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;安装启动后，界面如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_ui.jpeg&quot; alt=&quot;postman界面&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;section-2&quot;&gt;界面介绍&lt;/h2&gt;
+
+&lt;h3 id=&quot;section-3&quot;&gt;顶部&lt;/h3&gt;
+
+&lt;p&gt;Show/Hide Sidebar: 显示或隐藏边栏&lt;/p&gt;
+
+&lt;p&gt;Runner: 打开接口测试工具Runner；&lt;/p&gt;
+
+&lt;p&gt;Import: 导入postman数据，包括postman集合、环境变量、curl命令等文件；&lt;/p&gt;
+
+&lt;p&gt;Open: 打开新窗口&lt;/p&gt;
+
+&lt;p&gt;Builder: 请求构造器，为主工作区域&lt;/p&gt;
+
+&lt;p&gt;Team Library：团队工作区域&lt;/p&gt;
+
+&lt;p&gt;SYNC：同步功能，登录后可将本地数据集上传到云端，以便备份、分享或异处使用。&lt;/p&gt;
+
+&lt;p&gt;Sign In：登录功能。&lt;/p&gt;
+
+&lt;p&gt;设置：设置，文档，官方支持中心&lt;/p&gt;
+
+&lt;h3 id=&quot;section-4&quot;&gt;边栏&lt;/h3&gt;
+
+&lt;p&gt;Filter：搜索框，提供关键字检索&lt;/p&gt;
+
+&lt;p&gt;History：请求历史，按时间倒序&lt;/p&gt;
+
+&lt;p&gt;Collections：postman集合，包含多个API。这是一个很重要的概念，后续的Runner就是基于集合进行的。&lt;/p&gt;
+
+&lt;h3 id=&quot;builder&quot;&gt;Builder&lt;/h3&gt;
+
+&lt;p&gt;请求构造器，使用方式类似于浏览器。最简单的使用方式就是在地址栏输入地址，点击“Send”按钮，稍后响应窗口会显示响应结果。&lt;/p&gt;
+
+&lt;p&gt;postman可指定如下请求构造部分：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;请求方式：GET、POST、PUT、PATCH、DELETE、COPY、HEAD、OPTIONS、LINK、UNLINK、PURGE、LOCK、UNLOCK、PROPFIND、VIEW&lt;/li&gt;
+  &lt;li&gt;参数：支持可视化编辑、批量编辑&lt;/li&gt;
+  &lt;li&gt;认证方式：Authorization方式，支持No Auth、Basic Auth、Digest Auth、OAuth 1.0、OAuth 2.0、Hawk Authentication、AWS Signature。其中No Auth是利用Cookie认证。&lt;/li&gt;
+  &lt;li&gt;headers：设置请求头&lt;/li&gt;
+  &lt;li&gt;Body：当请求为POST方式时，可以设置Body。共有四种情况：
+    &lt;ul&gt;
+      &lt;li&gt;form-data：模拟表单提交&lt;/li&gt;
+      &lt;li&gt;x-www-form-urlencoded：模拟ajax请求&lt;/li&gt;
+      &lt;li&gt;raw：原始格式，支持多种格式，包括Text、JSON、Javascript、XML、HTML等&lt;/li&gt;
+      &lt;li&gt;binary：上传文件&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Pre-request Script: 提交请求之前执行的脚本。&lt;/li&gt;
+  &lt;li&gt;Tests：对响应结果做测试。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;postman可以查看响应结果：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Body： 响应内容，支持JSON、XML美化高亮方式。&lt;/li&gt;
+  &lt;li&gt;Cookies：返回Cookies&lt;/li&gt;
+  &lt;li&gt;Headers：响应头信息。&lt;/li&gt;
+  &lt;li&gt;Tests：对响应结果的单元测试。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;section-5&quot;&gt;功能&lt;/h1&gt;
+
+&lt;h2 id=&quot;code&quot;&gt;生成Code&lt;/h2&gt;
+
+&lt;p&gt;Builder页面的右上角，有“Cookie”、”Code“字样，点击”Code“，可以查看各种语言生成的请求代码。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_code.jpeg&quot; alt=&quot;生成code&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;目前支持大部分常用语言，包括HTTP、C、cURL、C#、Go、Java、Javascript、NodeJS、Object-C、OCaml、PHP、Python、Ruby、Shell、Swift等。&lt;/p&gt;
+
+&lt;h2 id=&quot;cookie&quot;&gt;管理Cookie&lt;/h2&gt;
+
+&lt;p&gt;Builder页面的右上角，有“Cookie”、”Code“字样，点击”Cookie“，可以进入管理Cookie页面。「注意：某些版本的postman还未集成此功能，如Chrome插件」&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_cookie.jpeg&quot; alt=&quot;管理Cookie&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;section-6&quot;&gt;单元测试&lt;/h2&gt;
+
+&lt;p&gt;请求一个接口后，我们可能希望这个接口能满足一定的条件，如：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;HTTP返回码为200&lt;/li&gt;
+  &lt;li&gt;符合一定的JSON格式&lt;/li&gt;
+  &lt;li&gt;响应时间少于200ms&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;postman的tests功能可以满足此需求。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/postman_tests.jpeg&quot; alt=&quot;单元测试&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;代码：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nx&quot;&gt;tests&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Status code is 200&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;responseCode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;code&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;200&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;jsonData&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;responseBody&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;tests&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;2016 is a leap year&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;jsonData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;leap&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;我们希望HTTP返回码为200。2016年是闰年，所以我们希望返回leap=true。&lt;/p&gt;
+
+&lt;p&gt;而响应窗口的Tests选项卡，显示2条测试都通过，说明接口一切正常。&lt;/p&gt;
+</description>
+                <link>http://spetacular.github.io/2017/04/20/postman-and-newman-development.html</link>
+                <guid>http://spetacular.github.io/2017/04/20/postman-and-newman-development</guid>
+                <pubDate>Thu, 20 Apr 2017 00:00:00 +0800</pubDate>
+        </item>
 
         <item>
                 <title>Nginx缓存最佳实践</title>
@@ -1013,6 +2015,7 @@ $task-&amp;gt;add_loop_task($name,$cmd,$params,$timeOptions);
 &lt;p&gt;然后按图索骥，查找失败原因。&lt;/p&gt;
 
 &lt;h1 id=&quot;cron--1&quot;&gt;cron 启动、关闭、重启、重载、查看服务状态&lt;/h1&gt;
+
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;	service cron start    //启动服务
 　　	service cron stop     //关闭服务
 　　	service cron restart  //重启服务
@@ -1029,18 +2032,20 @@ $task-&amp;gt;add_loop_task($name,$cmd,$params,$timeOptions);
 
 &lt;h1 id=&quot;dockercontainer-cmd&quot;&gt;docker显示容器命令(container CMD)详情&lt;/h1&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;docker inspect  -f &quot; &quot; $(docker ps -a -q)
+&lt;script src=&quot;https://gist.github.com/spetacular/1df9fba67d5854f4ad203b19c9cc919c.js&quot;&gt;&lt;/script&gt;
+
+&lt;h1 id=&quot;phphhmmss&quot;&gt;php生成形容’HH:MM:SS’格式的时间&lt;/h1&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;gmstrftime('%H:%M:%S',$time)
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
-&lt;p&gt;# php生成形容’HH:MM:SS’格式的时间
-&lt;code class=&quot;highlighter-rouge&quot;&gt;
-gmstrftime('%H:%M:%S',$time)
-&lt;/code&gt;
-例如
-&lt;code class=&quot;highlighter-rouge&quot;&gt;
-echo gmstrftime('%H:%M:%S',3786);
+
+&lt;p&gt;例如&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;echo gmstrftime('%H:%M:%S',3786);
 //Output: 01:03:06
-&lt;/code&gt;&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;h1 id=&quot;chrome-&quot;&gt;chrome 下上传图片/文件慢的解决办法&lt;/h1&gt;
 
@@ -1658,548 +2663,6 @@ Note: Your solution should be in logarithmic time complexity.&lt;/p&gt;
                 <link>http://spetacular.github.io/2016/07/23/merge-two-sorted-lists.html</link>
                 <guid>http://spetacular.github.io/2016/07/23/merge-two-sorted-lists</guid>
                 <pubDate>Sat, 23 Jul 2016 00:00:00 +0800</pubDate>
-        </item>
-
-        <item>
-                <title>Leetcode 258. Add Digits - 非负整数各位相加（另外一个解法）</title>
-                <description>&lt;h2 id=&quot;section&quot;&gt;题目名称&lt;/h2&gt;
-
-&lt;p&gt;Add Digits （非负整数各位相加）&lt;/p&gt;
-
-&lt;h2 id=&quot;section-1&quot;&gt;题目地址&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://leetcode.com/problems/add-digits&quot;&gt;https://leetcode.com/problems/add-digits&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;section-2&quot;&gt;题目描述&lt;/h2&gt;
-&lt;p&gt;英文：Given a non-negative integer num, repeatedly add all its digits until the result has only one digit.&lt;/p&gt;
-
-&lt;p&gt;中文：有一个非负整数num，重复这样的操作：对该数字的各位数字求和，对这个和的各位数字再求和……直到最后得到一个仅1位的数字（即小于10的数字）。&lt;/p&gt;
-
-&lt;p&gt;例如：num=38，3+8=11,1+1=2。因为2小于10，因此返回2。&lt;/p&gt;
-
-&lt;h2 id=&quot;section-3&quot;&gt;解法1&lt;/h2&gt;
-&lt;p&gt;该算法有一个O(1)复杂度的&lt;a href=&quot;http://my.oschina.net/Tsybius2014/blog/497645&quot; title=&quot;LeetCode：Add Digits - 非负整数各位相加&quot;&gt;《解法》&lt;/a&gt;。其中的公式为 (num - 1) % 9 + 1。这里引用一下这个公式的推导过程：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;假设输入的数字是一个5位数字num，则num的各位分别为a、b、c、d、e。有如下关系：num = a * 10000 + b * 1000 + c * 100 + d * 10 + e  
-即：num = (a + b + c + d + e) + (a * 9999 + b * 999 + c * 99 + d * 9)  
-因为 a * 9999 + b * 999 + c * 99 + d * 9 一定可以被9整除，因此num模除9的结果与 a + b + c + d + e 模除9的结果是一样的。  
-对数字 a + b + c + d + e 反复执行同类操作，最后的结果就是一个 1-9 的数字加上一串数字，最左边的数字是 1-9 之间的，右侧的数字永远都是可以被9整除的。  
-这道题最后的目标，就是不断将各位相加，相加到最后，当结果小于10时返回。因为最后结果在1-9之间，得到9之后将不会再对各位进行相加，因此不会出现结果为0的情况。因为 (x + y) % z = (x % z + y % z) % z，又因为 x % z % z = x % z，因此结果为 (num - 1) % 9 + 1，只模除9一次，并将模除后的结果加一返回。
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;这个公式是正确的，但这个推导过程有待商榷。为什么要num要先减1，最后再加上1？&lt;/p&gt;
-
-&lt;h2 id=&quot;section-4&quot;&gt;解法2&lt;/h2&gt;
-&lt;p&gt;其实还有一个更容易的理解的解法。推导过程如下：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;假设输入的数字是一个5位数字num，则num的各位分别为a、b、c、d、e。有如下关系：num = a * 10000 + b * 1000 + c * 100 + d * 10 + e  
-即：num = (a + b + c + d + e) + (a * 9999 + b * 999 + c * 99 + d * 9)  
-因为 a * 9999 + b * 999 + c * 99 + d * 9 一定可以被9整除，因此num模除9的结果与 a + b + c + d + e 模除9的结果是一样的。
-所以最后的结果是：num % 9.
-但是这个结果需要修正一下：如果num能被9整除，则结果为0，这时应该修正为9.
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;最后整个算法代码（swift）如下：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;class Solution {
-    func addDigits(num: Int) -&amp;gt; Int {
-        if num == 0 {
-            return 0
-        }
-        var mod = num % 9
-        if mod == 0 {
-            return 9
-        }else{
-            return mod
-        }
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;算法复杂度也为O(1)。&lt;/p&gt;
-
-</description>
-                <link>http://spetacular.github.io/2016/07/22/leetcode-258-add-digits.html</link>
-                <guid>http://spetacular.github.io/2016/07/22/leetcode-258-add-digits</guid>
-                <pubDate>Fri, 22 Jul 2016 00:00:00 +0800</pubDate>
-        </item>
-
-        <item>
-                <title>PHP性能监控问题记录之二－session与gc过程</title>
-                <description>&lt;h2 id=&quot;sessionstartgc&quot;&gt;session_start与gc垃圾回收过程&lt;/h2&gt;
-&lt;p&gt;在调性能时，偶然发现有个session函数（ThinkPHP/Common/functions.php）耗时很大。查了一下，ThinkPHP框架默认开启了session，就是每次请求都会调用session_start。 这里面存在问题。&lt;br /&gt;
-因为在PHP中, 如果使用file_handler作为Session的save handler, 那么就有概率在每次session_start的时候运行Session的Gc过程。详见&lt;a href=&quot;http://www.laruence.com/2011/03/29/1949.html&quot;&gt;鸟哥的分析&lt;/a&gt;。&lt;br /&gt;
-这样就造成每隔一段时间，session函数这里触发了Gc过程，就变慢了。&lt;/p&gt;
-
-&lt;p&gt;解决方法是将session_start默认关闭，需要时再打开。&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;'SESSION_AUTO_START'=&amp;gt;false
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-</description>
-                <link>http://spetacular.github.io/2016/06/16/session-and-gc.html</link>
-                <guid>http://spetacular.github.io/2016/06/16/session-and-gc</guid>
-                <pubDate>Thu, 16 Jun 2016 00:00:00 +0800</pubDate>
-        </item>
-
-        <item>
-                <title>PHP性能监控问题记录之一－安装配置php-apm</title>
-                <description>&lt;h2 id=&quot;php-apm&quot;&gt;php-apm是什么&lt;/h2&gt;
-&lt;p&gt;&lt;a href=&quot;https://github.com/patrickallaert/php-apm&quot;&gt;php-apm&lt;/a&gt;是一个PHP的性能检测工具，它能方便地捕捉到错误信息，并提供错误追踪回溯，获取请求的统计内存、CPU、响应时间的统计信息，并提供&lt;a href=&quot;https://github.com/patrickallaert/php-apm-web&quot;&gt;可视化的展示&lt;/a&gt;。&lt;/p&gt;
-
-&lt;h2 id=&quot;apm&quot;&gt;安装apm&lt;/h2&gt;
-&lt;p&gt;安装apm有两种方式：从PECL安装，或从源码编译。这里采用PECL安装。源码编译见&lt;a href=&quot;https://github.com/patrickallaert/php-apm#from-source&quot;&gt;官方文档&lt;/a&gt;。&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo pecl install apm
-WARNING: channel &quot;pecl.php.net&quot; has updated its protocols, use &quot;pecl channel-update pecl.php.net&quot; to update
-downloading APM-2.0.5.tgz ...
-Starting to download APM-2.0.5.tgz (31,484 bytes)
-.........done: 31,484 bytes
-14 source files, building
-running: phpize
-Configuring for:
-PHP Api Version:         20131106
-Zend Module Api No:      20131226
-Zend Extension Api No:   220131226
-Enable Sqlite3 support [yes] : no
-Enable MariaDB/MySQL support [yes] : yes
-Enable Socket support [yes] : yes
-Enable Statsd support [yes] : yes
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;出现了如下错误：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;configure: error: Cannot find MySQL header files
-ERROR: `/tmp/pear/temp/APM/configure --with-php-config=/usr/bin/php-config --with-sqlite3=no --with-mysql --enable-socket=yes --enable-statsd=yes' failed
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;需要安装下mysql dev&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt-get install mysql-client libmysqlclient-dev
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h2 id=&quot;apm-1&quot;&gt;配置apm&lt;/h2&gt;
-&lt;p&gt;在php.ini上配置apm。apm.so依赖于json.so，如果之前没有加载，则应先加载。&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;extension=json.so
-extension=apm.so
-;;;;;;;;;;;;;;;;;;;
-; Module Settings ;
-;;;;;;;;;;;;;;;;;;;
-
-;apm
-apm.mysql_enabled=1
-; Error reporting level specific to the MariaDB/MySQL driver, same level as for PHP's *error_reporting*
-apm.mysql_error_reporting=E_ALL|E_STRICT
-apm.mysql_stats_enabled=1
-apm.mysql_host=localhost
-apm.mysql_port=3306
-apm.mysql_user=apm
-apm.mysql_pass=apm
-apm.mysql_db=apm
-apm.socket_enabled=0
-apm.socket_stats_enabled=0
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;然后重启php，例如：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;service php5-fpm restart
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h2 id=&quot;apm-web&quot;&gt;部署apm-web&lt;/h2&gt;
-&lt;p&gt;apm提供了一个web端查看的项目，地址为：&lt;a href=&quot;https://github.com/patrickallaert/php-apm-web&quot;&gt;https://github.com/patrickallaert/php-apm-web&lt;/a&gt;。&lt;/p&gt;
-
-&lt;p&gt;将&lt;a href=&quot;https://github.com/patrickallaert/php-apm-web/archive/master.zip&quot;&gt;https://github.com/patrickallaert/php-apm-web/archive/master.zip&lt;/a&gt;解压后上传到网站根目录，或者如果使用git，可以clone到网站根目录下：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git clone https://github.com/patrickallaert/php-apm-web.git apm-web
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;然后编辑config/db.php文件。如果选用mysql，可以如下配置：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;return new PDO(&quot;mysql:host=localhost;dbname=apm&quot;, &quot;apm&quot;, &quot;apm&quot;);
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;最后的效果如下：&lt;/p&gt;
-
-&lt;p&gt;返回Error的请求列表
-&lt;img src=&quot;http://spetacular.github.io/images/2016/web_apm_faulty.png&quot; alt=&quot;返回Error的请求列表&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;点击每一列，都会出现请求的URL、时间、内存、CPU使用情况，以及错误信息。
-&lt;img src=&quot;http://spetacular.github.io/images/2016/web_apm_e_error.png&quot; alt=&quot;错误信息&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;点击错误信息，会出现该错误的Stacktrace。
-&lt;img src=&quot;http://spetacular.github.io/images/2016/web_apm_stacktrace.png&quot; alt=&quot;错误追踪回溯&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;还有详细的访问统计日志。
-&lt;img src=&quot;http://spetacular.github.io/images/2016/web_apm_stats.png&quot; alt=&quot;访问日志&quot; /&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;section&quot;&gt;常见问题&lt;/h2&gt;
-
-&lt;h3 id=&quot;section-1&quot;&gt;问题1 部署后无数据，且扩展未加载。&lt;/h3&gt;
-
-&lt;p&gt;检测php.ini文件，看是否有apm扩展。如果出现类似如下的信息，则说明扩展已加载。
-&lt;img src=&quot;http://spetacular.github.io/images/2016/php_ini_apm.png&quot; alt=&quot;php.ini文件&quot; /&gt;&lt;/p&gt;
-
-&lt;h3 id=&quot;section-2&quot;&gt;问题2 部署后无数据，扩展已加载。&lt;/h3&gt;
-
-&lt;p&gt;mysql_stats_enabled默认值为0，这时是不收集的。可以设置apm.mysql_stats_enabled=1。&lt;/p&gt;
-
-</description>
-                <link>http://spetacular.github.io/2016/06/15/problem-tips.html</link>
-                <guid>http://spetacular.github.io/2016/06/15/problem-tips</guid>
-                <pubDate>Wed, 15 Jun 2016 00:00:00 +0800</pubDate>
-        </item>
-
-        <item>
-                <title>社交网站:热门内容排名算法浅议</title>
-                <description>&lt;p&gt;热门内容对任何网站都很重要，对社交网站更为重要。如何让用户第一眼就看到感兴趣的内容而留下来，正是各种排名算法的任务。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2016/top-10.png&quot; alt=&quot;热门 top 10&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;设计一个好的排名算法，需要考虑的因素很多，其中最重要的是以下两点：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;社区属性及内容属性&lt;/li&gt;
-  &lt;li&gt;网站本身内容的量级与更新频率&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;前者决定采用何种排名算法，后者确定排名的上升与下降速度。&lt;/p&gt;
-
-&lt;h1 id=&quot;section&quot;&gt;影响因素&lt;/h1&gt;
-
-&lt;h2 id=&quot;section-1&quot;&gt;社区属性及内容属性&lt;/h2&gt;
-&lt;p&gt;社交网站产生许多用户上传的内容，对这些内容进行排名时，需要考虑内容本身的信息。&lt;/p&gt;
-
-&lt;p&gt;从类型上，UGC内容主要是图片、文章、音频还是视频？一般来说，图片扫一眼，文章读一遍，音频听一次，视频看一遍,占用用户的时间依次增加,留住用户的成本也随之增加。&lt;/p&gt;
-
-&lt;p&gt;从特征上，单图或多图？段子还是长文？一首歌还是一集Podcast？短视频还是长视频？越复杂的形式，用户付出的时间成本越大。&lt;/p&gt;
-
-&lt;p&gt;用户付出了时间，那么会要求回报。网站回报用户的东西，无外乎兴趣和价值。而兴趣和价值，是两条不同方向的岔路，通向不同的排名算法。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2016/cross-road.jpg&quot; alt=&quot;排名算法&quot; /&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;section-2&quot;&gt;网站本身内容的量级与更新频率&lt;/h2&gt;
-
-&lt;p&gt;内容的量级，像大象与蚂蚁，体量越大，系统越复杂。从海量内容中挑选出热门内容，需要更多的参数和指标。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2016/ele-ant.jpg&quot; alt=&quot;内容的量级对排名算法影响很大&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;更新频率，像流水线与手工作坊，频率越快，产出越多。新内容产生出来后，排名需要很快地上升，才能排到前列，引起注意；旧内容存在一段时间后，排名需要很快地下降，才能让位给新内容。&lt;/p&gt;
-
-&lt;p&gt;所以，需要根据网站本身的内容，确定排名算法需要考虑的参数，以及确定参数的取值。&lt;/p&gt;
-
-&lt;h2 id=&quot;section-3&quot;&gt;兴趣与价值&lt;/h2&gt;
-&lt;p&gt;用户留下来，无外乎几种情况：这个东西很有趣（有趣型），或这个东西对我有用（有用型），或者兼而有之。&lt;/p&gt;
-
-&lt;p&gt;有趣的东西，用户第一眼看到就喜欢，但内容本身没有收藏价值。用户的态度是：见之我喜，不见也有其它东西让我喜。例如各种段子、笑话、gif图等。&lt;/p&gt;
-
-&lt;p&gt;有用的内容，用户看后念念不忘，收藏以备以后查看、回味与参考。例如旅游攻略、喜欢的文章、好听的歌曲等。&lt;/p&gt;
-
-&lt;h1 id=&quot;section-4&quot;&gt;排名如何上升&lt;/h1&gt;
-&lt;p&gt;新内容一产生出来就具有上升趋势。&lt;/p&gt;
-
-&lt;p&gt;用户浏览、like（点赞、顶，喜欢）、评论、高评分（星级），编辑推荐等，都会使排名上升。&lt;/p&gt;
-
-&lt;p&gt;有趣型的内容，排名迅速上升，如病毒般地传播开来。
-&lt;img src=&quot;http://spetacular.github.io/images/2016/up_1.png&quot; alt=&quot;上升趋势，增速逐渐变小&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;有用型的内容，排名逐渐上升，越到后来越多人知道它的价值。
-&lt;img src=&quot;http://spetacular.github.io/images/2016/up_2.png&quot; alt=&quot;上升趋势，增速逐渐变大&quot; /&gt;&lt;/p&gt;
-
-&lt;h1 id=&quot;section-5&quot;&gt;排名如何下降&lt;/h1&gt;
-
-&lt;p&gt;旧内容渐渐呈现下降趋势。&lt;/p&gt;
-
-&lt;p&gt;少有访问、dislike（讨厌、踩，反对）、低评分（星级）、编辑降权，都会使排名下降。&lt;/p&gt;
-
-&lt;p&gt;有趣型的内容，排名维持了一段新鲜期后，大部分用户就失去兴趣了。
-&lt;img src=&quot;http://spetacular.github.io/images/2016/down_1.png&quot; alt=&quot;下降趋势，增速逐渐变大&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;有用型的内容，排名虽然下降了，但其价值还在，还会不断有人关注。
-&lt;img src=&quot;http://spetacular.github.io/images/2016/down_2.png&quot; alt=&quot;下降趋势，增速逐渐变小&quot; /&gt;&lt;/p&gt;
-
-&lt;h1 id=&quot;section-6&quot;&gt;没有银弹&lt;/h1&gt;
-&lt;p&gt;知名博主阮一峰发表了6篇&lt;a href=&quot;http://www.ruanyifeng.com/blog/it/algorithm/&quot; title=&quot;基于用户投票的排名算法&quot;&gt;基于用户投票的排名算法&lt;/a&gt;的系列文章。这6篇文章剖析了几个网站的排名算法。&lt;/p&gt;
-
-&lt;p&gt;如Delicious采用”过去60分钟内被收藏的次数”进行排名。每过60分钟，就统计一次。它的上升和下降趋势就是阶梯函数式的。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2016/step_function.gif&quot; alt=&quot;阶梯函数&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Hacker News采用票数计算排名，并考虑时间因素，分数随着时间逐渐减小。看下降曲线，Hacker News属于有趣型的网站（用户当然可以获得价值，这里指排名算法的类型）。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2016/ruanyifeng_hacknews.png&quot; alt=&quot;Hacker News下降趋势&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Stack Overflow属于有用型的网站。一个问题提出后，需要网友的回答、对答案投赞成或反对票、评论。这些内容的完善都需要时间。所以，随着时间的推移，一些问题和答案的价值开始慢慢显露，当你搜索时，Statck Overflow就会给你展示最有用的内容。
-&lt;img src=&quot;http://ww1.sinaimg.cn/mw690/40dfde6fjw1f1m9pxx416j20go0lwgov.jpg&quot; alt=&quot;Stack Overflow&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;redit也属于有趣型的网站。它的时间因素占主导，就是说任何人发的新内容都比较容易靠前；排名算法中利用了赞成票与反对票的差额，说明有争议（很多人赞成，同时很多人反对）的内容，排名靠后；很多人赞成，很少人反对的内容，排名靠前。阮一峰得出结论：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;这决定了Reddit是一个符合大众口味的社区，不是一个很激进、可以展示少数派想法的地方。
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;这也说明了，没有银弹，要建设什么样的社区，就要采用能体现社区特征的排名算法。&lt;/p&gt;
-
-</description>
-                <link>http://spetacular.github.io/2016/02/15/sns-hot-feed-ranking-algorithm.html</link>
-                <guid>http://spetacular.github.io/2016/02/15/sns-hot-feed-ranking-algorithm</guid>
-                <pubDate>Mon, 15 Feb 2016 00:00:00 +0800</pubDate>
-        </item>
-
-        <item>
-                <title>Redis技巧:phpredis扩展安装与升级</title>
-                <description>&lt;p&gt;为了使用zscan来处理有序集合（Sorted Set）按模式获取数据，需要将phpredis扩展从2.2.4升级到2.2.5以上（最新版本为2.2.7）。&lt;/p&gt;
-
-&lt;p&gt;安装和升级方法：&lt;/p&gt;
-
-&lt;p&gt;1.下载安装扩展&lt;/p&gt;
-
-&lt;p&gt;网址：https://pecl.php.net/package/redis&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  wget https://pecl.php.net/get/redis-2.2.7.tgz
-  tar zxvf redis-2.2.7.tgz
-  cd redis-2.2.7
-  phpize
-  ./configure
-  make &amp;amp;&amp;amp; make install
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;2.检查：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  php -i | grep Redis
-  Redis Support =&amp;gt; enabled
-  Redis Version =&amp;gt; 2.2.7
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;安装或升级成功。&lt;/p&gt;
-
-&lt;p&gt;3.重启php5-fpm&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  service php5-fpm restart
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-</description>
-                <link>http://spetacular.github.io/2016/01/29/install-and-upgrade-phpredis-extions.html</link>
-                <guid>http://spetacular.github.io/2016/01/29/install-and-upgrade-phpredis-extions</guid>
-                <pubDate>Fri, 29 Jan 2016 00:00:00 +0800</pubDate>
-        </item>
-
-        <item>
-                <title>Redis技巧:Sorted Set使用</title>
-                <description>&lt;p&gt;有序集合(Sorted Set)是Redis一个很重要的数据结构，它用来保存需要排序的数据。例如排行榜，一个班的语文成绩，一个公司的员工工资，一个论坛的帖子等。有序集合中，每个元素都带有score（权重），以此来对元素进行排序。它有三个元素：key、member和score。以语文成绩为例，key是考试名称（期中考试、期末考试等），member是学生名字，score是成绩。&lt;/p&gt;
-
-&lt;p&gt;有序集合有两大基本用途：排序和聚合，以下用几个例子分别说明。&lt;/p&gt;
-
-&lt;h1 id=&quot;section&quot;&gt;排序&lt;/h1&gt;
-&lt;p&gt;假设老师需要处理期中考试的语文成绩，他做的第一件事是将学生成绩录入系统。&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  Li Lei成绩70分
-  127.0.0.1:6379&amp;gt; ZADD mid_test 70 &quot;Li Lei&quot;
-  (integer) 1
-
-  Han Meimei成绩70分
-  127.0.0.1:6379&amp;gt; ZADD mid_test 70 &quot;Han Meimei&quot;
-  (integer) 1
-
-  tom成绩99.5分
-  127.0.0.1:6379&amp;gt; ZADD mid_test 99.5 &quot;Tom&quot;
-  (integer) 1
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;###排行榜
-有序集合天然就是做排行榜的利器。只需将带score的member塞到有序集合里，就可以正序或倒序取出数据。这要用到ZREVRANGE（倒序）和ZRANGE（正序）。&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  分数排行榜
-  127.0.0.1:6379&amp;gt; ZREVRANGE mid_test 0 -1 WITHSCORES
-  1) &quot;Tom&quot;
-  2) &quot;99.5&quot;
-  3) &quot;Li Lei&quot;
-  4) &quot;70&quot;
-  5) &quot;Han Meimei&quot;
-  6) &quot;70&quot;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;###分段统计
-有序集合还支持按score区间来查询：ZREVRANGEBYSCORE为倒序查询，ZRANGEBYSCORE为正序。例如要知道90分以上的学霸：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  127.0.0.1:6379&amp;gt; ZREVRANGEBYSCORE mid_test 100 90 WITHSCORES
-  1) &quot;Tom&quot;
-  2) &quot;99.5&quot;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;#聚合 
-有序集合，其本质是集合，当然会有交集（&lt;a href=&quot;http://redisdoc.com/sorted_set/zinterstore.html&quot; title=&quot;ZINTERSTORE&quot;&gt;ZINTERSTORE&lt;/a&gt;）和并集（&lt;a href=&quot;http://redisdoc.com/sorted_set/zunionstore.html&quot; title=&quot;ZUNIONSTORE&quot;&gt;ZUNIONSTORE&lt;/a&gt;）运算。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-11-01/inter-union.jpg&quot; alt=&quot;交集和并集&quot; width=&quot;100%&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;###交集
-&lt;a href=&quot;http://redisdoc.com/sorted_set/zinterstore.html&quot; title=&quot;ZINTERSTORE&quot;&gt;ZINTERSTORE&lt;/a&gt;取所有集合的并集。以两个集合A和B为例，要取交集C，是这样的逻辑：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;A和B中共有的member，会加入到C中，其score等于A、B中score之和。&lt;/li&gt;
-  &lt;li&gt;不同时在A和B的member，不会加到C中。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;某班又进行了期末考试，同时来了个新同学Jerry。&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  127.0.0.1:6379&amp;gt; ZADD fin_test 88 &quot;Li Lei&quot;
-  (integer) 1
-  127.0.0.1:6379&amp;gt; ZADD fin_test 75 &quot;Han Meimei&quot;
-  (integer) 1
-  127.0.0.1:6379&amp;gt; ZADD fin_test 99.5 &quot;Tom&quot;
-  (integer) 1
-  127.0.0.1:6379&amp;gt; ZADD fin_test 100 &quot;Jerry&quot;
-  (integer) 1
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;老师要按期中考试和期末考试的总成绩来排座位，就对mid_test和fin_test做了个交集。&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  127.0.0.1:6379&amp;gt; ZINTERSTORE sum_point 2 mid_test fin_test
-  (integer) 3
-  127.0.0.1:6379&amp;gt; ZREVRANGE sum_point 0 -1 WITHSCORES
-  1) &quot;Tom&quot;
-  2) &quot;199&quot;
-  3) &quot;Li Lei&quot;
-  4) &quot;158&quot;
-  5) &quot;Han Meimei&quot;
-  6) &quot;145&quot;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;结果显示了学生的总成绩。
-但结果中没有新来的Jerry同学（尽管TA考了100分）。这是坑一。&lt;/p&gt;
-
-&lt;p&gt;###并集
-&lt;a href=&quot;http://redisdoc.com/sorted_set/zunionstore.html&quot; title=&quot;ZUNIONSTORE&quot;&gt;ZUNIONSTORE&lt;/a&gt;计算所有集合的并集。以两个集合A和B为例，要取并集C，是这样的逻辑：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;A的所有member会加到C中，其score与A中相等&lt;/li&gt;
-  &lt;li&gt;B的所有member会加到C中，其score与B中相等&lt;/li&gt;
-  &lt;li&gt;A和B中共有的member，其score等于A、B中score之和。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;假设某公司要核算工资总支出，先由各部门独自核算，再由财务统一处理。&lt;/p&gt;
-
-&lt;p&gt;程序员工资&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  127.0.0.1:6379&amp;gt; zadd programmer 2000 peter
-  (integer) 1
-  127.0.0.1:6379&amp;gt; zadd programmer 3500 jack
-  (integer) 1
-  127.0.0.1:6379&amp;gt; zadd programmer 5000 tom
-  (integer) 1
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;经理工资&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  127.0.0.1:6379&amp;gt; zadd manager 2000 herry
-  (integer) 1
-  127.0.0.1:6379&amp;gt; zadd manager 3500 mary
-  (integer) 1
-  127.0.0.1:6379&amp;gt; zadd manager 4000 tom
-  (integer) 1
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;财务统一处理。&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  127.0.0.1:6379&amp;gt; zunionstore salary 2 programmer manager
-  (integer) 5
-  127.0.0.1:6379&amp;gt; zrange salary 0 -1 withscores
-   1) &quot;herry&quot;
-   2) &quot;2000&quot;
-   3) &quot;peter&quot;
-   4) &quot;2000&quot;
-   5) &quot;jack&quot;
-   6) &quot;3500&quot;
-   7) &quot;mary&quot;
-   8) &quot;3500&quot;
-   9) &quot;tom&quot;
-  10) &quot;9000&quot;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;结果显示了总工资支出情况。&lt;/p&gt;
-
-&lt;p&gt;但结果中程序员tom和经理tom是两个人，但工资算在了一起。这是坑二。&lt;/p&gt;
-
-&lt;p&gt;#避免踩坑&lt;/p&gt;
-
-&lt;p&gt;还记得上面说的坑一和坑二吗？&lt;/p&gt;
-
-&lt;p&gt;坑一：&lt;/p&gt;
-
-&lt;p&gt;当进行ZINTERSTORE操作时，如果进行聚合操作的源集合中元素不同，则聚合后的结果集仅为并集。如果发现聚合后少了一些元素，请查看源集合元素是否相同。&lt;/p&gt;
-
-&lt;p&gt;坑二：&lt;/p&gt;
-
-&lt;p&gt;当进行ZUNIONSTORE操作时，如果进行聚合操作的源集合中有相同元素，则聚合后的结果集中，相同元素的score等于源集合元素的score之和。如果发现聚合后某些元素的score异常，请查看源集合是否有相同元素。&lt;/p&gt;
-
-&lt;p&gt;我踩过的坑：&lt;/p&gt;
-
-&lt;p&gt;做用户的feed（timeline）时，需要将我关注的人和我自己发表的信息聚合起来。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2015-11-01/feed-timeline.jpg&quot; alt=&quot;timeline &amp;amp; feed&quot; width=&quot;100%&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;应该用ZUNIONSTORE将所有信息聚合到一起。&lt;/p&gt;
-
-&lt;p&gt;后来有用户反馈说timeline排序错误，自己发表发布的信息永远在最上面。后来查明原因，由于早期的bug，自己竟然可以关注自己，导致关注人和自己重复聚合。踩到了坑二。&lt;/p&gt;
-
-&lt;p&gt;#为什么踩坑
-以坑二为例，为什么有相同元素时，score就会变成原来元素的和？&lt;/p&gt;
-
-&lt;p&gt;因为ZINTERSTORE和ZUNIONSTORE有个参数为AGGREGATE，表示结果集的聚合方式，可取SUM、MIN、MAX其中之一。默认值为SUM。&lt;/p&gt;
-
-&lt;p&gt;所以不指定聚合方式时，缺省值为SUM，即求和。&lt;/p&gt;
-
-&lt;blockquote&gt;
-  默认使用的参数 SUM ，可以将所有集合中某个成员的 score 值之 和 作为结果集中该成员的 score 值；使用参数 MIN ，可以将所有集合中某个成员的 最小 score 值作为结果集中该成员的 score 值；而参数 MAX 则是将所有集合中某个成员的 最大 score 值作为结果集中该成员的 score 值。
-&lt;/blockquote&gt;
-
-&lt;p&gt;文档如上。&lt;/p&gt;
-
-&lt;p&gt;#有序集合之总结&lt;/p&gt;
-
-&lt;p&gt;使用场景：排行榜，有序列表，聚合；&lt;/p&gt;
-
-&lt;p&gt;算法复杂度：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;增删：O(M*log(N))， N 为有序集的基数， M 为被成功操作（新增、移除）的成员的数量。&lt;/li&gt;
-  &lt;li&gt;查询：O(log(N)+M)， N 为有序集的基数，而 M 为结果集的基数。&lt;/li&gt;
-  &lt;li&gt;聚合：O(N)+O(M log(M))， N 为给定有序集基数的总和， M 为结果集的基数。&lt;/li&gt;
-  &lt;li&gt;总数：O(1)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;注意事项：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;ZINTERSTORE操作时,如果发现聚合后少了一些元素，请查看源集合元素是否相同。&lt;/li&gt;
-  &lt;li&gt;ZUNIONSTORE操作时,如果发现聚合后某些元素的score异常，请查看源集合是否有相同元素。&lt;/li&gt;
-&lt;/ul&gt;
-
-</description>
-                <link>http://spetacular.github.io/2015/11/01/redis-zunionstore-tip.html</link>
-                <guid>http://spetacular.github.io/2015/11/01/redis-zunionstore-tip</guid>
-                <pubDate>Sun, 01 Nov 2015 00:00:00 +0800</pubDate>
         </item>
 
 

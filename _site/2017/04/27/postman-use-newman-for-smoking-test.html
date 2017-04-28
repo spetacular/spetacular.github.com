@@ -1,0 +1,364 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7 ie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8 ie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9 ie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>Postman 及 Newman 使用开发指南（六）：利用 Newman 进行冒烟测试</title>
+	<meta name="author" content="David">
+	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
+	<link href='/assets/themes/the-program/css/style.css' rel="stylesheet" media="all">
+	<link href="http://feeds.feedburner.com/" rel="alternate" title="Postman 及 Newman 使用开发指南（六）：利用 Newman 进行冒烟测试" type="application/atom+xml">
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.0.6/modernizr.min.js"></script>
+</head>
+<body>
+
+<div id="page" class="hentry">
+	<header class="the-header">
+		<div class="unit-head">
+			<div class="unit-inner unit-head-inner">
+				<nav class="nav-global">
+					<ul>
+						<li class="logo"><a href="/">David's World</a></li>
+						<li class="archive"><a href="/archive.html">archive</a></li>
+						<li class="page"><a href="/pages.html">pages</a></li>
+						<li class="category"><a href="/categories.html">categories</a></li>
+						<li class="tag"><a href="/tags.html">tags</a></li>
+					</ul>
+				</nav>
+			</div><!-- unit-inner -->
+		</div><!-- unit-head -->
+	</header>
+	<div class="body" role="main">
+		<div class="unit-body">
+			<div class="unit-inner unit-body-inner">
+				<div class="entry-content">
+					
+<article class="unit-article layout-post">
+	<div class="unit-inner unit-article-inner">
+		<div class="content">
+			<header>
+				<div class="unit-head">
+					<div class="unit-inner unit-head-inner">
+						<h1 class="h2 entry-title">Postman 及 Newman 使用开发指南（六）：利用 Newman 进行冒烟测试</h1>
+					</div><!-- unit-inner -->
+				</div><!-- unit-head -->
+			</header>
+
+			<div class="bd">
+				<div class="entry-content">
+					<p>大家提到“冒烟测试”，大部分人会援引<a href="https://msdn.microsoft.com/zh-cn/library/ms182613(v=vs.90).aspx">微软的定义</a>：</p>
+
+<blockquote>
+  <p>在软件中，“冒烟测试”这一术语描述的是在将代码更改签入到产品的源树中之前对这些更改进行验证的过程。在检查了代码后，冒烟测试是确定和修复软件缺陷的最经济有效的方法。冒烟测试设计用于确认代码中的更改会按预期运行，且不会破坏整个版本的稳定性。</p>
+
+  <p>“冒烟测试”这一术语源自硬件行业。该术语源于此做法：对一个硬件或硬件组件进行更改或修复后，直接给设备加电。如果没有冒烟，则该组件就通过了测试。</p>
+</blockquote>
+
+<p>对于 API 接口来说，冒烟测试就是跑一遍测试，看看所有的返回结果是否符合预期。判断一次冒烟测试是否通过的标准，可以简化一下两条：</p>
+
+<ul>
+  <li>网络请求正常</li>
+  <li>返回内容符合预期</li>
+</ul>
+
+<p>本节我们用 Newman 编写冒烟测试案例，并生成自定义报表，附带邮件发送功能。本节的例子完整代码参考 <a href="https://github.com/spetacular/newman-smoking-test">https://github.com/spetacular/newman-smoking-test</a></p>
+
+<h1 id="nodejs-">nodejs 脚本</h1>
+
+<p>脚本用到了两个插件：<a href="https://github.com/postmanlabs/newman">Newman</a> 和 <a href="https://nodemailer.com/">Nodemailer</a> 。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>npm install newman --save
+npm install nodemailer --save
+</code></pre>
+</div>
+
+<p>脚本 smoke.js:</p>
+
+<p>将 <code class="highlighter-rouge">---</code> 包含的部分换成正确的配置即可。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">newman</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'newman'</span><span class="p">);</span> <span class="c1">// require newman in your project </span>
+<span class="kd">var</span> <span class="nx">nodemailer</span>  <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'nodemailer'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'fs'</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">export_file</span> <span class="o">=</span> <span class="s1">'./htmlResults_for_mail.html'</span><span class="p">;</span>
+<span class="kd">var</span> <span class="nx">collection_file</span> <span class="o">=</span> <span class="s1">'./postman_echo.postman_collection.json'</span><span class="p">;</span>
+<span class="c1">// call newman.run to pass `options` object and wait for callback </span>
+<span class="nx">newman</span><span class="p">.</span><span class="nx">run</span><span class="p">({</span>
+    <span class="na">collection</span><span class="p">:</span> <span class="nx">require</span><span class="p">(</span><span class="nx">collection_file</span><span class="p">),</span>
+    <span class="na">reporters</span><span class="p">:</span> <span class="p">[</span><span class="s1">'cli'</span><span class="p">,</span><span class="s1">'html'</span><span class="p">],</span>
+    <span class="na">reporter</span> <span class="p">:</span> <span class="p">{</span> <span class="na">html</span> <span class="p">:</span> <span class="p">{</span> <span class="na">export</span> <span class="p">:</span> <span class="nx">export_file</span><span class="p">,</span><span class="na">template</span><span class="p">:</span> <span class="s1">'./template.hbs'</span><span class="p">}</span> <span class="p">}</span> 
+<span class="p">},</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span><span class="nx">summary</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span> <span class="k">throw</span> <span class="nx">err</span><span class="p">;</span> <span class="p">}</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'collection run complete!'</span><span class="p">);</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">dir</span><span class="p">(</span><span class="nx">summary</span><span class="p">);</span>
+
+    <span class="kd">var</span> <span class="nx">network_total</span> <span class="o">=</span> <span class="nx">summary</span><span class="p">[</span><span class="s1">'run'</span><span class="p">][</span><span class="s1">'stats'</span><span class="p">][</span><span class="s1">'requests'</span><span class="p">][</span><span class="s1">'total'</span><span class="p">];</span>
+    <span class="kd">var</span> <span class="nx">network_failed</span> <span class="o">=</span> <span class="nx">summary</span><span class="p">[</span><span class="s1">'run'</span><span class="p">][</span><span class="s1">'stats'</span><span class="p">][</span><span class="s1">'requests'</span><span class="p">][</span><span class="s1">'failed'</span><span class="p">];</span>
+    <span class="kd">var</span> <span class="nx">network_success</span> <span class="o">=</span> <span class="nx">network_total</span> <span class="o">-</span> <span class="nx">network_failed</span><span class="p">;</span>
+    
+    <span class="kd">var</span> <span class="nx">unit_total</span> <span class="o">=</span> <span class="nx">summary</span><span class="p">[</span><span class="s1">'run'</span><span class="p">][</span><span class="s1">'stats'</span><span class="p">][</span><span class="s1">'assertions'</span><span class="p">][</span><span class="s1">'total'</span><span class="p">];</span>
+    <span class="kd">var</span> <span class="nx">unit_failed</span> <span class="o">=</span> <span class="nx">summary</span><span class="p">[</span><span class="s1">'run'</span><span class="p">][</span><span class="s1">'stats'</span><span class="p">][</span><span class="s1">'assertions'</span><span class="p">][</span><span class="s1">'failed'</span><span class="p">];</span>
+    <span class="kd">var</span> <span class="nx">unit_success</span> <span class="o">=</span> <span class="nx">unit_total</span> <span class="o">-</span> <span class="nx">unit_failed</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">stats</span> <span class="o">=</span> <span class="s2">"网络请求"</span><span class="o">+</span><span class="nx">network_total</span><span class="o">+</span><span class="s2">"次，成功"</span><span class="o">+</span><span class="nx">network_success</span><span class="o">+</span><span class="s2">"次，失败"</span><span class="o">+</span><span class="nx">network_failed</span><span class="o">+</span><span class="s2">"次。\n共执行单元测试"</span><span class="o">+</span><span class="nx">unit_total</span><span class="o">+</span><span class="s2">"次，成功"</span><span class="o">+</span><span class="nx">unit_success</span><span class="o">+</span><span class="s2">"次，失败"</span><span class="o">+</span><span class="nx">unit_failed</span><span class="o">+</span><span class="s2">"次"</span><span class="p">;</span>
+    
+    <span class="k">if</span><span class="p">(</span><span class="nx">network_failed</span><span class="o">&gt;</span><span class="mi">0</span> <span class="o">||</span> <span class="nx">unit_failed</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">){</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"Something Is WRONG"</span><span class="p">);</span>
+        <span class="kd">var</span> <span class="nx">tracelog</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">summary</span><span class="p">[</span><span class="s1">'run'</span><span class="p">][</span><span class="s1">'failures'</span><span class="p">],</span> <span class="kc">null</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+        <span class="nx">send</span><span class="p">(</span><span class="nx">stats</span><span class="p">,</span><span class="nx">tracelog</span><span class="p">);</span>
+    <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"Everything Is OK"</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+
+<span class="kd">function</span> <span class="nx">send</span><span class="p">(</span><span class="nx">sub</span><span class="p">,</span><span class="nx">tracelog</span><span class="p">){</span>
+    <span class="kd">var</span> <span class="nx">transporter</span> <span class="o">=</span> <span class="nx">nodemailer</span><span class="p">.</span><span class="nx">createTransport</span><span class="p">({</span>
+		<span class="na">service</span><span class="p">:</span> <span class="s2">"QQex|Gmail"</span><span class="p">,</span>
+		<span class="na">auth</span><span class="p">:</span> <span class="p">{</span>
+			<span class="na">user</span><span class="p">:</span> <span class="s2">"---发件人邮箱---"</span><span class="p">,</span>
+			<span class="na">pass</span><span class="p">:</span> <span class="s2">"---发件人邮箱密码---"</span>
+		<span class="p">}</span>
+	<span class="p">});</span>
+    
+    <span class="kd">var</span> <span class="nx">html</span> <span class="o">=</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">export_file</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">to</span> <span class="o">=</span> <span class="s1">'---收件人地址---'</span><span class="p">;</span>
+	<span class="kd">var</span> <span class="nx">mailOptions</span> <span class="o">=</span> <span class="p">{</span>
+		<span class="na">from</span><span class="p">:</span> <span class="s2">"---发件人邮箱地址---"</span><span class="p">,</span>
+		<span class="na">to</span><span class="p">:</span> <span class="nx">to</span><span class="p">,</span>
+		<span class="na">subject</span><span class="p">:</span> <span class="s2">"冒烟测试问题报告:"</span><span class="o">+</span><span class="nx">sub</span><span class="p">,</span>
+        <span class="na">html</span><span class="p">:</span><span class="nx">html</span><span class="p">,</span>
+        <span class="na">attachments</span><span class="p">:[{</span>   
+                <span class="na">filename</span><span class="p">:</span><span class="s1">'results.html'</span><span class="p">,</span>
+                <span class="na">path</span><span class="p">:</span> <span class="nx">export_file</span><span class="p">,</span>
+                <span class="na">contentType</span><span class="p">:</span> <span class="s1">'text/html'</span> 
+                <span class="p">},</span>
+                <span class="p">{</span>   
+                    <span class="na">filename</span><span class="p">:</span> <span class="s1">'tracelog.txt'</span><span class="p">,</span>
+                    <span class="na">content</span><span class="p">:</span> <span class="nx">tracelog</span><span class="p">,</span>
+                    <span class="na">contentType</span><span class="p">:</span> <span class="s1">'text/plain'</span>
+                <span class="p">}</span>
+        <span class="p">],</span>
+	<span class="p">};</span>
+
+	<span class="nx">transporter</span><span class="p">.</span><span class="nx">sendMail</span><span class="p">(</span><span class="nx">mailOptions</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">error</span><span class="p">,</span> <span class="nx">info</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+			<span class="k">throw</span> <span class="nx">error</span><span class="p">;</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+			<span class="nx">fn</span><span class="p">();</span>
+		<span class="p">}</span>
+	<span class="p">});</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<h1 id="html-">自定义 HTML 模板</h1>
+
+<p>由于大部分邮件客户端只支持 inline 的 CSS 样式，所以我们将样式写到元素里。</p>
+
+<p>template.hbs 文件：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html</span> <span class="na">lang=</span><span class="s">"en"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+  <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">"UTF-8"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;title&gt;</span>Smoke Test Report<span class="nt">&lt;/title&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+<span class="nt">&lt;body&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"container"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;h1</span> <span class="na">style=</span><span class="s">"color:red;"</span><span class="nt">&gt;</span>SomeThing Is Wrong! Check The Following Contents and Attachments To Find Out!<span class="nt">&lt;/h1&gt;&lt;hr/&gt;</span>
+    <span class="nt">&lt;h3&gt;</span>Smoke Test Report<span class="nt">&lt;/h3&gt;</span>  
+    
+        
+        <span class="nt">&lt;p&gt;</span>Collection:   <span class="nt">&lt;/p&gt;</span>
+        <span class="nt">&lt;p&gt;</span>Desc:     <span class="nt">&lt;/p&gt;</span>
+        
+    
+    <span class="nt">&lt;p&gt;</span>Exec At:  <span class="nt">&lt;/p&gt;</span>
+    <span class="nt">&lt;p&gt;</span>Version:  Newman v<span class="nt">&lt;/p&gt;</span>
+
+    
+        
+        <span class="nt">&lt;table</span> <span class="na">style=</span><span class="s">"margin-top: 10px;border-collapse: collapse; border: 1px solid #aaa;width: 50%;"</span><span class="nt">&gt;&lt;tbody&gt;</span>
+            <span class="nt">&lt;tr&gt;&lt;th</span> <span class="na">style=</span><span class="s">"vertical-align: baseline;padding: 5px 15px 5px 6px;background-color: #d5d5d5;border: 1px solid #aaa;text-align: left;"</span><span class="nt">&gt;</span>Item<span class="nt">&lt;/th&gt;&lt;th</span> <span class="na">style=</span><span class="s">"vertical-align: baseline;padding: 5px 15px 5px 6px;background-color: #d5d5d5;border: 1px solid #aaa;text-align: left;"</span><span class="nt">&gt;</span>Total<span class="nt">&lt;/th&gt;&lt;th</span> <span class="na">style=</span><span class="s">"vertical-align: baseline;padding: 5px 15px 5px 6px;background-color: #d5d5d5;border: 1px solid #aaa;text-align: left;"</span><span class="nt">&gt;</span>Failed<span class="nt">&lt;/th&gt;&lt;/tr&gt;</span>
+            
+            <span class="nt">&lt;tr&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;</span>Iterations<span class="nt">&lt;/td&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;&lt;/td&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+            <span class="nt">&lt;tr&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;</span>Requests<span class="nt">&lt;/td&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;&lt;/td&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+            <span class="nt">&lt;tr&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;</span>Prerequest Scripts<span class="nt">&lt;/td&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;&lt;/td&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+            <span class="nt">&lt;tr&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;</span>Test Scripts<span class="nt">&lt;/td&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;&lt;/td&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+            <span class="nt">&lt;tr&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;</span>Assertions<span class="nt">&lt;/td&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;&lt;/td&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;&lt;span</span> <span class="na">style=</span><span class="s">"color:red;"</span><span class="nt">&gt;&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+  
+        <span class="nt">&lt;/tbody&gt;&lt;/table&gt;</span>
+        
+        <span class="nt">&lt;br/&gt;</span>
+        <span class="nt">&lt;table</span> <span class="na">style=</span><span class="s">"margin-top: 10px;border-collapse: collapse; border: 1px solid #aaa;width: 50%;"</span><span class="nt">&gt;&lt;tbody&gt;</span>
+            <span class="nt">&lt;tr&gt;&lt;th</span> <span class="na">style=</span><span class="s">"vertical-align: baseline;padding: 5px 15px 5px 6px;background-color: #d5d5d5;border: 1px solid #aaa;text-align: left;"</span><span class="nt">&gt;</span>Stats<span class="nt">&lt;/th&gt;&lt;th</span> <span class="na">style=</span><span class="s">"vertical-align: baseline;padding: 5px 15px 5px 6px;background-color: #d5d5d5;border: 1px solid #aaa;text-align: left;"</span><span class="nt">&gt;</span>Value<span class="nt">&lt;/th&gt;&lt;/tr&gt;</span>
+            <span class="nt">&lt;tr&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;</span>Total run duration<span class="nt">&lt;/td&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+            <span class="nt">&lt;tr&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;</span>Total data received<span class="nt">&lt;/td&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;</span> (approx)<span class="nt">&lt;/td&gt;&lt;/tr&gt;</span>
+            <span class="nt">&lt;tr&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;</span>Average response time<span class="nt">&lt;/td&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+            <span class="nt">&lt;tr&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;&lt;strong&gt;</span>Total Failures<span class="nt">&lt;/strong&gt;&lt;/td&gt;&lt;td</span> <span class="na">style=</span><span class="s">"vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"</span><span class="nt">&gt;&lt;span</span> <span class="na">style=</span><span class="s">"color:red;"</span><span class="nt">&gt;&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+        <span class="nt">&lt;/tbody&gt;&lt;/table&gt;</span>
+      
+
+<span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre>
+</div>
+
+<p>最后发送邮件的效果如下：</p>
+
+<p><img src="/images/2017/postman_newman_mail.jpeg" alt="newman冒烟测试效果" /></p>
+
+<p>完整代码参考 <a href="https://github.com/spetacular/newman-smoking-test">https://github.com/spetacular/newman-smoking-test</a></p>
+
+					<div class="meta">
+						<p class="date-publish">
+							Published: 
+							<date class="date-pub" title="2017-04-27T00:00:00+08:00" datetime="2017-04-27T00:00:00+08:00" pubdate>
+							<span class="month"><abbr>April</abbr></span>
+							<span class="day">27</span>
+							<span class="year">2017</span>
+							</date>
+						</p>
+						<ul class="list-category list-linear">
+							<li class="list-head">category: </li>
+							
+							
+
+
+  
+     
+    	<li><a href="/categories.html#nodejs-ref">
+    		nodejs <span>6</span>
+    	</a></li>
+    
+  
+
+
+						</ul>
+						<ul class="list-tag list-linear">
+							<li class="list-head">tags: </li>
+							
+							
+
+
+  
+     
+    	<li><a href="/tags.html#postman-ref">postman <span>6</span></a></li>
+     
+    	<li><a href="/tags.html#newman-ref">newman <span>6</span></a></li>
+     
+    	<li><a href="/tags.html#nodejs-ref">nodejs <span>6</span></a></li>
+    
+  
+
+
+
+						</ul>
+					</div><!-- meta -->
+				</div><!-- entry-content -->
+				<div class="misc-content">
+					<div class="social">
+						<ul class="list-linear">
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+						</ul>
+					</div>
+					<div class="comment">
+					
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    
+    var disqus_developer = 1;
+    var disqus_shortname = 'davidblogs'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+					</div>
+				</div><!-- misc-content -->
+			</div><!-- bd -->
+			<footer class="unit-foot">
+				<div class="unit-inner unit-foot-inner">
+					<nav class="pagination">
+						<ul>
+							
+							<li class="prev"><a class="internal" rel="prev"  href="/2017/04/25/newman-develop-tutorial.html" title="View Postman 及 Newman 使用开发指南（五）：Newman 简介">&laquo; Postman 及 Newman 使用开发指南（五）：Newman 简介</a></li>
+							
+							
+							
+						</ul>
+					</nav>
+					<p class="gotop">
+						<a href="#page">Back to Top</a>
+					</p>
+				</div>
+			</footer>
+
+		</div><!-- content -->
+	</div><!-- unit-inner -->
+</article>
+
+
+				</div>
+			</div><!-- unit-inner -->
+		</div><!-- unit-body -->
+	</div><!-- body -->
+	<footer class="the-footer">
+		<div class="unit-foot">
+			<div class="unit-inner unit-foot-inner">
+				<div class="misc vcard">
+					<h4>about</h4>
+					<ul>
+						<li class="contact"><address><span class="author fn n">David</span> <!-- - <span class="fn email">blah@email.test</span></address></li> -->
+						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>				
+						<li class="twitter"><a href="http://weibo.com/mylxq/" rel="me">weibo.com/mylxq</a></li>
+						<li class="rss"><a href="/rss.xml">Subscribe to RSS Feed</a></li>
+					</ul>
+				</div><!-- misc -->
+				<p class="licence">
+					With the help of <a href="http://jekyllbootstrap.com/">Jekyll-bootstrap</a>.<br>
+					Powered by <a href="https://github.com/mojombo/jekyll">Jekyll</a>.
+				</p>
+			</div><!-- unit-foot-inner -->
+		</div><!-- unit-foot -->
+	</footer>
+</div><!-- page -->
+<script>
+	(function(d, s) {
+		var js, fjs = d.getElementsByTagName(s)[0], load = function(url, id) {
+		if (d.getElementById(id)) {return;}
+		js = d.createElement(s); js.src = url; js.id = id;
+		fjs.parentNode.insertBefore(js, fjs);
+		};
+	load('//platform.twitter.com/widgets.js', 'tweetjs');
+	// load('https://apis.google.com/js/plusone.js', 'gplus1js'); // Checkout http://j.mp/ApDgMr for usage html for this is <div class="g-plusone" data-size="medium"></div>
+	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2017/04/27/postman-use-newman-for-smoking-test.html" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
+	}(document, 'script'));
+</script>
+<script>
+/*! A fix for the iOS orientationchange zoom bug.Script by @scottjehl, rebound by @wilto. MIT License.*/
+(function(j){var i=j.document;if(!i.querySelectorAll){return}var l=i.querySelectorAll("meta[name=viewport]")[0],a=l&&l.getAttribute("content"),h=a+", maximum-scale=1.0",d=a+", maximum-scale=10.0",g=true,c=j.orientation,k=0;if(!l){return}function f(){l.setAttribute("content",d);g=true}function b(){l.setAttribute("content",h);g=false}function e(m){c=Math.abs(j.orientation);k=Math.abs(m.gamma);if(k>8&&c===0){if(g){b()}}else{if(!g){f()}}}j.addEventListener("orientationchange",f,false);j.addEventListener("deviceorientation",e,false)})(this);
+</script>
+  
+  
+
+
+
+</body>
+</html>
+

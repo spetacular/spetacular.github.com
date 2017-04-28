@@ -9,6 +9,12 @@ http://spetacular.github.io/rss.xml
 http://spetacular.github.io/sitemap.txt
 http://spetacular.github.io/tags
 
+http://spetacular.github.io/2017/04/27/postman-use-newman-for-smoking-test.html
+http://spetacular.github.io/2017/04/25/newman-develop-tutorial.html
+http://spetacular.github.io/2017/04/23/postman-collection-and-runner.html
+http://spetacular.github.io/2017/04/22/postman-api-test.html
+http://spetacular.github.io/2017/04/21/postman-environment-variable-and-global-variable.html
+http://spetacular.github.io/2017/04/20/postman-and-newman-development.html
 http://spetacular.github.io/2017/04/10/nginx-cache.html
 http://spetacular.github.io/2017/04/07/editor-md-auto-save-markdown.html
 http://spetacular.github.io/2017/03/31/weixin-mp-open-minapp-in-menu.html
