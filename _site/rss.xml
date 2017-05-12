@@ -5,10 +5,120 @@
         <description>David's World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Fri, 28 Apr 2017 16:10:40 +0800</lastBuildDate>
-        <pubDate>Fri, 28 Apr 2017 16:10:40 +0800</pubDate>
+        <lastBuildDate>Fri, 12 May 2017 11:41:27 +0800</lastBuildDate>
+        <pubDate>Fri, 12 May 2017 11:41:27 +0800</pubDate>
         <ttl>60</ttl>
 
+
+        <item>
+                <title>PHP从数组中删除元素的四种方法</title>
+                <description>&lt;p&gt;茴香豆的“茴”字有四种写法，PHP从数组中删除元素也有四种方法 ^_^。&lt;/p&gt;
+
+&lt;h1 id=&quot;section&quot;&gt;删除一个元素，且保持原有索引不变&lt;/h1&gt;
+&lt;p&gt;使用 &lt;a href=&quot;https://secure.php.net/manual/zh/function.unset.php&quot;&gt;unset&lt;/a&gt; 函数，示例如下：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;?php&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;$array&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;unset&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]);&lt;/span&gt;
+               &lt;span class=&quot;c1&quot;&gt;//↑ 你想删除的key
+&lt;/span&gt;&lt;span class=&quot;cp&quot;&gt;?&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;输出：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Array (
+    [0] =&amp;gt; a
+    [2] =&amp;gt; c
+)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;使用 &lt;code class=&quot;highlighter-rouge&quot;&gt;unset&lt;/code&gt; 并未改变数组的原有索引。如果打算重排索引（让索引从0开始，并且连续），可以使用 &lt;a href=&quot;http://php.net/manual/zh/function.array-values.php&quot;&gt;array_values&lt;/a&gt; 函数：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$array = array_values($array);
+/*
+输出
+array(2) {
+  [0]=&amp;gt;
+  string(1) &quot;a&quot;
+  [1]=&amp;gt;
+  string(1) &quot;c&quot;
+}
+*/
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h1 id=&quot;section-1&quot;&gt;删除一个元素，不保持索引&lt;/h1&gt;
+
+&lt;p&gt;使用 &lt;a href=&quot;http://php.net/manual/zh/function.array-splice.php&quot;&gt;array_splice&lt;/a&gt; 函数，示例如下：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;?php&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;$array&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;array_splice&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+                       &lt;span class=&quot;c1&quot;&gt;//↑ 你想删除的元素的Offset
+&lt;/span&gt;&lt;span class=&quot;cp&quot;&gt;?&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;输出：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Array (
+    [0] =&amp;gt; a
+    [1] =&amp;gt; c
+)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h1 id=&quot;section-2&quot;&gt;按值删除多个元素，保持索引&lt;/h1&gt;
+
+&lt;p&gt;使用 &lt;a href=&quot;http://php.net/manual/zh/function.array-diff.php&quot;&gt;array_diff&lt;/a&gt; 函数，示例如下：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;?php&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;$array&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;$array&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;array_diff&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]);&lt;/span&gt;
+                              &lt;span class=&quot;c1&quot;&gt;//└────────┘→ 你想删除的数组元素值values
+&lt;/span&gt;&lt;span class=&quot;cp&quot;&gt;?&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;输出：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Array (
+    [1] =&amp;gt; b
+)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;与 &lt;code class=&quot;highlighter-rouge&quot;&gt;unset&lt;/code&gt; 类似，&lt;code class=&quot;highlighter-rouge&quot;&gt;array_diff&lt;/code&gt; 也将保持索引。&lt;/p&gt;
+
+&lt;h1 id=&quot;section-3&quot;&gt;按键删除多个元素，保持索引&lt;/h1&gt;
+
+&lt;p&gt;使用 &lt;a href=&quot;http://php.net/manual/zh/function.array-diff-key.php&quot;&gt;array_diff_key&lt;/a&gt; 函数，示例如下：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;?php&lt;/span&gt;
+
+    &lt;span class=&quot;nv&quot;&gt;$array&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;$array&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;array_diff_key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;xy&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;2&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;xy&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]);&lt;/span&gt;
+                                   &lt;span class=&quot;c1&quot;&gt;//↑           ↑ 你想删除的数组键keys
+&lt;/span&gt;&lt;span class=&quot;cp&quot;&gt;?&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;输出：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Array (
+    [1] =&amp;gt; b
+)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;与 &lt;code class=&quot;highlighter-rouge&quot;&gt;unset&lt;/code&gt; 类似，&lt;code class=&quot;highlighter-rouge&quot;&gt;array_diff_key&lt;/code&gt; 也将保持索引。&lt;/p&gt;
+</description>
+                <link>http://spetacular.github.io/2017/05/12/delete-element-from-array-php.html</link>
+                <guid>http://spetacular.github.io/2017/05/12/delete-element-from-array-php</guid>
+                <pubDate>Fri, 12 May 2017 00:00:00 +0800</pubDate>
+        </item>
 
         <item>
                 <title>Postman 及 Newman 使用开发指南（六）：利用 Newman 进行冒烟测试</title>
@@ -2564,105 +2674,6 @@ Note: Your solution should be in logarithmic time complexity.&lt;/p&gt;
                 <link>http://spetacular.github.io/2016/07/24/factorial-trailing-zeroes.html</link>
                 <guid>http://spetacular.github.io/2016/07/24/factorial-trailing-zeroes</guid>
                 <pubDate>Sun, 24 Jul 2016 00:00:00 +0800</pubDate>
-        </item>
-
-        <item>
-                <title>Leetcode 21. Merge Two Sorted Lists - 合并有序链表（递归与非递归解法）</title>
-                <description>&lt;h2 id=&quot;section&quot;&gt;题目名称&lt;/h2&gt;
-
-&lt;p&gt;Merge Two Sorted Lists （合并有序链表）&lt;/p&gt;
-
-&lt;h2 id=&quot;section-1&quot;&gt;题目地址&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://leetcode.com/problems/merge-two-sorted-lists/&quot;&gt;https://leetcode.com/problems/merge-two-sorted-lists/&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;section-2&quot;&gt;题目描述&lt;/h2&gt;
-&lt;p&gt;英文：Merge two sorted linked lists and return it as a new list. The new list should be made by splicing together the nodes of the first two lists.&lt;/p&gt;
-
-&lt;p&gt;中文：有两个有序链表，将之合并为一个有序链表。&lt;/p&gt;
-
-&lt;h2 id=&quot;section-3&quot;&gt;解法1 递归&lt;/h2&gt;
-&lt;p&gt;合并过程是这样的：先比较两个链表的头节点，节点值小的先摘到新链表中；然后再处理剩下的链表，直到两个链表都为空。递归解法比较容易实现。&lt;/p&gt;
-
-&lt;p&gt;算法代码（swift）如下：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;class Solution {
-    func mergeTwoLists(l1: ListNode?, _ l2: ListNode?) -&amp;gt; ListNode? {
-        if l1 == nil{
-            return l2
-        }
-        if l2 == nil{
-            return l1
-        }
-        var ret: ListNode?
-        if l1!.val &amp;gt; l2!.val{
-            ret = l2
-            ret!.next = mergeTwoLists(l1,l2!.next)
-        } else {
-            ret = l1
-            ret!.next = mergeTwoLists(l1!.next,l2)
-        }
-        return ret
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h2 id=&quot;section-4&quot;&gt;解法2 非递归&lt;/h2&gt;
-&lt;p&gt;也可以用while循环来做。就是用一个tail指针遍历两个链表，每次走到值较小的节点上，直到其中一个链表走到头。最后拼上另一个链表即可。&lt;/p&gt;
-
-&lt;p&gt;算法代码（swift）如下：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;class Solution {
-    func mergeTwoLists(l1: ListNode?, _ l2: ListNode?) -&amp;gt; ListNode? {
-        if l1 == nil{
-            return l2
-        }
-        if l2 == nil{
-            return l1
-        }
-        var head: ListNode?
-        var tail: ListNode?
-        var ll1 = l1
-        var ll2 = l2
-        if l1!.val &amp;gt; l2!.val{
-            head = l2
-            ll2 = l2!.next
-        }else{
-            head = l1
-            ll1 = l1!.next
-        }
-        tail = head
-        head?.next = tail
-        while ll1 != nil &amp;amp;&amp;amp; ll2 != nil{
-            if ll1!.val &amp;gt; ll2!.val{
-                tail?.next = ll2
-                tail = ll2
-                ll2 = ll2?.next
-            }else{
-                tail?.next = ll1
-                tail = ll1
-                ll1 = ll1?.next
-            }
-        }
-        if ll1 == nil{
-            tail?.next = ll2
-        }
-        if ll2 == nil{
-            tail?.next = ll1
-        }
-        return head
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;假设l1长度为M，l2长度为N，则算法复杂度为O(M+N)。&lt;/p&gt;
-
-</description>
-                <link>http://spetacular.github.io/2016/07/23/merge-two-sorted-lists.html</link>
-                <guid>http://spetacular.github.io/2016/07/23/merge-two-sorted-lists</guid>
-                <pubDate>Sat, 23 Jul 2016 00:00:00 +0800</pubDate>
         </item>
 
 

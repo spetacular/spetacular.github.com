@@ -9,6 +9,7 @@ http://spetacular.github.io/rss.xml
 http://spetacular.github.io/sitemap.txt
 http://spetacular.github.io/tags
 
+http://spetacular.github.io/2017/05/12/delete-element-from-array-php.html
 http://spetacular.github.io/2017/04/27/postman-use-newman-for-smoking-test.html
 http://spetacular.github.io/2017/04/25/newman-develop-tutorial.html
 http://spetacular.github.io/2017/04/23/postman-collection-and-runner.html
