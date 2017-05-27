@@ -124,6 +124,37 @@
 
 <p>参考：<a href="http://stackoverflow.com/questions/39187857/inputfile-accept-image-open-dialog-so-slow-with-chrome">open dialog so slow with Chrome</a></p>
 
+<h1 id="redis-keys">redis 按前缀/模式批量删除keys</h1>
+<p>有两种情况：
+1.在redis外部，可以用 xargs；
+2.在redis内部，可以用 eval 执行脚本
+示例：
+先创建一些key。
+<code class="highlighter-rouge">
+127.0.0.1:6379&gt; set david1 1
+OK
+127.0.0.1:6379&gt; set david2 2
+OK
+127.0.0.1:6379&gt; keys david*
+1) "david2"
+2) "david1"
+</code>
+方法1:
+<code class="highlighter-rouge">
+redis-cli keys david* | xargs redis-cli del
+</code>
+方法2:
+进入 redis 命令行。
+<code class="highlighter-rouge">
+127.0.0.1:6379&gt; eval "local keys = redis.call('keys',KEYS[1]) for i,v in ipairs(keys) do redis.call('del',v) end" 1 david*
+(nil)
+</code>
+两种方法的结果如下：
+<code class="highlighter-rouge">
+127.0.0.1:6379&gt; keys david*
+(empty list or set)
+</code></p>
+
 
 					<div class="meta">
 						<p class="date-publish">

@@ -5,8 +5,8 @@
         <description>David's World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Fri, 12 May 2017 11:41:27 +0800</lastBuildDate>
-        <pubDate>Fri, 12 May 2017 11:41:27 +0800</pubDate>
+        <lastBuildDate>Sat, 27 May 2017 10:56:13 +0800</lastBuildDate>
+        <pubDate>Sat, 27 May 2017 10:56:13 +0800</pubDate>
         <ttl>60</ttl>
 
 
@@ -1553,6 +1553,7 @@ X-Fastcgi-Cache: BYPASS
 &lt;p&gt;本文翻译自&lt;a href=&quot;https://serversforhackers.com/nginx-caching&quot;&gt;Nginx Caching&lt;/a&gt;。&lt;/p&gt;
 
 &lt;p&gt;感谢&lt;a href=&quot;https://translate.google.com&quot;&gt;谷歌翻译&lt;/a&gt;，它出色的效果减少了博主很多工作量。&lt;/p&gt;
+
 </description>
                 <link>http://spetacular.github.io/2017/04/10/nginx-cache.html</link>
                 <guid>http://spetacular.github.io/2017/04/10/nginx-cache</guid>
@@ -2172,6 +2173,37 @@ $task-&amp;gt;add_loop_task($name,$cmd,$params,$timeOptions);
 &lt;/div&gt;
 
 &lt;p&gt;参考：&lt;a href=&quot;http://stackoverflow.com/questions/39187857/inputfile-accept-image-open-dialog-so-slow-with-chrome&quot;&gt;open dialog so slow with Chrome&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;redis-keys&quot;&gt;redis 按前缀/模式批量删除keys&lt;/h1&gt;
+&lt;p&gt;有两种情况：
+1.在redis外部，可以用 xargs；
+2.在redis内部，可以用 eval 执行脚本
+示例：
+先创建一些key。
+&lt;code class=&quot;highlighter-rouge&quot;&gt;
+127.0.0.1:6379&amp;gt; set david1 1
+OK
+127.0.0.1:6379&amp;gt; set david2 2
+OK
+127.0.0.1:6379&amp;gt; keys david*
+1) &quot;david2&quot;
+2) &quot;david1&quot;
+&lt;/code&gt;
+方法1:
+&lt;code class=&quot;highlighter-rouge&quot;&gt;
+redis-cli keys david* | xargs redis-cli del
+&lt;/code&gt;
+方法2:
+进入 redis 命令行。
+&lt;code class=&quot;highlighter-rouge&quot;&gt;
+127.0.0.1:6379&amp;gt; eval &quot;local keys = redis.call('keys',KEYS[1]) for i,v in ipairs(keys) do redis.call('del',v) end&quot; 1 david*
+(nil)
+&lt;/code&gt;
+两种方法的结果如下：
+&lt;code class=&quot;highlighter-rouge&quot;&gt;
+127.0.0.1:6379&amp;gt; keys david*
+(empty list or set)
+&lt;/code&gt;&lt;/p&gt;
 
 </description>
                 <link>http://spetacular.github.io/2017/01/01/develop-tips.html</link>

@@ -76,3 +76,34 @@ echo gmstrftime('%H:%M:%S',3786);
 
 参考：[open dialog so slow with Chrome](http://stackoverflow.com/questions/39187857/inputfile-accept-image-open-dialog-so-slow-with-chrome)
 
+# redis 按前缀/模式批量删除keys
+有两种情况：
+1.在redis外部，可以用 xargs；
+2.在redis内部，可以用 eval 执行脚本
+示例：
+先创建一些key。
+```
+127.0.0.1:6379> set david1 1
+OK
+127.0.0.1:6379> set david2 2
+OK
+127.0.0.1:6379> keys david*
+1) "david2"
+2) "david1"
+```
+方法1:
+```
+redis-cli keys david* | xargs redis-cli del
+```
+方法2:
+进入 redis 命令行。
+```
+127.0.0.1:6379> eval "local keys = redis.call('keys',KEYS[1]) for i,v in ipairs(keys) do redis.call('del',v) end" 1 david*
+(nil)
+```
+两种方法的结果如下：
+```
+127.0.0.1:6379> keys david*
+(empty list or set)
+```
+

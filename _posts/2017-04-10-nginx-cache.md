@@ -414,3 +414,4 @@ X-Fastcgi-Cache: BYPASS
 本文翻译自[Nginx Caching](https://serversforhackers.com/nginx-caching)。
 
 感谢[谷歌翻译](https://translate.google.com)，它出色的效果减少了博主很多工作量。
+
