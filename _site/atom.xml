@@ -4,13 +4,91 @@
  <title>David's World</title>
  <link href="http://spetacular.github.io/atom.xml" rel="self"/>
  <link href="http://spetacular.github.io"/>
- <updated>2017-05-27T10:56:13+08:00</updated>
+ <updated>2017-06-01T10:37:59+08:00</updated>
  <id>http://spetacular.github.io</id>
  <author>
    <name>David</name>
    <email>blah@email.test</email>
  </author>
 
+ 
+ <entry>
+   <title>MySQL 1045 Access denied 和 1449 The user specified as a definer does not exist 错误处理</title>
+   <link href="http://spetacular.github.io/2017/05/31/mysql-1045-access-denied-view-definer.html"/>
+   <updated>2017-05-31T00:00:00+08:00</updated>
+   <id>http://spetacular.github.io/2017/05/31/mysql-1045-access-denied-view-definer</id>
+   <content type="html">&lt;p&gt;MySQL 使用新建用户查询时，如果数据库中有 view，可能会出现这样的错误：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-mysql&quot;&gt;SQLSTATE[28000]: Invalid authorization specification: 1045 Access denied for user 'user'@'10.174.68.21' (using password: YES)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;或者&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-mysql&quot;&gt;SQLSTATE[HY000]: General error: 1449 The user specified as a definer ('db_prod'@'%') does not exist
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;其表现是：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;涉及到 table 的查询都正常；&lt;/li&gt;
+  &lt;li&gt;涉及到 view 的查询都报错。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;大多数情况下，出现此问题的根源是view definer设置不当。&lt;/p&gt;
+
+&lt;h1 id=&quot;definer&quot;&gt;查看所有的 definer&lt;/h1&gt;
+
+&lt;p&gt;可以先检查下所有 view 的 definer。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-mysql&quot;&gt;select DEFINER from information_schema.VIEWS;                                          +---------------------------+
+| DEFINER                   |
++---------------------------+
+| db_prod@%                 |
+| db_prod@%                 |
+| db_prod@10.174.68.21      |
+| root@127.0.0.1            |
++---------------------------+
+4 rows in set (0.00 sec)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;可以发现，某些 view 的 definer 为db_prod@% 。&lt;/p&gt;
+
+&lt;h1 id=&quot;viewdefiner&quot;&gt;查看view的definer&lt;/h1&gt;
+
+&lt;p&gt;进而可以查看单个 view 的 definer。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-mysql&quot;&gt;SHOW CREATE VIEW viewname
+CREATE ALGORITHM=UNDEFINED DEFINER=`db_prod`@`%` SQL SECURITY DEFINER VIEW `viewname` AS select * from tablename;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&quot;section&quot;&gt;创建用户时需要注意的事项&lt;/h1&gt;
+
+&lt;p&gt;如果 view 的 definer 与当前的用户不一致，可以修改或删除用户。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-mysql&quot;&gt;删除用户
+DROP USER 'db_prod'@'10.174.68.21';
+修改 definer
+UPDATE `mysql`.`proc` p SET definer = 'root@localhost' WHERE definer='root@foobar' AND db='dbname';
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;在创建用户时，可以用如下 SQL.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-mysql&quot;&gt;创建用户
+CREATE USER 'db_prod'@'%' IDENTIFIED BY '123456';
+授权
+GRANT ALL ON dbname.* TO 'db_prod'@'%';
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;关键是保持 DEFINER 和创建用户时的用户名完全一致。&lt;/p&gt;
+
+&lt;h1 id=&quot;section-1&quot;&gt;参考资料&lt;/h1&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://stackoverflow.com/questions/35662051/mysql-some-queries-produce-sqlstate28000-invalid-authorization-specificatio&quot;&gt;MySql: Some queries produce: SQLSTATE28000: Invalid authorization specification: 1045 Access denied for user&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.cnblogs.com/zejin2008/p/4767531.html&quot;&gt;mysql如何修改所有的definer&lt;/a&gt;&lt;/p&gt;
+
+</content>
+ </entry>
  
  <entry>
    <title>PHP从数组中删除元素的四种方法</title>
@@ -2577,135 +2655,6 @@ var s = Solution()
 s.isBalanced(r1)//false
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
-
-</content>
- </entry>
- 
- <entry>
-   <title>Leetcode 172. Factorial Trailing Zeroes - 阶乘后缀0的数目（O(N)与O(logN)解法）</title>
-   <link href="http://spetacular.github.io/2016/07/24/factorial-trailing-zeroes.html"/>
-   <updated>2016-07-24T00:00:00+08:00</updated>
-   <id>http://spetacular.github.io/2016/07/24/factorial-trailing-zeroes</id>
-   <content type="html">&lt;h2 id=&quot;section&quot;&gt;题目名称&lt;/h2&gt;
-
-&lt;p&gt;Factorial Trailing Zeroes （阶乘后缀0的数目）&lt;/p&gt;
-
-&lt;h2 id=&quot;section-1&quot;&gt;题目地址&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://leetcode.com/problems/factorial-trailing-zeroes/&quot;&gt;https://leetcode.com/problems/factorial-trailing-zeroes/&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;section-2&quot;&gt;题目描述&lt;/h2&gt;
-&lt;p&gt;英文：Given an integer n, return the number of trailing zeroes in n!. &lt;br /&gt;
-Note: Your solution should be in logarithmic time complexity.&lt;/p&gt;
-
-&lt;p&gt;中文：给一个整型数字n，返回n!后缀0的数目。需要对数级别的时间复杂度。&lt;/p&gt;
-
-&lt;p&gt;例如：10! = 3628800，后缀有两个0，返回2。&lt;/p&gt;
-
-&lt;h2 id=&quot;on&quot;&gt;解法1 O(N)&lt;/h2&gt;
-&lt;p&gt;首先是不太可能直接计算n!，然后看后缀0的数目，因为n!太大了！&lt;br /&gt;
-我们先用笨办法，先算出前25个数字的结果，看能否找到规律。&lt;br /&gt;
-&lt;img src=&quot;http://spetacular.github.io/images/2016/zeros.png&quot; alt=&quot;n!与后缀0数目的关系&quot; /&gt;
-可以看到，后缀0数目发生变化的点，都是5的整数倍，如5，10，15，20，25…
-这容易理解，产生后缀0，只能是与10相乘，而10 ＝ 2 * 5，2广泛存在于偶数中，所以不用关注。只需要知道5的倍数的整数即可。&lt;/p&gt;
-
-&lt;p&gt;给定整数n，要找到以下数字，其中x*5^y &amp;lt;= n：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;5,10,15,...,x*5^y
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;然后看每个数字能分解出y个5:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;1,1,1,...,y
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;最后的结果就是如下：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Sum(1,1,1,...,y)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;算法代码（swift）如下：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;class Solution {
-    func trailingZeroes(n: Int) -&amp;gt; Int {
-        if n &amp;lt; 5{
-            return 0
-        }
-        var i = 5
-        var ret = 0
-        while i &amp;lt;= n{
-            ret += num_of_five(i)
-            i += 5
-        }
-        return ret
-    }
-    
-    func num_of_five(n: Int) -&amp;gt;(Int) {
-        var i = n
-        var ret = 0
-      
-        while i &amp;gt; 0{
-            if i % 5 != 0 {
-                break
-            }
-            i = i / 5
-            if i &amp;gt;= 1{
-                ret++
-            }
-        }
-        
-        return ret
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;这个算法需要循环(n/5)次，时间复杂度为O(N)，尽管“政治正确”，但不是最好的解法。&lt;/p&gt;
-
-&lt;h2 id=&quot;ologn&quot;&gt;解法2 O(logN)&lt;/h2&gt;
-
-&lt;p&gt;将解法1的过程再回顾下，计算5出现的次数，可以分解看：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;出现5，计数加1；
-出现5*5，计数加2；
-出现5*5*5，计数加3；
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;换个角度看，&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;除以5，计数加1；
-除以5，计数加1；除以5*5，计数加1；
-除以5，计数加1；除以5*5，计数加1；除以5*5*5，计数加1；
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;那么最后结果&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;floor(n/5) + floor(n/25) + floor(n/125) + ....
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;算法代码（swift）如下：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;class Solution1 {
-    func trailingZeroes(n: Int) -&amp;gt; Int {
-        var i = 5
-        var ret = 0
-        while i &amp;lt;= n{
-            ret += n / i
-            i *= 5
-        }
-        return ret
-    }
-}	
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;算法复杂度为O(logN)。&lt;/p&gt;
 
 </content>
  </entry>
