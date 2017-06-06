@@ -31,80 +31,7 @@ npm install nodemailer --save
 脚本 smoke.js:
 
 将 `---` 包含的部分换成正确的配置即可。
-
-```javascript
-var newman = require('newman'); // require newman in your project 
-var nodemailer  = require('nodemailer');
-var fs = require('fs');
-
-var export_file = './htmlResults_for_mail.html';
-var collection_file = './postman_echo.postman_collection.json';
-// call newman.run to pass `options` object and wait for callback 
-newman.run({
-    collection: require(collection_file),
-    reporters: ['cli','html'],
-    reporter : { html : { export : export_file,template: './template.hbs'} } 
-}, function (err,summary) {
-    if (err) { throw err; }
-    console.log('collection run complete!');
-    console.dir(summary);
-
-    var network_total = summary['run']['stats']['requests']['total'];
-    var network_failed = summary['run']['stats']['requests']['failed'];
-    var network_success = network_total - network_failed;
-    
-    var unit_total = summary['run']['stats']['assertions']['total'];
-    var unit_failed = summary['run']['stats']['assertions']['failed'];
-    var unit_success = unit_total - unit_failed;
-    var stats = "网络请求"+network_total+"次，成功"+network_success+"次，失败"+network_failed+"次。\n共执行单元测试"+unit_total+"次，成功"+unit_success+"次，失败"+unit_failed+"次";
-    
-    if(network_failed>0 || unit_failed > 0){
-        console.log("Something Is WRONG");
-        var tracelog = JSON.stringify(summary['run']['failures'], null, 2);
-        send(stats,tracelog);
-    }else{
-        console.log("Everything Is OK");
-    }
-});
-
-function send(sub,tracelog){
-    var transporter = nodemailer.createTransport({
-		service: "QQex|Gmail",
-		auth: {
-			user: "---发件人邮箱---",
-			pass: "---发件人邮箱密码---"
-		}
-	});
-    
-    var html = fs.readFileSync(export_file);
-    var to = '---收件人地址---';
-	var mailOptions = {
-		from: "---发件人邮箱地址---",
-		to: to,
-		subject: "冒烟测试问题报告:"+sub,
-        html:html,
-        attachments:[{   
-                filename:'results.html',
-                path: export_file,
-                contentType: 'text/html' 
-                },
-                {   
-                    filename: 'tracelog.txt',
-                    content: tracelog,
-                    contentType: 'text/plain'
-                }
-        ],
-	};
-
-	transporter.sendMail(mailOptions, function(error, info) {
-		if (error) {
-			throw error;
-		} else {
-			fn();
-		}
-	});
-}
-```
+<script src="https://gist.github.com/spetacular/4e60770ebecda84064aacb123531b670.js"></script>
 
 # 自定义 HTML 模板
 
@@ -112,52 +39,7 @@ function send(sub,tracelog){
 
 template.hbs 文件：
 
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Smoke Test Report</title>
-</head>
-<body>
-  <div class="container">
-      {{#if summary.failures}}<h1 style="color:red;">SomeThing Is Wrong! Check The Following Contents and Attachments To Find Out!</h1><hr/>{{/if}}
-    <h3>Smoke Test Report</h3>  
-    
-    {{#with summary}}    
-        <p>Collection:   {{collection.name}}</p>
-        <p>Desc:     {{collection.description}}</p>
-        
-    {{/with}}
-    <p>Exec At:  {{timestamp}}</p>
-    <p>Version:  Newman v{{version}}</p>
-
-    {{#with summary}}
-        {{#with stats}}
-        <table style="margin-top: 10px;border-collapse: collapse; border: 1px solid #aaa;width: 50%;"><tbody>
-            <tr><th style="vertical-align: baseline;padding: 5px 15px 5px 6px;background-color: #d5d5d5;border: 1px solid #aaa;text-align: left;">Item</th><th style="vertical-align: baseline;padding: 5px 15px 5px 6px;background-color: #d5d5d5;border: 1px solid #aaa;text-align: left;">Total</th><th style="vertical-align: baseline;padding: 5px 15px 5px 6px;background-color: #d5d5d5;border: 1px solid #aaa;text-align: left;">Failed</th></tr>
-            
-            <tr><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;">Iterations</td><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;">{{iterations.total}}</td><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;">{{iterations.failed}}</td></tr>
-            <tr><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;">Requests</td><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;">{{requests.total}}</td><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;">{{requests.failed}}</td></tr>
-            <tr><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;">Prerequest Scripts</td><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;">{{prerequestScripts.total}}</td><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;">{{prerequestScripts.failed}}</td></tr>
-            <tr><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;">Test Scripts</td><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;">{{testScripts.total}}</td><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;">{{testScripts.failed}}</td></tr>
-            <tr><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;">Assertions</td><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;">{{assertions.total}}</td><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"><span style="color:red;">{{assertions.failed}}</span></td></tr>
-  
-        </tbody></table>
-        {{/with}}
-        <br/>
-        <table style="margin-top: 10px;border-collapse: collapse; border: 1px solid #aaa;width: 50%;"><tbody>
-            <tr><th style="vertical-align: baseline;padding: 5px 15px 5px 6px;background-color: #d5d5d5;border: 1px solid #aaa;text-align: left;">Stats</th><th style="vertical-align: baseline;padding: 5px 15px 5px 6px;background-color: #d5d5d5;border: 1px solid #aaa;text-align: left;">Value</th></tr>
-            <tr><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;">Total run duration</td><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;">{{duration}}</td></tr>
-            <tr><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;">Total data received</td><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;">{{responseTotal}} (approx)</td></tr>
-            <tr><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;">Average response time</td><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;">{{responseAverage}}</td></tr>
-            <tr><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"><strong>Total Failures</strong></td><td style="vertical-align: text-top;padding: 6px 15px 6px 6px;background-color: #efefef;border: 1px solid #aaa;"><span style="color:red;">{{failures}}</span></td></tr>
-        </tbody></table>
-      {{/with}}
-
-</body>
-</html>
-```
+<script src="https://gist.github.com/spetacular/8b9375c373b8339cb2904cbcd56cffaa.js"></script>
 
 最后发送邮件的效果如下：
 
