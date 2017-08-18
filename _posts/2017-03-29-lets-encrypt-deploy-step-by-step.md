@@ -5,6 +5,33 @@ category : 服务器
 tagline: "Supporting tagline"
 tags : [服务器,证书,HTTPS]
 ---
+## 最新更新
+[Certbot](https://certbot.eff.org) 更新了自动更新脚本，现在配置更简单了,基本实现全自动化。以 Nginx 和 Ubuntu 16.04 为例：
+
+### 1. 安装 certbot 软件
+
+```
+$ sudo apt-get update
+$ sudo apt-get install software-properties-common
+$ sudo add-apt-repository ppa:certbot/certbot
+$ sudo apt-get update
+$ sudo apt-get install python-certbot-nginx 
+```
+
+### 2. 一键安装脚本
+certbot 附带一个 nginx 插件，可以直接生成证书和写入nginx配置文件中。
+
+```
+sudo certbot --nginx
+```
+
+### 3. 自动更新
+将自动更新脚本加入crontab中，每月自动更新，crontab -e 加入以下内容：
+
+```
+0 0 1 * * certbot renew
+```
+
 
 ## 目录定义
 1. 存放验证域名的文件，即acme-dir，默认存储在/home/xxx/www/challenges/

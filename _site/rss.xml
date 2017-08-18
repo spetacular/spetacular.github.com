@@ -5,8 +5,8 @@
         <description>David's World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Tue, 06 Jun 2017 10:37:12 +0800</lastBuildDate>
-        <pubDate>Tue, 06 Jun 2017 10:37:12 +0800</pubDate>
+        <lastBuildDate>Fri, 18 Aug 2017 17:47:37 +0800</lastBuildDate>
+        <pubDate>Fri, 18 Aug 2017 17:47:37 +0800</pubDate>
         <ttl>60</ttl>
 
 
@@ -1716,13 +1716,40 @@ function get_token() {
 
         <item>
                 <title>教程：配置 Let's Encrypt 免费HTTPS证书</title>
-                <description>&lt;h2 id=&quot;section&quot;&gt;目录定义&lt;/h2&gt;
+                <description>&lt;h2 id=&quot;section&quot;&gt;最新更新&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&quot;https://certbot.eff.org&quot;&gt;Certbot&lt;/a&gt; 更新了自动更新脚本，现在配置更简单了,基本实现全自动化。以 Nginx 和 Ubuntu 16.04 为例：&lt;/p&gt;
+
+&lt;h3 id=&quot;certbot-&quot;&gt;1. 安装 certbot 软件&lt;/h3&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ sudo apt-get update
+$ sudo apt-get install software-properties-common
+$ sudo add-apt-repository ppa:certbot/certbot
+$ sudo apt-get update
+$ sudo apt-get install python-certbot-nginx 
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;section-1&quot;&gt;2. 一键安装脚本&lt;/h3&gt;
+&lt;p&gt;certbot 附带一个 nginx 插件，可以直接生成证书和写入nginx配置文件中。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo certbot --nginx
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;section-2&quot;&gt;3. 自动更新&lt;/h3&gt;
+&lt;p&gt;将自动更新脚本加入crontab中，每月自动更新，crontab -e 加入以下内容：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;0 0 1 * * certbot renew
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;section-3&quot;&gt;目录定义&lt;/h2&gt;
 &lt;ol&gt;
   &lt;li&gt;存放验证域名的文件，即acme-dir，默认存储在/home/xxx/www/challenges/&lt;/li&gt;
   &lt;li&gt;存放最终结果证书的目录，如本文中的/data/ssl&lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;h2 id=&quot;section-1&quot;&gt;存放验证域名文件的目录&lt;/h2&gt;
+&lt;h2 id=&quot;section-4&quot;&gt;存放验证域名文件的目录&lt;/h2&gt;
 
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;     mkdir ~/www/challenges/
 &lt;/code&gt;&lt;/pre&gt;
@@ -1751,7 +1778,7 @@ function get_token() {
  sudo service nginx reload
 &lt;/code&gt;&lt;/p&gt;
 
-&lt;h2 id=&quot;section-2&quot;&gt;创建存放证书的目录&lt;/h2&gt;
+&lt;h2 id=&quot;section-5&quot;&gt;创建存放证书的目录&lt;/h2&gt;
 
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    mkdir /data/ssl
     cd /data/ssl
@@ -1776,7 +1803,7 @@ function get_token() {
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h2 id=&quot;section-3&quot;&gt;获取脚本&lt;/h2&gt;
+&lt;h2 id=&quot;section-6&quot;&gt;获取脚本&lt;/h2&gt;
 
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    wget https://raw.githubusercontent.com/diafygi/acme-tiny/master/acme_tiny.py
 &lt;/code&gt;&lt;/pre&gt;
@@ -1825,7 +1852,7 @@ cat intermediate.pem root.pem &amp;gt; full_chained.pem
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h2 id=&quot;section-4&quot;&gt;自动更新脚本&lt;/h2&gt;
+&lt;h2 id=&quot;section-7&quot;&gt;自动更新脚本&lt;/h2&gt;
 &lt;p&gt;1.新建文件&lt;code class=&quot;highlighter-rouge&quot;&gt;vi renew_cert.sh&lt;/code&gt;&lt;/p&gt;
 
 &lt;p&gt;2.填写如下内容&lt;/p&gt;
@@ -1850,9 +1877,9 @@ cat intermediate.pem root.pem &amp;gt; full_chained.pem
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h2 id=&quot;section-5&quot;&gt;最关键的是，如果服务器有防火墙，请放开服务器的443入口&lt;/h2&gt;
+&lt;h2 id=&quot;section-8&quot;&gt;最关键的是，如果服务器有防火墙，请放开服务器的443入口&lt;/h2&gt;
 
-&lt;h2 id=&quot;section-6&quot;&gt;说明&lt;/h2&gt;
+&lt;h2 id=&quot;section-9&quot;&gt;说明&lt;/h2&gt;
 &lt;p&gt;本文注重实战，跟着教程一步一步配置即可，想了解原理的同学，可以参考如下网址：   &lt;br /&gt;
 &lt;a href=&quot;https://letsencrypt.org/&quot;&gt;Let’s Encrypt官网&lt;/a&gt;  &lt;br /&gt;
 &lt;a href=&quot;https://imququ.com/post/letsencrypt-certificate.html&quot;&gt;Let’s Encrypt，免费好用的 HTTPS 证书&lt;/a&gt;  &lt;br /&gt;

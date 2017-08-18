@@ -52,13 +52,40 @@
 
 			<div class="bd">
 				<div class="entry-content">
-					<h2 id="section">目录定义</h2>
+					<h2 id="section">最新更新</h2>
+<p><a href="https://certbot.eff.org">Certbot</a> 更新了自动更新脚本，现在配置更简单了,基本实现全自动化。以 Nginx 和 Ubuntu 16.04 为例：</p>
+
+<h3 id="certbot-">1. 安装 certbot 软件</h3>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ sudo apt-get update
+$ sudo apt-get install software-properties-common
+$ sudo add-apt-repository ppa:certbot/certbot
+$ sudo apt-get update
+$ sudo apt-get install python-certbot-nginx 
+</code></pre>
+</div>
+
+<h3 id="section-1">2. 一键安装脚本</h3>
+<p>certbot 附带一个 nginx 插件，可以直接生成证书和写入nginx配置文件中。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>sudo certbot --nginx
+</code></pre>
+</div>
+
+<h3 id="section-2">3. 自动更新</h3>
+<p>将自动更新脚本加入crontab中，每月自动更新，crontab -e 加入以下内容：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>0 0 1 * * certbot renew
+</code></pre>
+</div>
+
+<h2 id="section-3">目录定义</h2>
 <ol>
   <li>存放验证域名的文件，即acme-dir，默认存储在/home/xxx/www/challenges/</li>
   <li>存放最终结果证书的目录，如本文中的/data/ssl</li>
 </ol>
 
-<h2 id="section-1">存放验证域名文件的目录</h2>
+<h2 id="section-4">存放验证域名文件的目录</h2>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>     mkdir ~/www/challenges/
 </code></pre>
@@ -87,7 +114,7 @@
  sudo service nginx reload
 </code></p>
 
-<h2 id="section-2">创建存放证书的目录</h2>
+<h2 id="section-5">创建存放证书的目录</h2>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>    mkdir /data/ssl
     cd /data/ssl
@@ -112,7 +139,7 @@
 </code></pre>
 </div>
 
-<h2 id="section-3">获取脚本</h2>
+<h2 id="section-6">获取脚本</h2>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>    wget https://raw.githubusercontent.com/diafygi/acme-tiny/master/acme_tiny.py
 </code></pre>
@@ -161,7 +188,7 @@ cat intermediate.pem root.pem &gt; full_chained.pem
 </code></pre>
 </div>
 
-<h2 id="section-4">自动更新脚本</h2>
+<h2 id="section-7">自动更新脚本</h2>
 <p>1.新建文件<code class="highlighter-rouge">vi renew_cert.sh</code></p>
 
 <p>2.填写如下内容</p>
@@ -186,9 +213,9 @@ cat intermediate.pem root.pem &gt; full_chained.pem
 </code></pre>
 </div>
 
-<h2 id="section-5">最关键的是，如果服务器有防火墙，请放开服务器的443入口</h2>
+<h2 id="section-8">最关键的是，如果服务器有防火墙，请放开服务器的443入口</h2>
 
-<h2 id="section-6">说明</h2>
+<h2 id="section-9">说明</h2>
 <p>本文注重实战，跟着教程一步一步配置即可，想了解原理的同学，可以参考如下网址：   <br />
 <a href="https://letsencrypt.org/">Let’s Encrypt官网</a>  <br />
 <a href="https://imququ.com/post/letsencrypt-certificate.html">Let’s Encrypt，免费好用的 HTTPS 证书</a>  <br />
