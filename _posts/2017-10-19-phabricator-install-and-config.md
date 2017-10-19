@@ -8,7 +8,7 @@ tags : [Phabricator,linux]
 
 [Phabricator](https://phacility.com/phabricator/) 是一款用于敏捷开发的项目管理软件，它集成了众多实用功能，包括：
 
-* 代码：添加 Git, Mercurial, and SVN 仓库，查看源码，review 代码
+* 代码管理：添加 Git, Mercurial 和 SVN 仓库，查看源码，review 代码
 * bug 追踪：测试人员、开发人员协同工作
 * 项目管理：项目的启动、进展、完成
 * 工作板：所有任务一目了然
@@ -34,6 +34,16 @@ Phabricator 的运行环境是 php，数据库采用 mysql，web服务器可选 
 sudo apt-get update
 sudo apt-get install php5 php5-mysql php5-gd php5-dev php5-curl php-apc php5-cli php5-json nginx mysql-server
 ```
+
+## Tips：PHP 7 的兼容性
+
+如果你的环境是PHP 7.0，那么恭喜你，Phabricator 无法运行在 PHP 7.0 下。
+
+Phabricator 支持 5.x 版本以及 7.1 以上版本，唯独不支持 7.0。
+
+据[官方声明](https://secure.phabricator.com/T12101)，Phabricator 依赖的异步信号处理特性，在 7.0 版本被移除了，但是在7.1 版本又加上了。
+
+使用 PHP 7.0 的用户，可以降级到 PHP 5 或升级到 PHP 7.1，或者用 Docker。
 
 # 安装
 
