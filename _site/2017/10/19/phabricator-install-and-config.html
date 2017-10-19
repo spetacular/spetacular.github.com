@@ -1,0 +1,384 @@
+
+
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7 ie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8 ie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9 ie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>Phabricator 安装与配置教程</title>
+	<meta name="author" content="David">
+	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
+	<link href='/assets/themes/the-program/css/style.css' rel="stylesheet" media="all">
+	<link href="http://feeds.feedburner.com/" rel="alternate" title="Phabricator 安装与配置教程" type="application/atom+xml">
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.0.6/modernizr.min.js"></script>
+</head>
+<body>
+
+<div id="page" class="hentry">
+	<header class="the-header">
+		<div class="unit-head">
+			<div class="unit-inner unit-head-inner">
+				<nav class="nav-global">
+					<ul>
+						<li class="logo"><a href="/">David's World</a></li>
+						<li class="archive"><a href="/archive.html">archive</a></li>
+						<li class="page"><a href="/pages.html">pages</a></li>
+						<li class="category"><a href="/categories.html">categories</a></li>
+						<li class="tag"><a href="/tags.html">tags</a></li>
+					</ul>
+				</nav>
+			</div><!-- unit-inner -->
+		</div><!-- unit-head -->
+	</header>
+	<div class="body" role="main">
+		<div class="unit-body">
+			<div class="unit-inner unit-body-inner">
+				<div class="entry-content">
+					
+
+<article class="unit-article layout-post">
+	<div class="unit-inner unit-article-inner">
+		<div class="content">
+			<header>
+				<div class="unit-head">
+					<div class="unit-inner unit-head-inner">
+						<h1 class="h2 entry-title">Phabricator 安装与配置教程</h1>
+					</div><!-- unit-inner -->
+				</div><!-- unit-head -->
+			</header>
+
+			<div class="bd">
+				<div class="entry-content">
+					<p><a href="https://phacility.com/phabricator/">Phabricator</a> 是一款用于敏捷开发的项目管理软件，它集成了众多实用功能，包括：</p>
+
+<ul>
+  <li>代码：添加 Git, Mercurial, and SVN 仓库，查看源码，review 代码</li>
+  <li>bug 追踪：测试人员、开发人员协同工作</li>
+  <li>项目管理：项目的启动、进展、完成</li>
+  <li>工作板：所有任务一目了然</li>
+  <li>wiki：构建文档</li>
+  <li>任务系统：创建任务、指派任务、完成任务、增加或降低优先级</li>
+  <li>博客系统：甚至可以写博客</li>
+</ul>
+
+<p><img src="/images/2017/phabricator_intro.png" alt="phabricator介绍" /></p>
+
+<p>这里记录一下 Phabricator 的安装配置过程，仅供参考。</p>
+
+<h1 id="section">前提条件</h1>
+
+<p>Phabricator 的运行环境是 php，数据库采用 mysql，web服务器可选 nginx、apache、lighttpd等。</p>
+
+<p>如果操作系统为 ubuntu ，希望快速安装，可以拷贝 <a href="https://secure.phabricator.com/source/phabricator/browse/master/scripts/install/install_ubuntu.sh">install_ubuntu.sh</a> 脚本，一键安装 php5、apache、mysql-server。</p>
+
+<p>这里安装 php5 (包括所需扩展)、nginx、mysql-server。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>sudo apt-get update
+sudo apt-get install php5 php5-mysql php5-gd php5-dev php5-curl php-apc php5-cli php5-json nginx mysql-server
+</code></pre>
+</div>
+
+<h1 id="section-1">安装</h1>
+
+<p>Phabricator 需要 3 个仓库的代码：arcanist、libphutil、phabricator。其中phabricator是项目的主体，arcanist 是 Phabricator 的命令行工具，libphutil 是Phabricator 的实用工具集，包括文件系统、markdown解析、守护进程等。</p>
+
+<p>假设 <code class="highlighter-rouge">webroot</code> 目录为 <code class="highlighter-rouge">/var/www</code>，则执行如下命令：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> /var/www
+mkdir phabricator <span class="o">&amp;&amp;</span> <span class="nb">cd</span> <span class="nv">$_</span>
+git clone https://github.com/phacility/libphutil.git
+git clone https://github.com/phacility/arcanist.git
+git clone https://github.com/phacility/phabricator.git
+</code></pre>
+</div>
+
+<p>保证 arcanist、libphutil、phabricator 目录为并列关系。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="gp">root@localhost:/var/www/phabricator# </span>ls
+arcanist  libphutil  phabricator
+</code></pre>
+</div>
+
+<p>配置 nginx：</p>
+
+<p>其中 root 指向 phabricator 目录的 webroot。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">server</span> <span class="p">{</span>
+  <span class="kn">server_name</span> <span class="s">phabricator.example.com</span><span class="p">;</span>
+  <span class="kn">root</span>        <span class="n">/var/www/phabricator/phabricator/webroot</span><span class="p">;</span>
+
+  <span class="kn">location</span> <span class="n">/</span> <span class="p">{</span>
+    <span class="kn">index</span> <span class="s">index.php</span><span class="p">;</span>
+    <span class="kn">rewrite</span> <span class="s">^/(.*)</span>$ <span class="n">/index.php?__path__=/</span><span class="nv">$1</span> <span class="s">last</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="kn">location</span> <span class="n">/index.php</span> <span class="p">{</span>
+    <span class="kn">fastcgi_pass</span>   <span class="nf">localhost</span><span class="p">:</span><span class="mi">9000</span><span class="p">;</span>
+    <span class="kn">fastcgi_index</span>   <span class="s">index.php</span><span class="p">;</span>
+
+    <span class="c1">#required if PHP was built with --enable-force-cgi-redirect
+</span>    <span class="kn">fastcgi_param</span>  <span class="s">REDIRECT_STATUS</span>    <span class="mi">200</span><span class="p">;</span>
+
+    <span class="c1">#variables to make the $_SERVER populate in PHP
+</span>    <span class="kn">fastcgi_param</span>  <span class="s">SCRIPT_FILENAME</span>    <span class="nv">$document_root$fastcgi_script_name</span><span class="p">;</span>
+    <span class="kn">fastcgi_param</span>  <span class="s">QUERY_STRING</span>       <span class="nv">$query_string</span><span class="p">;</span>
+    <span class="kn">fastcgi_param</span>  <span class="s">REQUEST_METHOD</span>     <span class="nv">$request_method</span><span class="p">;</span>
+    <span class="kn">fastcgi_param</span>  <span class="s">CONTENT_TYPE</span>       <span class="nv">$content_type</span><span class="p">;</span>
+    <span class="kn">fastcgi_param</span>  <span class="s">CONTENT_LENGTH</span>     <span class="nv">$content_length</span><span class="p">;</span>
+
+    <span class="kn">fastcgi_param</span>  <span class="s">SCRIPT_NAME</span>        <span class="nv">$fastcgi_script_name</span><span class="p">;</span>
+
+    <span class="kn">fastcgi_param</span>  <span class="s">GATEWAY_INTERFACE</span>  <span class="s">CGI/1.1</span><span class="p">;</span>
+    <span class="kn">fastcgi_param</span>  <span class="s">SERVER_SOFTWARE</span>    <span class="s">nginx/</span><span class="nv">$nginx_version</span><span class="p">;</span>
+
+    <span class="kn">fastcgi_param</span>  <span class="s">REMOTE_ADDR</span>        <span class="nv">$remote_addr</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<h1 id="section-2">配置</h1>
+
+<h2 id="section-3">数据库</h2>
+
+<p>首先要设置用于 Phabricator 连接的数据库配置。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> /var/www/phabricator/phabricator
+phabricator/ <span class="nv">$ </span>./bin/config <span class="nb">set </span>mysql.host localhost
+phabricator/ <span class="nv">$ </span>./bin/config <span class="nb">set </span>mysql.user root
+phabricator/ <span class="nv">$ </span>./bin/config <span class="nb">set </span>mysql.pass 123456
+</code></pre>
+</div>
+
+<p>然后执行：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>phabricator/ <span class="nv">$ </span>./bin/storage upgrade
+</code></pre>
+</div>
+
+<h2 id="section-4">邮件</h2>
+
+<p>Phabricator 支持的<a href="https://secure.phabricator.com/book/phabricator/article/configuring_outbound_email/">邮件系统</a>很多，如Mailgun、Amazon SES、SendGrid、SMTP。这里以 SMTP 为例。</p>
+
+<p>有两种方式配置邮件发送。</p>
+
+<h3 id="section-5">1. 配置文件</h3>
+
+<p>修改 conf/local/local.json ，加入如下配置：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"phpmailer.smtp-protocol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SSL"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"phpmailer.smtp-password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"密码"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"phpmailer.smtp-user"</span><span class="p">:</span><span class="w"> </span><span class="s2">"邮箱地址"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"phpmailer.smtp-port"</span><span class="p">:</span><span class="w"> </span><span class="err">端口号</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"phpmailer.smtp-host"</span><span class="p">:</span><span class="w"> </span><span class="s2">"邮件服务器"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h3 id="section-6">2. 命令行</h3>
+
+<p>用 bin/config 命令进行设置，如：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>phabricator/ <span class="nv">$ </span>./bin/config <span class="nb">set </span>phpmailer.smtp-protocol ssl
+phabricator/ <span class="nv">$ </span>phabricator/ <span class="nv">$ </span>./bin/config <span class="nb">set </span>phpmailer.smtp-password 密码
+phabricator/ <span class="nv">$ </span>./bin/config <span class="nb">set </span>phpmailer.smtp-user 邮箱地址
+phabricator/ <span class="nv">$ </span>./bin/config <span class="nb">set </span>phpmailer.smtp-port 端口号
+phabricator/ <span class="nv">$ </span>./bin/config <span class="nb">set </span>phpmailer.smtp-host 邮件服务器
+</code></pre>
+</div>
+
+<h3 id="section-7">验证</h3>
+
+<p>配置完成后，可以用命令行测试邮件发送配置是否正确：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>phabricator/ <span class="nv">$ </span>./bin/mail list-outbound   <span class="c"># 列出所有邮件</span>
+phabricator/ <span class="nv">$ </span>./bin/mail show-outbound   <span class="c"># 显示某条邮件</span>
+phabricator/ <span class="nv">$ </span>./bin/mail send-test       <span class="c"># 发送测试邮件</span>
+</code></pre>
+</div>
+
+<p>例如给 david 发送 主题为 hello 的邮件，正文在 body.txt 里：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>phabricator/ <span class="nv">$ </span>./bin/mail send-test --to david --subject <span class="s1">'hello'</span> &lt; ./body.txt
+Reading message body from stdin...
+Mail sent! You can view details by running this <span class="nb">command</span>:
+
+    phabricator/ <span class="nv">$ </span>./bin/mail show-outbound --id 37773
+</code></pre>
+</div>
+
+<p>执行 <code class="highlighter-rouge">./bin/mail show-outbound --id 37773</code> 可以看到此处发送的调试信息。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>PROPERTIES
+ID: 37773
+Status: sent
+Related PHID:
+Message:
+
+PARAMETERS
+sensitive: 1
+cc: []
+subject: hello
+is-bulk:
+mailtags: []
+...............
+</code></pre>
+</div>
+
+<p>这些命令对调试邮件配置和开发新的邮件适配器 (Adapter) 很有用处。</p>
+
+<p>#结语</p>
+
+<p>至此，Phabricator 可以使用了。更详细的功能和配置请参考  <a href="https://secure.phabricator.com/book/phabricator/">Phabricator User Documentation</a></p>
+
+					<div class="meta">
+						<p class="date-publish">
+							Published: 
+							<date class="date-pub" title="2017-10-19T00:00:00+08:00" datetime="2017-10-19T00:00:00+08:00" pubdate>
+							<span class="month"><abbr>October</abbr></span>
+							<span class="day">19</span>
+							<span class="year">2017</span>
+							</date>
+						</p>
+						<ul class="list-category list-linear">
+							<li class="list-head">category: </li>
+							
+							
+
+
+  
+     
+    	<li><a href="/categories.html#nodejs-ref">
+    		nodejs <span>7</span>
+    	</a></li>
+    
+  
+
+
+						</ul>
+						<ul class="list-tag list-linear">
+							<li class="list-head">tags: </li>
+							
+							
+
+
+  
+     
+    	<li><a href="/tags.html#Phabricator-ref">Phabricator <span>1</span></a></li>
+     
+    	<li><a href="/tags.html#linux-ref">linux <span>2</span></a></li>
+    
+  
+
+
+
+						</ul>
+					</div><!-- meta -->
+				</div><!-- entry-content -->
+				<div class="misc-content">
+					<div class="social">
+						<ul class="list-linear">
+							<li><div class="twitter-tweet"><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="" data-lang="en">Tweet</a></div></li>
+							<li><div class="twitter-follow"><a href="https://twitter.com/" class="twitter-follow-button" data-show-count="false" data-lang="en"></a></div></li>
+						</ul>
+					</div>
+					<div class="comment">
+					
+
+
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    
+    var disqus_developer = 1;
+    var disqus_shortname = 'davidblogs'; // required: replace example with your forum shortname
+    
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+
+					</div>
+				</div><!-- misc-content -->
+			</div><!-- bd -->
+			<footer class="unit-foot">
+				<div class="unit-inner unit-foot-inner">
+					<nav class="pagination">
+						<ul>
+							
+							<li class="prev"><a class="internal" rel="prev"  href="/2017/05/31/mysql-1045-access-denied-view-definer.html" title="View MySQL 1045 Access denied 和 1449 The user specified as a definer does not exist 错误处理">&laquo; MySQL 1045 Access denied 和 1449 The user specified as a definer does not exist 错误处理</a></li>
+							
+							
+							
+						</ul>
+					</nav>
+					<p class="gotop">
+						<a href="#page">Back to Top</a>
+					</p>
+				</div>
+			</footer>
+
+		</div><!-- content -->
+	</div><!-- unit-inner -->
+</article>
+
+
+				</div>
+			</div><!-- unit-inner -->
+		</div><!-- unit-body -->
+	</div><!-- body -->
+	<footer class="the-footer">
+		<div class="unit-foot">
+			<div class="unit-inner unit-foot-inner">
+				<div class="misc vcard">
+					<h4>about</h4>
+					<ul>
+						<li class="contact"><address><span class="author fn n">David</span> <!-- - <span class="fn email">blah@email.test</span></address></li> -->
+						<li class="github"><a href="http://github.com/spetacular/" rel="me">github.com/spetacular</a></li>				
+						<li class="twitter"><a href="http://weibo.com/mylxq/" rel="me">weibo.com/mylxq</a></li>
+						<li class="rss"><a href="/rss.xml">Subscribe to RSS Feed</a></li>
+					</ul>
+				</div><!-- misc -->
+				<p class="licence">
+					With the help of <a href="http://jekyllbootstrap.com/">Jekyll-bootstrap</a>.<br>
+					Powered by <a href="https://github.com/mojombo/jekyll">Jekyll</a>.
+				</p>
+			</div><!-- unit-foot-inner -->
+		</div><!-- unit-foot -->
+	</footer>
+</div><!-- page -->
+<script>
+	(function(d, s) {
+		var js, fjs = d.getElementsByTagName(s)[0], load = function(url, id) {
+		if (d.getElementById(id)) {return;}
+		js = d.createElement(s); js.src = url; js.id = id;
+		fjs.parentNode.insertBefore(js, fjs);
+		};
+	load('//platform.twitter.com/widgets.js', 'tweetjs');
+	// load('https://apis.google.com/js/plusone.js', 'gplus1js'); // Checkout http://j.mp/ApDgMr for usage html for this is <div class="g-plusone" data-size="medium"></div>
+	// load('//connect.facebook.net/en_US/all.js#xfbml=1', 'fbjssdk'); // Checkout http://j.mp/wZw2xR for using open graph protorol html for this is <div class="fb-like" data-href="/2017/10/19/phabricator-install-and-config.html" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false" data-font="verdana"></div>
+	}(document, 'script'));
+</script>
+<script>
+/*! A fix for the iOS orientationchange zoom bug.Script by @scottjehl, rebound by @wilto. MIT License.*/
+(function(j){var i=j.document;if(!i.querySelectorAll){return}var l=i.querySelectorAll("meta[name=viewport]")[0],a=l&&l.getAttribute("content"),h=a+", maximum-scale=1.0",d=a+", maximum-scale=10.0",g=true,c=j.orientation,k=0;if(!l){return}function f(){l.setAttribute("content",d);g=true}function b(){l.setAttribute("content",h);g=false}function e(m){c=Math.abs(j.orientation);k=Math.abs(m.gamma);if(k>8&&c===0){if(g){b()}}else{if(!g){f()}}}j.addEventListener("orientationchange",f,false);j.addEventListener("deviceorientation",e,false)})(this);
+</script>
+  
+  
+
+
+
+</body>
+</html>
+

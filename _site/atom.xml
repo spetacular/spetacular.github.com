@@ -4,13 +4,203 @@
  <title>David's World</title>
  <link href="http://spetacular.github.io/atom.xml" rel="self"/>
  <link href="http://spetacular.github.io"/>
- <updated>2017-08-18T17:47:37+08:00</updated>
+ <updated>2017-10-19T18:08:53+08:00</updated>
  <id>http://spetacular.github.io</id>
  <author>
    <name>David</name>
    <email>blah@email.test</email>
  </author>
 
+ 
+ <entry>
+   <title>Phabricator 安装与配置教程</title>
+   <link href="http://spetacular.github.io/2017/10/19/phabricator-install-and-config.html"/>
+   <updated>2017-10-19T00:00:00+08:00</updated>
+   <id>http://spetacular.github.io/2017/10/19/phabricator-install-and-config</id>
+   <content type="html">&lt;p&gt;&lt;a href=&quot;https://phacility.com/phabricator/&quot;&gt;Phabricator&lt;/a&gt; 是一款用于敏捷开发的项目管理软件，它集成了众多实用功能，包括：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;代码：添加 Git, Mercurial, and SVN 仓库，查看源码，review 代码&lt;/li&gt;
+  &lt;li&gt;bug 追踪：测试人员、开发人员协同工作&lt;/li&gt;
+  &lt;li&gt;项目管理：项目的启动、进展、完成&lt;/li&gt;
+  &lt;li&gt;工作板：所有任务一目了然&lt;/li&gt;
+  &lt;li&gt;wiki：构建文档&lt;/li&gt;
+  &lt;li&gt;任务系统：创建任务、指派任务、完成任务、增加或降低优先级&lt;/li&gt;
+  &lt;li&gt;博客系统：甚至可以写博客&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/phabricator_intro.png&quot; alt=&quot;phabricator介绍&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;这里记录一下 Phabricator 的安装配置过程，仅供参考。&lt;/p&gt;
+
+&lt;h1 id=&quot;section&quot;&gt;前提条件&lt;/h1&gt;
+
+&lt;p&gt;Phabricator 的运行环境是 php，数据库采用 mysql，web服务器可选 nginx、apache、lighttpd等。&lt;/p&gt;
+
+&lt;p&gt;如果操作系统为 ubuntu ，希望快速安装，可以拷贝 &lt;a href=&quot;https://secure.phabricator.com/source/phabricator/browse/master/scripts/install/install_ubuntu.sh&quot;&gt;install_ubuntu.sh&lt;/a&gt; 脚本，一键安装 php5、apache、mysql-server。&lt;/p&gt;
+
+&lt;p&gt;这里安装 php5 (包括所需扩展)、nginx、mysql-server。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt-get update
+sudo apt-get install php5 php5-mysql php5-gd php5-dev php5-curl php-apc php5-cli php5-json nginx mysql-server
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h1 id=&quot;section-1&quot;&gt;安装&lt;/h1&gt;
+
+&lt;p&gt;Phabricator 需要 3 个仓库的代码：arcanist、libphutil、phabricator。其中phabricator是项目的主体，arcanist 是 Phabricator 的命令行工具，libphutil 是Phabricator 的实用工具集，包括文件系统、markdown解析、守护进程等。&lt;/p&gt;
+
+&lt;p&gt;假设 &lt;code class=&quot;highlighter-rouge&quot;&gt;webroot&lt;/code&gt; 目录为 &lt;code class=&quot;highlighter-rouge&quot;&gt;/var/www&lt;/code&gt;，则执行如下命令：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /var/www
+mkdir phabricator &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$_&lt;/span&gt;
+git clone https://github.com/phacility/libphutil.git
+git clone https://github.com/phacility/arcanist.git
+git clone https://github.com/phacility/phabricator.git
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;保证 arcanist、libphutil、phabricator 目录为并列关系。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;root@localhost:/var/www/phabricator# &lt;/span&gt;ls
+arcanist  libphutil  phabricator
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;配置 nginx：&lt;/p&gt;
+
+&lt;p&gt;其中 root 指向 phabricator 目录的 webroot。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;server&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kn&quot;&gt;server_name&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;phabricator.example.com&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;kn&quot;&gt;root&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;/var/www/phabricator/phabricator/webroot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+  &lt;span class=&quot;kn&quot;&gt;location&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kn&quot;&gt;index&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;index.php&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;kn&quot;&gt;rewrite&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;^/(.*)&lt;/span&gt;$ &lt;span class=&quot;n&quot;&gt;/index.php?__path__=/&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$1&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;last&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+  &lt;span class=&quot;kn&quot;&gt;location&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;/index.php&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kn&quot;&gt;fastcgi_pass&lt;/span&gt;   &lt;span class=&quot;nf&quot;&gt;localhost&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;9000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;kn&quot;&gt;fastcgi_index&lt;/span&gt;   &lt;span class=&quot;s&quot;&gt;index.php&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;#required if PHP was built with --enable-force-cgi-redirect
+&lt;/span&gt;    &lt;span class=&quot;kn&quot;&gt;fastcgi_param&lt;/span&gt;  &lt;span class=&quot;s&quot;&gt;REDIRECT_STATUS&lt;/span&gt;    &lt;span class=&quot;mi&quot;&gt;200&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;#variables to make the $_SERVER populate in PHP
+&lt;/span&gt;    &lt;span class=&quot;kn&quot;&gt;fastcgi_param&lt;/span&gt;  &lt;span class=&quot;s&quot;&gt;SCRIPT_FILENAME&lt;/span&gt;    &lt;span class=&quot;nv&quot;&gt;$document_root$fastcgi_script_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;kn&quot;&gt;fastcgi_param&lt;/span&gt;  &lt;span class=&quot;s&quot;&gt;QUERY_STRING&lt;/span&gt;       &lt;span class=&quot;nv&quot;&gt;$query_string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;kn&quot;&gt;fastcgi_param&lt;/span&gt;  &lt;span class=&quot;s&quot;&gt;REQUEST_METHOD&lt;/span&gt;     &lt;span class=&quot;nv&quot;&gt;$request_method&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;kn&quot;&gt;fastcgi_param&lt;/span&gt;  &lt;span class=&quot;s&quot;&gt;CONTENT_TYPE&lt;/span&gt;       &lt;span class=&quot;nv&quot;&gt;$content_type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;kn&quot;&gt;fastcgi_param&lt;/span&gt;  &lt;span class=&quot;s&quot;&gt;CONTENT_LENGTH&lt;/span&gt;     &lt;span class=&quot;nv&quot;&gt;$content_length&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;kn&quot;&gt;fastcgi_param&lt;/span&gt;  &lt;span class=&quot;s&quot;&gt;SCRIPT_NAME&lt;/span&gt;        &lt;span class=&quot;nv&quot;&gt;$fastcgi_script_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;kn&quot;&gt;fastcgi_param&lt;/span&gt;  &lt;span class=&quot;s&quot;&gt;GATEWAY_INTERFACE&lt;/span&gt;  &lt;span class=&quot;s&quot;&gt;CGI/1.1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;kn&quot;&gt;fastcgi_param&lt;/span&gt;  &lt;span class=&quot;s&quot;&gt;SERVER_SOFTWARE&lt;/span&gt;    &lt;span class=&quot;s&quot;&gt;nginx/&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$nginx_version&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;kn&quot;&gt;fastcgi_param&lt;/span&gt;  &lt;span class=&quot;s&quot;&gt;REMOTE_ADDR&lt;/span&gt;        &lt;span class=&quot;nv&quot;&gt;$remote_addr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h1 id=&quot;section-2&quot;&gt;配置&lt;/h1&gt;
+
+&lt;h2 id=&quot;section-3&quot;&gt;数据库&lt;/h2&gt;
+
+&lt;p&gt;首先要设置用于 Phabricator 连接的数据库配置。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /var/www/phabricator/phabricator
+phabricator/ &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./bin/config &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;mysql.host localhost
+phabricator/ &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./bin/config &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;mysql.user root
+phabricator/ &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./bin/config &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;mysql.pass 123456
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;然后执行：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;phabricator/ &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./bin/storage upgrade
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;section-4&quot;&gt;邮件&lt;/h2&gt;
+
+&lt;p&gt;Phabricator 支持的&lt;a href=&quot;https://secure.phabricator.com/book/phabricator/article/configuring_outbound_email/&quot;&gt;邮件系统&lt;/a&gt;很多，如Mailgun、Amazon SES、SendGrid、SMTP。这里以 SMTP 为例。&lt;/p&gt;
+
+&lt;p&gt;有两种方式配置邮件发送。&lt;/p&gt;
+
+&lt;h3 id=&quot;section-5&quot;&gt;1. 配置文件&lt;/h3&gt;
+
+&lt;p&gt;修改 conf/local/local.json ，加入如下配置：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;phpmailer.smtp-protocol&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;SSL&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;phpmailer.smtp-password&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;密码&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;phpmailer.smtp-user&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;邮箱地址&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;phpmailer.smtp-port&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;端口号&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;phpmailer.smtp-host&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;邮件服务器&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;section-6&quot;&gt;2. 命令行&lt;/h3&gt;
+
+&lt;p&gt;用 bin/config 命令进行设置，如：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;phabricator/ &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./bin/config &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;phpmailer.smtp-protocol ssl
+phabricator/ &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;phabricator/ &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./bin/config &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;phpmailer.smtp-password 密码
+phabricator/ &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./bin/config &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;phpmailer.smtp-user 邮箱地址
+phabricator/ &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./bin/config &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;phpmailer.smtp-port 端口号
+phabricator/ &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./bin/config &lt;span class=&quot;nb&quot;&gt;set &lt;/span&gt;phpmailer.smtp-host 邮件服务器
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;section-7&quot;&gt;验证&lt;/h3&gt;
+
+&lt;p&gt;配置完成后，可以用命令行测试邮件发送配置是否正确：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;phabricator/ &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./bin/mail list-outbound   &lt;span class=&quot;c&quot;&gt;# 列出所有邮件&lt;/span&gt;
+phabricator/ &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./bin/mail show-outbound   &lt;span class=&quot;c&quot;&gt;# 显示某条邮件&lt;/span&gt;
+phabricator/ &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./bin/mail send-test       &lt;span class=&quot;c&quot;&gt;# 发送测试邮件&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;例如给 david 发送 主题为 hello 的邮件，正文在 body.txt 里：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;phabricator/ &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./bin/mail send-test --to david --subject &lt;span class=&quot;s1&quot;&gt;'hello'&lt;/span&gt; &amp;lt; ./body.txt
+Reading message body from stdin...
+Mail sent! You can view details by running this &lt;span class=&quot;nb&quot;&gt;command&lt;/span&gt;:
+
+    phabricator/ &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./bin/mail show-outbound --id 37773
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;执行 &lt;code class=&quot;highlighter-rouge&quot;&gt;./bin/mail show-outbound --id 37773&lt;/code&gt; 可以看到此处发送的调试信息。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;PROPERTIES
+ID: 37773
+Status: sent
+Related PHID:
+Message:
+
+PARAMETERS
+sensitive: 1
+cc: []
+subject: hello
+is-bulk:
+mailtags: []
+...............
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;这些命令对调试邮件配置和开发新的邮件适配器 (Adapter) 很有用处。&lt;/p&gt;
+
+&lt;p&gt;#结语&lt;/p&gt;
+
+&lt;p&gt;至此，Phabricator 可以使用了。更详细的功能和配置请参考  &lt;a href=&quot;https://secure.phabricator.com/book/phabricator/&quot;&gt;Phabricator User Documentation&lt;/a&gt;&lt;/p&gt;
+</content>
+ </entry>
  
  <entry>
    <title>MySQL 1045 Access denied 和 1449 The user specified as a definer does not exist 错误处理</title>
@@ -2471,99 +2661,6 @@ Given s = “hello”, return “olleh”.&lt;/p&gt;
 &lt;p&gt;算法复杂度为O(N)。&lt;/p&gt;
 
 &lt;p&gt;还有一种时间复杂度为O(N/2)的解法，即交换与中心对称位置的字符，这样可以只循环N/2次。&lt;/p&gt;
-
-</content>
- </entry>
- 
- <entry>
-   <title>Leetcode 110. Balanced Binary Tree - 判断是否为平衡二叉树（递归解法）</title>
-   <link href="http://spetacular.github.io/2016/07/25/balanced-tree.html"/>
-   <updated>2016-07-25T00:00:00+08:00</updated>
-   <id>http://spetacular.github.io/2016/07/25/balanced-tree</id>
-   <content type="html">&lt;h2 id=&quot;section&quot;&gt;题目名称&lt;/h2&gt;
-
-&lt;p&gt;Balanced Binary Tree （判断是否为平衡二叉树）&lt;/p&gt;
-
-&lt;h2 id=&quot;section-1&quot;&gt;题目地址&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://leetcode.com/problems/balanced-binary-tree/&quot;&gt;https://leetcode.com/problems/balanced-binary-tree/&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;section-2&quot;&gt;题目描述&lt;/h2&gt;
-&lt;p&gt;英文：Given a binary tree, determine if it is height-balanced.&lt;/p&gt;
-
-&lt;p&gt;For this problem, a height-balanced binary tree is defined as a binary tree in which the depth of the two subtrees of every node never differ by more than 1.&lt;/p&gt;
-
-&lt;p&gt;中文：给一个二叉树，判断是否为平衡二叉树。&lt;/p&gt;
-
-&lt;h2 id=&quot;section-3&quot;&gt;解法&lt;/h2&gt;
-
-&lt;p&gt;算法代码（swift）如下：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;class Solution {
-    
-    func getHeight(root: TreeNode?) -&amp;gt; Int{
-        if root == nil {
-            return 0
-        }
-        var leftCount = 0;
-        var rightCount = 0;
-        if root!.left != nil{
-            leftCount = getHeight(root!.left) + 1
-        }
-        
-        if root!.right != nil{
-            rightCount = getHeight(root!.right) + 1
-        }
-        
-        return leftCount &amp;gt; rightCount ? leftCount : rightCount
-        
-    }
-    
-    
-    func isBalanced(root: TreeNode?) -&amp;gt; Bool {
-        if root == nil {
-            return true
-        }
-        var leftCount = root!.left == nil ? 0:getHeight(root!.left)+1
-        var rightCount = root!.right == nil ? 0:getHeight(root!.right)+1
-        if abs(leftCount-rightCount) &amp;gt; 1{
-            return false
-        }else if !isBalanced(root!.left) || !isBalanced(root!.right){
-            return false
-        }else{
-            return true
-        }
-        
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;测试用例示例：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://spetacular.github.io/images/2016/balanced_tree_test_case.jpg&quot; alt=&quot;平衡二叉树测试用例&quot; /&gt;&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;public class TreeNode {
-     public var val: Int
-     public var left: TreeNode?
-     public var right: TreeNode?
-     public init(_ val: Int) {
-         self.val = val
-         self.left = nil
-         self.right = nil
-     }
-}
-
-//[1,null,2,null,3]
-var r1 = TreeNode(1)
-var r2 = TreeNode(2)
-var r3 = TreeNode(3)
-r1.right = r2
-r2.right = r3
-var s = Solution()
-s.isBalanced(r1)//false
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
 
 </content>
  </entry>
