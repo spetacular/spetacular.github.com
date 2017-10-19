@@ -5,13 +5,13 @@
         <description>David's World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Thu, 19 Oct 2017 18:08:53 +0800</lastBuildDate>
-        <pubDate>Thu, 19 Oct 2017 18:08:53 +0800</pubDate>
+        <lastBuildDate>Thu, 19 Oct 2017 18:12:20 +0800</lastBuildDate>
+        <pubDate>Thu, 19 Oct 2017 18:12:20 +0800</pubDate>
         <ttl>60</ttl>
 
 
         <item>
-                <title>Phabricator 安装与配置教程</title>
+                <title>Phabricator 入门教程</title>
                 <description>&lt;p&gt;&lt;a href=&quot;https://phacility.com/phabricator/&quot;&gt;Phabricator&lt;/a&gt; 是一款用于敏捷开发的项目管理软件，它集成了众多实用功能，包括：&lt;/p&gt;
 
 &lt;ul&gt;
@@ -26,7 +26,7 @@
 
 &lt;p&gt;&lt;img src=&quot;/images/2017/phabricator_intro.png&quot; alt=&quot;phabricator介绍&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;这里记录一下 Phabricator 的安装配置过程，仅供参考。&lt;/p&gt;
+&lt;p&gt;这里介绍如何从零开始，完成 Phabricator 的安装配置，设置数据库和发送邮件配置，仅供参考。&lt;/p&gt;
 
 &lt;h1 id=&quot;section&quot;&gt;前提条件&lt;/h1&gt;
 

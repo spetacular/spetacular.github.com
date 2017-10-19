@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Phabricator 安装与配置教程
+title: Phabricator 入门教程
 category : nodejs
 tagline: "Supporting tagline"
 tags : [Phabricator,linux]
@@ -20,7 +20,7 @@ tags : [Phabricator,linux]
 
 
 
-这里记录一下 Phabricator 的安装配置过程，仅供参考。
+这里介绍如何从零开始，完成 Phabricator 的安装配置，设置数据库和发送邮件配置，仅供参考。
 
 # 前提条件
 

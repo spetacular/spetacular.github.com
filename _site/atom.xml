@@ -4,7 +4,7 @@
  <title>David's World</title>
  <link href="http://spetacular.github.io/atom.xml" rel="self"/>
  <link href="http://spetacular.github.io"/>
- <updated>2017-10-19T18:08:53+08:00</updated>
+ <updated>2017-10-19T18:12:20+08:00</updated>
  <id>http://spetacular.github.io</id>
  <author>
    <name>David</name>
@@ -13,7 +13,7 @@
 
  
  <entry>
-   <title>Phabricator 安装与配置教程</title>
+   <title>Phabricator 入门教程</title>
    <link href="http://spetacular.github.io/2017/10/19/phabricator-install-and-config.html"/>
    <updated>2017-10-19T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2017/10/19/phabricator-install-and-config</id>
@@ -31,7 +31,7 @@
 
 &lt;p&gt;&lt;img src=&quot;/images/2017/phabricator_intro.png&quot; alt=&quot;phabricator介绍&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;这里记录一下 Phabricator 的安装配置过程，仅供参考。&lt;/p&gt;
+&lt;p&gt;这里介绍如何从零开始，完成 Phabricator 的安装配置，设置数据库和发送邮件配置，仅供参考。&lt;/p&gt;
 
 &lt;h1 id=&quot;section&quot;&gt;前提条件&lt;/h1&gt;
 
