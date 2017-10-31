@@ -5,10 +5,244 @@
         <description>David's World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Thu, 19 Oct 2017 18:31:33 +0800</lastBuildDate>
-        <pubDate>Thu, 19 Oct 2017 18:31:33 +0800</pubDate>
+        <lastBuildDate>Tue, 31 Oct 2017 11:25:47 +0800</lastBuildDate>
+        <pubDate>Tue, 31 Oct 2017 11:25:47 +0800</pubDate>
         <ttl>60</ttl>
 
+
+        <item>
+                <title>Git webhook 实现自动部署教程</title>
+                <description>&lt;p&gt;Git Hook(钩子) 是 Git 在代码提交、推送、合并等工作流程中引入的事件触发器，其中最常用的场景是代码检查，持续集成，自动部署等。本文主要讲解一下利用 Git webhook 实现自动部署。&lt;/p&gt;
+
+&lt;h1 id=&quot;git-hook&quot;&gt;一、Git hook&lt;/h1&gt;
+
+&lt;p&gt;Git 的 hook 分为本地仓库 hook 和服务器仓库 hook。&lt;/p&gt;
+
+&lt;h2 id=&quot;hook&quot;&gt;本地 hook&lt;/h2&gt;
+
+&lt;p&gt;本地 hook 通常在代码的 .git/hooks 目录下，如下所示：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;hooks git:&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;master&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; ls
+applypatch-msg.sample     pre-commit.sample         prepare-commit-msg.sample
+commit-msg.sample         update.sample
+post-update.sample        pre-push.sample
+pre-applypatch.sample     pre-rebase.sample
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;默认情况下，这些脚本不会生效。使用时，只需将 &lt;code class=&quot;highlighter-rouge&quot;&gt;.sample&lt;/code&gt; 后缀去掉，然后赋予脚本执行权限即可。&lt;/p&gt;
+
+&lt;p&gt;本地 hook 主要用于代码静态分析、REVIEW、代码规范、命名规范等。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;pre-commit&lt;/p&gt;
+
+    &lt;p&gt;提交之前的代码检查，包括是否通过单元测试，静态代码分析&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;prepare-commit-msg&lt;/p&gt;
+
+    &lt;p&gt;提交信息之前，可用来生成默认的提交信息&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;commit-msg&lt;/p&gt;
+
+    &lt;p&gt;提交信息之后，可用来检查提交信息是否符合特定的格式&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;post-commit&lt;/p&gt;
+
+    &lt;p&gt;提交代码之后，一般用来通知代码已提交。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;post-checkout&lt;/p&gt;
+
+    &lt;p&gt;checkout 代码之后，可用来设置工作目录、生成文档、生成静态资源等工作&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;post-merge&lt;/p&gt;
+
+    &lt;p&gt;合并代码之后，可用来保存 merge 操作中，git 没有保存的信息。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;pre-push&lt;/p&gt;
+
+    &lt;p&gt;push 代码之前，可用来检查本次 push 的 commits 是否符合特定的标准。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;hook-1&quot;&gt;服务器 hook&lt;/h2&gt;
+
+&lt;p&gt;服务器 hook 指代码传输到服务器时，在服务器端所做的一系列操作。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;pre-receive&lt;/p&gt;
+
+    &lt;p&gt;处理 push 操作之前，可以检查本次 push 的 commits 和文件是否符合特定的标准。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;update&lt;/p&gt;
+
+    &lt;p&gt;update 与 pre-receive 操作类似，不同的是 pre-receive 只执行一次，而 update 可能执行多次。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;post-receive&lt;/p&gt;
+
+    &lt;p&gt;整个提交过程完成之后，可用于更新其它服务或通知用户，比如发邮件告诉开发人员已提交代码，通知持续集成 (Continuous Integration) 服务器部署代码&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;webhook&quot;&gt;webhook&lt;/h2&gt;
+
+&lt;p&gt;如果 Git 服务部署在自己的服务器上，如用 &lt;a href=&quot;https://about.gitlab.com/&quot;&gt;GitLab&lt;/a&gt; 搭建一套 Git 服务，则可以使用服务器 hook。如果使用了 &lt;a href=&quot;https://github.com/&quot;&gt;GitHub&lt;/a&gt;、&lt;a href=&quot;https://bitbucket.org/&quot;&gt;Bitbucket&lt;/a&gt; 等云端平台，那么只能使用 webhook 来完成脚本。&lt;/p&gt;
+
+&lt;p&gt;webhook 本质上属于服务器 hook，因为发送通知的方式是网络请求，因此得名。使用 webhook 的步骤如下：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;设置用于接收请求的 URL。&lt;/li&gt;
+  &lt;li&gt;服务器收到 push、pull request、merge、tag 等操作时，会将相应信息发送给步骤 1 里的 URL。&lt;/li&gt;
+  &lt;li&gt;URL 对应的程序收到网络请求后，执行自动部署、邮件通知等操作。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;webhook-1&quot;&gt;二、部署 webhook&lt;/h1&gt;
+
+&lt;p&gt;##环境假设&lt;/p&gt;
+
+&lt;p&gt;为叙述方便，我们做如下假设。&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;项目&lt;/th&gt;
+      &lt;th&gt;值&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;域名&lt;/td&gt;
+      &lt;td&gt;www.weixinbook.net&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;接收请求的URL&lt;/td&gt;
+      &lt;td&gt;https://www.weixinbook.net/webhook.php&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;项目部署目录&lt;/td&gt;
+      &lt;td&gt;/var/www/weixinbook&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;build.sh路径&lt;/td&gt;
+      &lt;td&gt;/var/www/hooks/build.sh&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;webhook.php&lt;/td&gt;
+      &lt;td&gt;/var/www/weixinbook/webhook.php&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;环境&lt;/td&gt;
+      &lt;td&gt;nginx php&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;用户组&lt;/td&gt;
+      &lt;td&gt;www-data&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h2 id=&quot;ssh-&quot;&gt;部署 SSH 无密码登录&lt;/h2&gt;
+
+&lt;p&gt;首先需要生存 SSH key。&lt;/p&gt;
+
+&lt;p&gt;如果使用 nginx:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo  -u www-data ssh-keygen -t rsa -C &lt;span class=&quot;s2&quot;&gt;&quot;nginx&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;如果使用 apache:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo -u apache ssh-keygen -t rsa -C &lt;span class=&quot;s2&quot;&gt;&quot;apache&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;然后复制你的 public key，粘贴到项目的“SSH 公钥”设置里。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;cat ~/.ssh/id_rsa.pub
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;以 GitHub 为例，在 Settings -&amp;gt; Deploy keys，选择 Add deploy key.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/2017/github_deploy_keys.png&quot; alt=&quot;GitHub Deploy Keys&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;添加完毕后，可以运行 &lt;code class=&quot;highlighter-rouge&quot;&gt;ssh -T git@github.com&lt;/code&gt; 来验证是否设置成功。首次运行时会看到一条 RSA key 指纹的连接确认信息，输入 &lt;code class=&quot;highlighter-rouge&quot;&gt;yes&lt;/code&gt; 回车即可。&lt;/p&gt;
+
+&lt;p&gt;如果看到下面的信息，就说明设置生效了。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-reStructuredText&quot;&gt;Hi username! You've successfully authenticated, but GitHub does not
+provide shell access.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;webhookphp&quot;&gt;webhook.php&lt;/h2&gt;
+&lt;p&gt;webhook.php 用来接收 webhook 请求，一般要做以下操作：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;监测请求来源合法性。检查方法：密码，AES等。&lt;/li&gt;
+  &lt;li&gt;检查是否为特定分支，如 master 分支。&lt;/li&gt;
+  &lt;li&gt;启动自动部署脚本，如完成拉取最新代码，重新设置目录权限等。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;?php&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$raw_data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;file_get_contents&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;php://input&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$pay_load&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;json_decode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$raw_data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;//监测请求来源合法性，
+&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$pay_load&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'password'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'pass'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;exit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'ok 400'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;//检查是否为master分支
+&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$pay_load&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;ref&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;refs/heads/master&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;exit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'ok 401'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'sh /var/www/hooks/build.sh'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;buildsh&quot;&gt;build.sh&lt;/h2&gt;
+&lt;p&gt;build.sh 用来执行自动部署的具体操作。一般情况下，不要放在外网可访问的 webroot 目录下。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#! /bin/bash&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;SITE_PATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'/var/www/weixinbook'&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;USER&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'www-data'&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;USERGROUP&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'www-data'&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$SITE_PATH&lt;/span&gt;
+git reset --hard origin/master
+git clean -f
+git pull
+git checkout master
+chown -R &lt;span class=&quot;nv&quot;&gt;$USER&lt;/span&gt;:&lt;span class=&quot;nv&quot;&gt;$USERGROUP&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$SITE_PATH&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;这样每次在客户端 push 代码，服务器会发请求给 webhook.php，webhook.php 检查通过后，启动 build.sh 进行自动部署。&lt;/p&gt;
+
+&lt;h1 id=&quot;section&quot;&gt;三、结语&lt;/h1&gt;
+
+&lt;p&gt;自动部署并不难，如果失败，大部分是权限问题。解决的方法很简单：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;保证 ssh key 的用户为 www-data&lt;/li&gt;
+  &lt;li&gt;保证 build.sh , webhook.php 以及代码目录的用户为 www-data.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;权限问题解决不了，不要草率地全用 root，这样会带来一定的安全风险。&lt;/p&gt;
+</description>
+                <link>http://spetacular.github.io/2017/10/31/git-webhooks-for-php.html</link>
+                <guid>http://spetacular.github.io/2017/10/31/git-webhooks-for-php</guid>
+                <pubDate>Tue, 31 Oct 2017 00:00:00 +0800</pubDate>
+        </item>
 
         <item>
                 <title>Phabricator 入门教程</title>
@@ -2625,52 +2859,6 @@ git config –global https.proxy http://127.0.0.1:1080&lt;/p&gt;
                 <link>http://spetacular.github.io/2016/07/31/git-sample.html</link>
                 <guid>http://spetacular.github.io/2016/07/31/git-sample</guid>
                 <pubDate>Sun, 31 Jul 2016 00:00:00 +0800</pubDate>
-        </item>
-
-        <item>
-                <title>Leetcode 344. Reverse String - 反转字符串</title>
-                <description>&lt;h2 id=&quot;section&quot;&gt;题目名称&lt;/h2&gt;
-
-&lt;p&gt;Reverse String （反转字符串）&lt;/p&gt;
-
-&lt;h2 id=&quot;section-1&quot;&gt;题目地址&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://leetcode.com/problems/reverse-string/&quot;&gt;https://leetcode.com/problems/reverse-string/&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;section-2&quot;&gt;题目描述&lt;/h2&gt;
-&lt;p&gt;英文：Write a function that takes a string as input and returns the string reversed.&lt;/p&gt;
-
-&lt;p&gt;Example:
-Given s = “hello”, return “olleh”.&lt;/p&gt;
-
-&lt;p&gt;中文：反转一个字符串。例如”hello”，转化为”olleh”。&lt;/p&gt;
-
-&lt;h2 id=&quot;section-3&quot;&gt;解法&lt;/h2&gt;
-
-&lt;p&gt;算法代码（swift）如下：&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;class Solution {
-    func reverseString(s: String) -&amp;gt; String {
-        var len = s.characters.count
-        var sArr  = [Character](count:len, repeatedValue:&quot; &quot;)
-        for i in s.characters{
-            sArr[--len] = i
-        }
-        
-        return String(sArr)
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;算法复杂度为O(N)。&lt;/p&gt;
-
-&lt;p&gt;还有一种时间复杂度为O(N/2)的解法，即交换与中心对称位置的字符，这样可以只循环N/2次。&lt;/p&gt;
-
-</description>
-                <link>http://spetacular.github.io/2016/07/25/reverse-string.html</link>
-                <guid>http://spetacular.github.io/2016/07/25/reverse-string</guid>
-                <pubDate>Mon, 25 Jul 2016 00:00:00 +0800</pubDate>
         </item>
 
 
