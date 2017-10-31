@@ -148,7 +148,7 @@ pre-applypatch.sample     pre-rebase.sample
 
 <h1 id="webhook-1">二、部署 webhook</h1>
 
-<p>##环境假设</p>
+<h2 id="section">环境假设</h2>
 
 <p>为叙述方便，我们做如下假设。</p>
 
@@ -268,7 +268,7 @@ chown -R <span class="nv">$USER</span>:<span class="nv">$USERGROUP</span> <span 
 
 <p>这样每次在客户端 push 代码，服务器会发请求给 webhook.php，webhook.php 检查通过后，启动 build.sh 进行自动部署。</p>
 
-<h1 id="section">三、结语</h1>
+<h1 id="section-1">三、结语</h1>
 
 <p>自动部署并不难，如果失败，大部分是权限问题。解决的方法很简单：</p>
 

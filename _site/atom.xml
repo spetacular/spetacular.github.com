@@ -4,7 +4,7 @@
  <title>David's World</title>
  <link href="http://spetacular.github.io/atom.xml" rel="self"/>
  <link href="http://spetacular.github.io"/>
- <updated>2017-10-31T11:25:47+08:00</updated>
+ <updated>2017-10-31T11:28:32+08:00</updated>
  <id>http://spetacular.github.io</id>
  <author>
    <name>David</name>
@@ -113,7 +113,7 @@ pre-applypatch.sample     pre-rebase.sample
 
 &lt;h1 id=&quot;webhook-1&quot;&gt;二、部署 webhook&lt;/h1&gt;
 
-&lt;p&gt;##环境假设&lt;/p&gt;
+&lt;h2 id=&quot;section&quot;&gt;环境假设&lt;/h2&gt;
 
 &lt;p&gt;为叙述方便，我们做如下假设。&lt;/p&gt;
 
@@ -233,7 +233,7 @@ chown -R &lt;span class=&quot;nv&quot;&gt;$USER&lt;/span&gt;:&lt;span class=&quo
 
 &lt;p&gt;这样每次在客户端 push 代码，服务器会发请求给 webhook.php，webhook.php 检查通过后，启动 build.sh 进行自动部署。&lt;/p&gt;
 
-&lt;h1 id=&quot;section&quot;&gt;三、结语&lt;/h1&gt;
+&lt;h1 id=&quot;section-1&quot;&gt;三、结语&lt;/h1&gt;
 
 &lt;p&gt;自动部署并不难，如果失败，大部分是权限问题。解决的方法很简单：&lt;/p&gt;
 
