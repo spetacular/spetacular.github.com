@@ -88,20 +88,33 @@ webhook 本质上属于服务器 hook，因为发送通知的方式是网络请�
 
 为叙述方便，我们做如下假设。
 
-| 项目         | 值                                      |
-| ---------- | -------------------------------------- |
-| 域名         | www.weixinbook.net                     |
-| 接收请求的URL   | https://www.weixinbook.net/webhook.php |
-| 项目部署目录     | /var/www/weixinbook                    |
-| build.sh路径 | /var/www/hooks/build.sh                |
-| webhook.php |       /var/www/weixinbook/webhook.php                                 |
-| 环境         | nginx php                              |
-| 用户组        | www-data                               |
+| 项目          | 值                                      |
+| ----------- | -------------------------------------- |
+| 域名          | www.weixinbook.net                     |
+| 接收请求的URL    | https://www.weixinbook.net/webhook.php |
+| 项目部署目录      | /var/www/weixinbook                    |
+| build.sh路径  | /var/www/hooks/build.sh                |
+| webhook.php | /var/www/weixinbook/webhook.php        |
+| 环境          | nginx php                              |
+| 用户组         | www-data                               |
 
+## Git 项目地址
+
+Git 项目需要使用 SSH 地址，如 `git@github.com:xxx/xxx.git` 。如果之前采用了 HTTPS 链接，需要修改 .git/config 文件里的 url 字段：
+
+```shell
+vi .git/config
+
+[remote "origin"]
+    url = git@github.com:xxx/xxx.git
+    fetch = +refs/heads/*:refs/remotes/origin/*
+```
 
 ## 部署 SSH 无密码登录
 
-首先需要生存 SSH key。
+
+
+首先需要生成 SSH key。
 
 如果使用 nginx:
 
