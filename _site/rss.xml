@@ -5,8 +5,8 @@
         <description>David's World - David</description>
         <link>http://spetacular.github.io</link>
         <atom:link href="http://spetacular.github.io/rss.xml" rel="self" type="application/rss+xml" />
-        <lastBuildDate>Tue, 31 Oct 2017 11:28:32 +0800</lastBuildDate>
-        <pubDate>Tue, 31 Oct 2017 11:28:32 +0800</pubDate>
+        <lastBuildDate>Tue, 31 Oct 2017 12:29:40 +0800</lastBuildDate>
+        <pubDate>Tue, 31 Oct 2017 12:29:40 +0800</pubDate>
         <ttl>60</ttl>
 
 
@@ -151,9 +151,21 @@ pre-applypatch.sample     pre-rebase.sample
   &lt;/tbody&gt;
 &lt;/table&gt;
 
+&lt;h2 id=&quot;git-&quot;&gt;Git 项目地址&lt;/h2&gt;
+
+&lt;p&gt;Git 项目需要使用 SSH 地址，如 &lt;code class=&quot;highlighter-rouge&quot;&gt;git@github.com:xxx/xxx.git&lt;/code&gt; 。如果之前采用了 HTTPS 链接，需要修改 .git/config 文件里的 url 字段：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vi .git/config
+
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;remote &lt;span class=&quot;s2&quot;&gt;&quot;origin&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+    url &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; git@github.com:xxx/xxx.git
+    fetch &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; +refs/heads/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;:refs/remotes/origin/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
 &lt;h2 id=&quot;ssh-&quot;&gt;部署 SSH 无密码登录&lt;/h2&gt;
 
-&lt;p&gt;首先需要生存 SSH key。&lt;/p&gt;
+&lt;p&gt;首先需要生成 SSH key。&lt;/p&gt;
 
 &lt;p&gt;如果使用 nginx:&lt;/p&gt;
 
