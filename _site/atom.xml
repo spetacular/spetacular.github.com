@@ -4,7 +4,7 @@
  <title>David's World</title>
  <link href="http://spetacular.github.io/atom.xml" rel="self"/>
  <link href="http://spetacular.github.io"/>
- <updated>2017-10-31T12:29:40+08:00</updated>
+ <updated>2017-11-17T11:18:56+08:00</updated>
  <id>http://spetacular.github.io</id>
  <author>
    <name>David</name>
@@ -1969,11 +1969,15 @@ X-Fastcgi-Cache: BYPASS
  </entry>
  
  <entry>
-   <title>Editor.md开源在线 Markdown 编辑器增加本地自动保存功能</title>
+   <title>在线编辑器增加本地自动保存功能[Editor.md,UEditor]</title>
    <link href="http://spetacular.github.io/2017/04/07/editor-md-auto-save-markdown.html"/>
    <updated>2017-04-07T00:00:00+08:00</updated>
    <id>http://spetacular.github.io/2017/04/07/editor-md-auto-save-markdown</id>
-   <content type="html">&lt;p&gt;&lt;a href=&quot;http://pandao.github.io/editor.md/&quot;&gt;Editor.md&lt;/a&gt; 是一款开源 Markdown 在线编辑器。在编辑较长文章时，为防止疏忽造成内容丢失，可以添加自动保存功能。&lt;/p&gt;
+   <content type="html">&lt;p&gt;UEditor 增加本地自动保存功能，更新于2017年11月17日。&lt;/p&gt;
+
+&lt;h1 id=&quot;editormd&quot;&gt;Editor.md&lt;/h1&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://pandao.github.io/editor.md/&quot;&gt;Editor.md&lt;/a&gt; 是一款开源 Markdown 在线编辑器。在编辑较长文章时，为防止疏忽造成内容丢失，可以添加自动保存功能。&lt;/p&gt;
 
 &lt;p&gt;预览地址：&lt;/p&gt;
 
@@ -2002,6 +2006,34 @@ X-Fastcgi-Cache: BYPASS
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
+&lt;p&gt;用户向服务器提交数据并保存成功后，可以删掉key。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;localStorage.removeItem(key);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h1 id=&quot;ueditor&quot;&gt;UEditor&lt;/h1&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://ueditor.baidu.com/website/index.html&quot;&gt;UEditor&lt;/a&gt; 本身有自动保存功能，但并不好用，这里也说明一下配置方法。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;var key = 'default_ue_key';
+var ue = UE.getEditor('editor');
+    ue.addListener( 'ready', function( editor ) {
+        var content = localStorage.getItem(key);
+        if(content){
+            var f = confirm(&quot;您上次编辑的文章未提交，是否恢复？内容：\n&quot;+content);
+            if(f == true){
+                UE.getEditor('editor').execCommand('insertHtml', content);
+            }
+        }
+    } );
+
+    ue.addListener('contentchange',function(){
+        var content = UE.getEditor('editor').getContent();
+        localStorage.setItem(key,content);
+    });
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 &lt;p&gt;用户向服务器提交数据并保存成功后，可以删掉key。&lt;/p&gt;
 
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;localStorage.removeItem(key);

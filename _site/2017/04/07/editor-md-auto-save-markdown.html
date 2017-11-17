@@ -8,11 +8,11 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<title>Editor.md开源在线 Markdown 编辑器增加本地自动保存功能</title>
+	<title>在线编辑器增加本地自动保存功能[Editor.md,UEditor]</title>
 	<meta name="author" content="David">
 	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
 	<link href='/assets/themes/the-program/css/style.css' rel="stylesheet" media="all">
-	<link href="http://feeds.feedburner.com/" rel="alternate" title="Editor.md开源在线 Markdown 编辑器增加本地自动保存功能" type="application/atom+xml">
+	<link href="http://feeds.feedburner.com/" rel="alternate" title="在线编辑器增加本地自动保存功能[Editor.md,UEditor]" type="application/atom+xml">
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.0.6/modernizr.min.js"></script>
 </head>
 <body>
@@ -45,14 +45,18 @@
 			<header>
 				<div class="unit-head">
 					<div class="unit-inner unit-head-inner">
-						<h1 class="h2 entry-title">Editor.md开源在线 Markdown 编辑器增加本地自动保存功能</h1>
+						<h1 class="h2 entry-title">在线编辑器增加本地自动保存功能[Editor.md,UEditor]</h1>
 					</div><!-- unit-inner -->
 				</div><!-- unit-head -->
 			</header>
 
 			<div class="bd">
 				<div class="entry-content">
-					<p><a href="http://pandao.github.io/editor.md/">Editor.md</a> 是一款开源 Markdown 在线编辑器。在编辑较长文章时，为防止疏忽造成内容丢失，可以添加自动保存功能。</p>
+					<p>UEditor 增加本地自动保存功能，更新于2017年11月17日。</p>
+
+<h1 id="editormd">Editor.md</h1>
+
+<p><a href="http://pandao.github.io/editor.md/">Editor.md</a> 是一款开源 Markdown 在线编辑器。在编辑较长文章时，为防止疏忽造成内容丢失，可以添加自动保存功能。</p>
 
 <p>预览地址：</p>
 
@@ -87,6 +91,34 @@
 </code></pre>
 </div>
 
+<h1 id="ueditor">UEditor</h1>
+
+<p><a href="http://ueditor.baidu.com/website/index.html">UEditor</a> 本身有自动保存功能，但并不好用，这里也说明一下配置方法。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>var key = 'default_ue_key';
+var ue = UE.getEditor('editor');
+    ue.addListener( 'ready', function( editor ) {
+        var content = localStorage.getItem(key);
+        if(content){
+            var f = confirm("您上次编辑的文章未提交，是否恢复？内容：\n"+content);
+            if(f == true){
+                UE.getEditor('editor').execCommand('insertHtml', content);
+            }
+        }
+    } );
+
+    ue.addListener('contentchange',function(){
+        var content = UE.getEditor('editor').getContent();
+        localStorage.setItem(key,content);
+    });
+</code></pre>
+</div>
+<p>用户向服务器提交数据并保存成功后，可以删掉key。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>localStorage.removeItem(key);
+</code></pre>
+</div>
+
 					<div class="meta">
 						<p class="date-publish">
 							Published: 
@@ -104,8 +136,8 @@
 
   
      
-    	<li><a href="/categories.html#微信-ref">
-    		微信 <span>2</span>
+    	<li><a href="/categories.html#js-ref">
+    		js <span>2</span>
     	</a></li>
     
   
