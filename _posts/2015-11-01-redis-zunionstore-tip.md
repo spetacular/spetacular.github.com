@@ -25,7 +25,7 @@ tags : [redis]
       127.0.0.1:6379> ZADD mid_test 99.5 "Tom"
       (integer) 1
 
-###排行榜
+## 排行榜
 有序集合天然就是做排行榜的利器。只需将带score的member塞到有序集合里，就可以正序或倒序取出数据。这要用到ZREVRANGE（倒序）和ZRANGE（正序）。     
 
       分数排行榜
@@ -37,7 +37,7 @@ tags : [redis]
       5) "Han Meimei"
       6) "70"
 
-###分段统计
+## 分段统计
 有序集合还支持按score区间来查询：ZREVRANGEBYSCORE为倒序查询，ZRANGEBYSCORE为正序。例如要知道90分以上的学霸：
 
       127.0.0.1:6379> ZREVRANGEBYSCORE mid_test 100 90 WITHSCORES
@@ -45,13 +45,13 @@ tags : [redis]
       2) "99.5"
 
 
-#聚合 
+# 聚合 
 有序集合，其本质是集合，当然会有交集（[ZINTERSTORE](http://redisdoc.com/sorted_set/zinterstore.html "ZINTERSTORE")）和并集（[ZUNIONSTORE](http://redisdoc.com/sorted_set/zunionstore.html "ZUNIONSTORE")）运算。
 
 <img src="http://spetacular.github.io/images/2015-11-01/inter-union.jpg" alt="交集和并集" width="100%"/>
 
-###交集
-[ZINTERSTORE](http://redisdoc.com/sorted_set/zinterstore.html "ZINTERSTORE")取所有集合的并集。以两个集合A和B为例，要取交集C，是这样的逻辑：
+## 交集
+[ZINTERSTORE](http://redisdoc.com/sorted_set/zinterstore.html "ZINTERSTORE")取所有集合的交集。以两个集合A和B为例，要取交集C，是这样的逻辑：
 
 * A和B中共有的member，会加入到C中，其score等于A、B中score之和。
 * 不同时在A和B的member，不会加到C中。
@@ -82,7 +82,7 @@ tags : [redis]
 结果显示了学生的总成绩。
 但结果中没有新来的Jerry同学（尽管TA考了100分）。这是坑一。
 
-###并集
+## 并集
 [ZUNIONSTORE](http://redisdoc.com/sorted_set/zunionstore.html "ZUNIONSTORE")计算所有集合的并集。以两个集合A和B为例，要取并集C，是这样的逻辑：
 
 * A的所有member会加到C中，其score与A中相等
@@ -129,13 +129,13 @@ tags : [redis]
 
 但结果中程序员tom和经理tom是两个人，但工资算在了一起。这是坑二。
 
-#避免踩坑
+# 避免踩坑
 
 还记得上面说的坑一和坑二吗？
 
 坑一：
 
-当进行ZINTERSTORE操作时，如果进行聚合操作的源集合中元素不同，则聚合后的结果集仅为并集。如果发现聚合后少了一些元素，请查看源集合元素是否相同。
+当进行ZINTERSTORE操作时，如果进行聚合操作的源集合中元素不同，则聚合后的结果集仅为交集。如果发现聚合后少了一些元素，请查看源集合元素是否相同。
 
 坑二：
 
@@ -151,7 +151,7 @@ tags : [redis]
 
 后来有用户反馈说timeline排序错误，自己发表发布的信息永远在最上面。后来查明原因，由于早期的bug，自己竟然可以关注自己，导致关注人和自己重复聚合。踩到了坑二。
 
-#为什么踩坑
+# 为什么踩坑
 以坑二为例，为什么有相同元素时，score就会变成原来元素的和？
 
 因为ZINTERSTORE和ZUNIONSTORE有个参数为AGGREGATE，表示结果集的聚合方式，可取SUM、MIN、MAX其中之一。默认值为SUM。
@@ -164,7 +164,7 @@ tags : [redis]
 
 文档如上。
 
-#有序集合之总结
+# 有序集合之总结
 
 使用场景：排行榜，有序列表，聚合；
 
