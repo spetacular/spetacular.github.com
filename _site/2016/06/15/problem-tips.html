@@ -52,10 +52,10 @@
 
 			<div class="bd">
 				<div class="entry-content">
-					<h2 id="php-apm">php-apm是什么</h2>
+					<h2 id="php-apm是什么">php-apm是什么</h2>
 <p><a href="https://github.com/patrickallaert/php-apm">php-apm</a>是一个PHP的性能检测工具，它能方便地捕捉到错误信息，并提供错误追踪回溯，获取请求的统计内存、CPU、响应时间的统计信息，并提供<a href="https://github.com/patrickallaert/php-apm-web">可视化的展示</a>。</p>
 
-<h2 id="apm">安装apm</h2>
+<h2 id="安装apm">安装apm</h2>
 <p>安装apm有两种方式：从PECL安装，或从源码编译。这里采用PECL安装。源码编译见<a href="https://github.com/patrickallaert/php-apm#from-source">官方文档</a>。</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>sudo pecl install apm
@@ -89,7 +89,7 @@ ERROR: `/tmp/pear/temp/APM/configure --with-php-config=/usr/bin/php-config --wit
 </code></pre>
 </div>
 
-<h2 id="apm-1">配置apm</h2>
+<h2 id="配置apm">配置apm</h2>
 <p>在php.ini上配置apm。apm.so依赖于json.so，如果之前没有加载，则应先加载。</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>extension=json.so
@@ -119,7 +119,7 @@ apm.socket_stats_enabled=0
 </code></pre>
 </div>
 
-<h2 id="apm-web">部署apm-web</h2>
+<h2 id="部署apm-web">部署apm-web</h2>
 <p>apm提供了一个web端查看的项目，地址为：<a href="https://github.com/patrickallaert/php-apm-web">https://github.com/patrickallaert/php-apm-web</a>。</p>
 
 <p>将<a href="https://github.com/patrickallaert/php-apm-web/archive/master.zip">https://github.com/patrickallaert/php-apm-web/archive/master.zip</a>解压后上传到网站根目录，或者如果使用git，可以clone到网站根目录下：</p>
@@ -148,14 +148,14 @@ apm.socket_stats_enabled=0
 <p>还有详细的访问统计日志。
 <img src="http://spetacular.github.io/images/2016/web_apm_stats.png" alt="访问日志" /></p>
 
-<h2 id="section">常见问题</h2>
+<h2 id="常见问题">常见问题</h2>
 
-<h3 id="section-1">问题1 部署后无数据，且扩展未加载。</h3>
+<h3 id="问题1-部署后无数据且扩展未加载">问题1 部署后无数据，且扩展未加载。</h3>
 
 <p>检测php.ini文件，看是否有apm扩展。如果出现类似如下的信息，则说明扩展已加载。
 <img src="http://spetacular.github.io/images/2016/php_ini_apm.png" alt="php.ini文件" /></p>
 
-<h3 id="section-2">问题2 部署后无数据，扩展已加载。</h3>
+<h3 id="问题2-部署后无数据扩展已加载">问题2 部署后无数据，扩展已加载。</h3>
 
 <p>mysql_stats_enabled默认值为0，这时是不收集的。可以设置apm.mysql_stats_enabled=1。</p>
 

@@ -52,19 +52,19 @@
 
 			<div class="bd">
 				<div class="entry-content">
-					<h1 id="image"><a href="#image">镜像</a></h1>
+					<h1 id="镜像"><a href="#image">镜像</a></h1>
 <p>Docker镜像Image是一个就像具有<a href="https://zh.wikipedia.org/wiki/Time_Machine">Time Machine</a>功能的虚拟机，保存着特定时刻的一个快照。这个快照包含了已安装的程序、共享库、配置文件、环境变量、用户组等信息。构建Image时，以上内容不会改变。这意味着可以利用Image快速复制出多个相同的运行实体（容器）。</p>
 
-<h1 id="container"><a href="#container">容器</a></h1>
+<h1 id="容器"><a href="#container">容器</a></h1>
 <p>Docker容器container是镜像Image的运行实体。一个镜像可以生成多个相同的容器，每个容器的代码、运行环境、系统工具、系统库都完全相同。这在环境部署、服务扩容等方面具有重大作用。</p>
 
-<h1 id="registry"><a href="#registry">仓库</a></h1>
+<h1 id="仓库"><a href="#registry">仓库</a></h1>
 <p>Docker仓库Registry是一个镜像存储和分发的服务。一个 Docker Registry中可以包含多个仓库（Repository）；每个仓库可以包含多个标签（Tag）；每个标签对应一个镜像。</p>
 
-<h1 id="build"><a href="#build">构建</a></h1>
+<h1 id="构建"><a href="#build">构建</a></h1>
 <p>利用 <a href="https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#run">Dockerfile</a> 定制镜像时，可以用<code class="highlighter-rouge">docker build</code>命令，将指令构建为文件系统。</p>
 
-<h1 id="host"><a href="#host">宿主机</a></h1>
+<h1 id="宿主机"><a href="#host">宿主机</a></h1>
 <p>宿主机就是运行Docker容器的机器。例如我在mac上用<a href="https://docs.docker.com/docker-for-mac/">Docker for Mac</a>，执行<code class="highlighter-rouge">docker pull ubuntu</code>来拉取一个ubuntu镜像然后运行，那么宿主机指的是mac。</p>
 
 					<div class="meta">

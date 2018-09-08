@@ -54,7 +54,7 @@
 				<div class="entry-content">
 					<p><a href="https://www.npmjs.com/package/newman">Newman</a> 是 Postman 推出的一个 nodejs 库。利用 Newman，我们可以很方便地运行和测试集合，并用之构造自动化测试和持续集成。</p>
 
-<h1 id="section">安装运行</h1>
+<h1 id="安装运行">安装运行</h1>
 
 <p>可以使用 npm 来 newman。如果还未安装 npm，可以 <a href="https://nodejs.org/en/download/">点此安装</a> 。</p>
 
@@ -74,7 +74,7 @@
 
 <p><img src="/images/2017/postman_newman_run.gif" alt="newman run动画" /></p>
 
-<h1 id="section-1">编程实现</h1>
+<h1 id="编程实现">编程实现</h1>
 
 <p>新建文件 <code class="highlighter-rouge">test_echo.js</code>，内容如下：</p>
 
@@ -99,7 +99,7 @@ newman.run({
 
 <p>执行效果和直接运行 newman 完全一致。</p>
 
-<h1 id="section-2">结果导出方式</h1>
+<h1 id="结果导出方式">结果导出方式</h1>
 
 <p>Postman 提供了5种导出方法：</p>
 
@@ -113,7 +113,7 @@ newman.run({
 
 <p>另外 Postman 的 html 导出方式支持自定义导出模板。如果不指定模板，将采用 <a href="https://github.com/postmanlabs/newman/blob/develop/lib/reporters/html/template-default.hbs">默认模板</a>。</p>
 
-<h1 id="api">API参考</h1>
+<h1 id="api参考">API参考</h1>
 
 <p>Newman 的核心方法是 <code class="highlighter-rouge">newman.run(options: *object* , callback: *function*) =&gt; run: EventEmitter</code>。其中：</p>
 
@@ -123,7 +123,7 @@ newman.run({
   <li>run 为函数主体，可监听事件。</li>
 </ul>
 
-<h2 id="options-">options 设置项</h2>
+<h2 id="options-设置项">options 设置项</h2>
 
 <table>
   <thead>
@@ -264,7 +264,7 @@ newman.run({
   </tbody>
 </table>
 
-<h2 id="callback-">callback 回调</h2>
+<h2 id="callback-回调">callback 回调</h2>
 
 <table>
   <thead>
@@ -328,7 +328,7 @@ newman.run({
   </tbody>
 </table>
 
-<h2 id="run-">run 事件</h2>
+<h2 id="run-事件">run 事件</h2>
 
 <table>
   <thead>

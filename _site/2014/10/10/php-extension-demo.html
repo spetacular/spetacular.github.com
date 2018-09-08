@@ -54,7 +54,7 @@
 				<div class="entry-content">
 					<p>为了深入学习PHP，就从一个简单的PHP扩展开始，了解一下制作过程。</p>
 
-<h1 id="section">准备工作</h1>
+<h1 id="准备工作">准备工作</h1>
 <p>在制作PHP扩展之前，需要两个条件：</p>
 
 <p>1.正常安装的PHP环境</p>
@@ -63,7 +63,7 @@
 
 <p>这里我的PHP安装在/usr/local/php5.3.10目录，源码在/data/webdev/php-5.3.10</p>
 
-<h1 id="section-1">生成扩展基本框架</h1>
+<h1 id="生成扩展基本框架">生成扩展基本框架</h1>
 <p>运行以下命令：</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>cd /data/webdev/php-5.3.10/ext
@@ -87,9 +87,9 @@ dnl [  --enable-helloyo           Enable helloyo support])
 </code></pre>
 </div>
 
-<p>保存退出。
-# 编写C代码 #
-进入helloyo目录，用ls命令看下文件列表：</p>
+<p>保存退出。</p>
+<h1 id="编写c代码">编写C代码</h1>
+<p>进入helloyo目录，用ls命令看下文件列表：</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>/data/webdev/php-5.3.10/ext/helloyo # ls
 config.m4  config.w32  CREDITS  EXPERIMENTAL  helloyo.c  helloyo.php  php_helloyo.h  .svnignore  tests
@@ -141,7 +141,7 @@ config.m4  config.w32  CREDITS  EXPERIMENTAL  helloyo.c  helloyo.php  php_helloy
 
 <p><img src="http://spetacular.github.io/images/2014-10-10/say_hello_function.png" alt="PHP扩展开发" /></p>
 
-<h1 id="section-2">编译安装</h1>
+<h1 id="编译安装">编译安装</h1>
 <p>1.在helloyo目录下运行phpize命令。phpize命令用来为php扩展的构建环境作准备工作。php官方文档中的说明如下：</p>
 
 <blockquote>
@@ -208,7 +208,7 @@ Installing shared extensions:     /usr/local/php5.3.10/lib/php/extensions/no-deb
 
 <p><img src="http://spetacular.github.io/images/2014-10-10/add_php_extension.png" alt="PHP扩展开发" /></p>
 
-<h1 id="section-3">验证与运行</h1>
+<h1 id="验证与运行">验证与运行</h1>
 <p>1.模块是否加载</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>/usr/local/php5.3.10 # ./bin/php –m
@@ -251,7 +251,7 @@ echo say_hello($name);
 
 <p><img src="http://spetacular.github.io/images/2014-10-10/demo.png" alt="PHP扩展开发" /></p>
 
-<h1 id="section-4">小结</h1>
+<h1 id="小结">小结</h1>
 <p>通过step by step的操作，了解了php扩展的开发方法。由易而难，以后遇到扩展需要开发时，就知道从何下手了。</p>
 
 					<div class="meta">

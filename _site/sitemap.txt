@@ -9,6 +9,7 @@ http://spetacular.github.io/rss.xml
 http://spetacular.github.io/sitemap.txt
 http://spetacular.github.io/tags
 
+http://spetacular.github.io/2018/09/08/bayesian-spelling-check-birthday-problem.html
 http://spetacular.github.io/2017/10/31/git-webhooks-for-php.html
 http://spetacular.github.io/2017/10/19/phabricator-install-and-config.html
 http://spetacular.github.io/2017/05/31/mysql-1045-access-denied-view-definer.html

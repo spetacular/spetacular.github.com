@@ -54,10 +54,10 @@
 				<div class="entry-content">
 					<p>茴香豆的“茴”字有四种写法，PHP从数组中删除元素也有四种方法 ^_^。</p>
 
-<h1 id="section">删除一个元素，且保持原有索引不变</h1>
+<h1 id="删除一个元素且保持原有索引不变">删除一个元素，且保持原有索引不变</h1>
 <p>使用 <a href="https://secure.php.net/manual/zh/function.unset.php">unset</a> 函数，示例如下：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<div class="language-php highlighter-rouge"><pre class="highlight"><code><span class="cp">&lt;?php</span>
     <span class="nv">$array</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="mi">0</span> <span class="o">=&gt;</span> <span class="s2">"a"</span><span class="p">,</span> <span class="mi">1</span> <span class="o">=&gt;</span> <span class="s2">"b"</span><span class="p">,</span> <span class="mi">2</span> <span class="o">=&gt;</span> <span class="s2">"c"</span><span class="p">);</span>
     <span class="nb">unset</span><span class="p">(</span><span class="nv">$array</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
                <span class="c1">//↑ 你想删除的key
@@ -67,7 +67,7 @@
 
 <p>输出：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>Array (
+<div class="language-php highlighter-rouge"><pre class="highlight"><code>Array (
     [0] =&gt; a
     [2] =&gt; c
 )
@@ -76,7 +76,7 @@
 
 <p>使用 <code class="highlighter-rouge">unset</code> 并未改变数组的原有索引。如果打算重排索引（让索引从0开始，并且连续），可以使用 <a href="http://php.net/manual/zh/function.array-values.php">array_values</a> 函数：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>$array = array_values($array);
+<div class="language-php highlighter-rouge"><pre class="highlight"><code>$array = array_values($array);
 /*
 输出
 array(2) {
@@ -89,11 +89,11 @@ array(2) {
 </code></pre>
 </div>
 
-<h1 id="section-1">删除一个元素，不保持索引</h1>
+<h1 id="删除一个元素不保持索引">删除一个元素，不保持索引</h1>
 
 <p>使用 <a href="http://php.net/manual/zh/function.array-splice.php">array_splice</a> 函数，示例如下：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<div class="language-php highlighter-rouge"><pre class="highlight"><code><span class="cp">&lt;?php</span>
     <span class="nv">$array</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="mi">0</span> <span class="o">=&gt;</span> <span class="s2">"a"</span><span class="p">,</span> <span class="mi">1</span> <span class="o">=&gt;</span> <span class="s2">"b"</span><span class="p">,</span> <span class="mi">2</span> <span class="o">=&gt;</span> <span class="s2">"c"</span><span class="p">);</span>
     <span class="nb">array_splice</span><span class="p">(</span><span class="nv">$array</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
                        <span class="c1">//↑ 你想删除的元素的Offset
@@ -103,18 +103,18 @@ array(2) {
 
 <p>输出：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>Array (
+<div class="language-php highlighter-rouge"><pre class="highlight"><code>Array (
     [0] =&gt; a
     [1] =&gt; c
 )
 </code></pre>
 </div>
 
-<h1 id="section-2">按值删除多个元素，保持索引</h1>
+<h1 id="按值删除多个元素保持索引">按值删除多个元素，保持索引</h1>
 
 <p>使用 <a href="http://php.net/manual/zh/function.array-diff.php">array_diff</a> 函数，示例如下：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<div class="language-php highlighter-rouge"><pre class="highlight"><code><span class="cp">&lt;?php</span>
     <span class="nv">$array</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="mi">0</span> <span class="o">=&gt;</span> <span class="s2">"a"</span><span class="p">,</span> <span class="mi">1</span> <span class="o">=&gt;</span> <span class="s2">"b"</span><span class="p">,</span> <span class="mi">2</span> <span class="o">=&gt;</span> <span class="s2">"c"</span><span class="p">);</span>
     <span class="nv">$array</span> <span class="o">=</span> <span class="nb">array_diff</span><span class="p">(</span><span class="nv">$array</span><span class="p">,</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">]);</span>
                               <span class="c1">//└────────┘→ 你想删除的数组元素值values
@@ -124,7 +124,7 @@ array(2) {
 
 <p>输出：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>Array (
+<div class="language-php highlighter-rouge"><pre class="highlight"><code>Array (
     [1] =&gt; b
 )
 </code></pre>
@@ -132,11 +132,11 @@ array(2) {
 
 <p>与 <code class="highlighter-rouge">unset</code> 类似，<code class="highlighter-rouge">array_diff</code> 也将保持索引。</p>
 
-<h1 id="section-3">按键删除多个元素，保持索引</h1>
+<h1 id="按键删除多个元素保持索引">按键删除多个元素，保持索引</h1>
 
 <p>使用 <a href="http://php.net/manual/zh/function.array-diff-key.php">array_diff_key</a> 函数，示例如下：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<div class="language-php highlighter-rouge"><pre class="highlight"><code><span class="cp">&lt;?php</span>
 
     <span class="nv">$array</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="mi">0</span> <span class="o">=&gt;</span> <span class="s2">"a"</span><span class="p">,</span> <span class="mi">1</span> <span class="o">=&gt;</span> <span class="s2">"b"</span><span class="p">,</span> <span class="mi">2</span> <span class="o">=&gt;</span> <span class="s2">"c"</span><span class="p">);</span>
     <span class="nv">$array</span> <span class="o">=</span> <span class="nb">array_diff_key</span><span class="p">(</span><span class="nv">$array</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span> <span class="o">=&gt;</span> <span class="s2">"xy"</span><span class="p">,</span> <span class="s2">"2"</span> <span class="o">=&gt;</span> <span class="s2">"xy"</span><span class="p">]);</span>
@@ -147,7 +147,7 @@ array(2) {
 
 <p>输出：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>Array (
+<div class="language-php highlighter-rouge"><pre class="highlight"><code>Array (
     [1] =&gt; b
 )
 </code></pre>

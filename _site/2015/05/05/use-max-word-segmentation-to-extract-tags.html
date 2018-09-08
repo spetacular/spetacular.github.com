@@ -76,7 +76,7 @@
 
 <p>图2</p>
 
-<h2 id="section">代码</h2>
+<h2 id="代码">代码</h2>
 <p>这里定义MaxWordSegmentation类，其中的run方法返回匹配到的结果。</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>class MaxWordSegmentation{
@@ -168,10 +168,10 @@ var_dump($ret);
 </code></pre>
 </div>
 
-<h2 id="section-1">改进之处</h2>
+<h2 id="改进之处">改进之处</h2>
 <p>由于提取标签时，标签通常不会只有一个字，比如“奥迪”、“奔驰”、“宝马”等，子串长度都为2。如果字典中最短的词长为S，那么对对剩下的字符串重新进行匹配处理，不必等到剩余字串的长度为零才结束，只要匹配到S个字符就行。</p>
 
-<h2 id="section-2">算法分析</h2>
+<h2 id="算法分析">算法分析</h2>
 <p>假设字典中最短的词长为S，最长的词长为L，正文的长度为N。</p>
 
 <p>外层正文循环：N</p>
@@ -182,7 +182,7 @@ var_dump($ret);
 
 <p>所以总的循环次数是(L-S)*N，而(L-S)是个常数，所以时间复杂度是O(N)</p>
 
-<h2 id="section-3">代码下载</h2>
+<h2 id="代码下载">代码下载</h2>
 
 <p><a href="http://spetacular.github.io/html/maxword.zip" title="点此下载">点此下载</a></p>
 

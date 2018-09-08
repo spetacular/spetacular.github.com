@@ -71,7 +71,7 @@
 
 <p>大多数情况下，出现此问题的根源是view definer设置不当。</p>
 
-<h1 id="definer">查看所有的 definer</h1>
+<h1 id="查看所有的-definer">查看所有的 definer</h1>
 
 <p>可以先检查下所有 view 的 definer。</p>
 
@@ -88,7 +88,7 @@
 
 <p>可以发现，某些 view 的 definer 为db_prod@% 。</p>
 
-<h1 id="viewdefiner">查看view的definer</h1>
+<h1 id="查看view的definer">查看view的definer</h1>
 
 <p>进而可以查看单个 view 的 definer。</p>
 
@@ -96,7 +96,7 @@
 CREATE ALGORITHM=UNDEFINED DEFINER=`db_prod`@`%` SQL SECURITY DEFINER VIEW `viewname` AS select * from tablename;
 </code></pre>
 
-<h1 id="section">创建用户时需要注意的事项</h1>
+<h1 id="创建用户时需要注意的事项">创建用户时需要注意的事项</h1>
 
 <p>如果 view 的 definer 与当前的用户不一致，可以修改或删除用户。</p>
 
@@ -116,7 +116,7 @@ GRANT ALL ON dbname.* TO 'db_prod'@'%';
 
 <p>关键是保持 DEFINER 和创建用户时的用户名完全一致。</p>
 
-<h1 id="section-1">参考资料</h1>
+<h1 id="参考资料">参考资料</h1>
 
 <p><a href="https://stackoverflow.com/questions/35662051/mysql-some-queries-produce-sqlstate28000-invalid-authorization-specificatio">MySql: Some queries produce: SQLSTATE28000: Invalid authorization specification: 1045 Access denied for user</a></p>
 

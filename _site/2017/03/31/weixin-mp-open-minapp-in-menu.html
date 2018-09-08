@@ -67,8 +67,8 @@
 
 <p>公众号可将已关联的小程序页面放置到自定义菜单中，用户点击后可打开该小程序页面。公众号运营者可在公众平台进行设置，也可以通过自定义菜单接口进行设置。</p>
 
-<h1 id="section">1.公众平台设置方式</h1>
-<p>## 1.1关联小程序</p>
+<h1 id="1公众平台设置方式">1.公众平台设置方式</h1>
+<h2 id="11关联小程序">1.1关联小程序</h2>
 
 <p>当读者使用公众平台设置方式时，首先要关联公众号和小程序。打开公众平台https://mp.weixin.qq.com，打开“设置” –&gt; “公众号设置”，可以看到如下图：</p>
 
@@ -86,7 +86,7 @@
 
 <p><img src="/images/2016/mp-add-relative-minapp-3.png" alt="公众平台公众号设置，关联小程序" /></p>
 
-<h2 id="section-1">1.2设置小程序自定义菜单</h2>
+<h2 id="12设置小程序自定义菜单">1.2设置小程序自定义菜单</h2>
 
 <p>可以在“功能管理”下“自定义菜单”下编辑，如下图所示：</p>
 
@@ -102,17 +102,16 @@
 
 <p>4.备用网页：旧版兼容选项。旧版微信客户端无法支持小程序时，用户点击菜单时将会打开备用网页。</p>
 
-<h1 id="section-2">2.开发模式自定义菜单创建</h1>
+<h1 id="2开发模式自定义菜单创建">2.开发模式自定义菜单创建</h1>
 
 <p>在开发模式下，可以通过自定义菜单创建接口来创建小程序的菜单。文档地址为<a href="https://mp.weixin.qq.com/wiki">https://mp.weixin.qq.com/wiki</a>下的“自定义菜单”页面。</p>
 
-<p>接口地址如下：
-<code class="highlighter-rouge">
-https://api.weixin.qq.com/cgi-bin/menu/create?access_token=ACCESS_TOKEN
-</code>
-请求内容示例如下：
-<code class="highlighter-rouge"><span class="w">
-</span><span class="p">{</span><span class="w">
+<p>接口地址如下：</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>https://api.weixin.qq.com/cgi-bin/menu/create?access_token=ACCESS_TOKEN
+</code></pre>
+</div>
+<p>请求内容示例如下：</p>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nt">"button"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="p">{</span><span class="w">
       </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"miniprogram"</span><span class="p">,</span><span class="w">
@@ -123,8 +122,9 @@ https://api.weixin.qq.com/cgi-bin/menu/create?access_token=ACCESS_TOKEN
     </span><span class="p">}</span><span class="w">
   </span><span class="p">]</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code>
-完整程序如下：</p>
+</span></code></pre>
+</div>
+<p>完整程序如下：</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>&lt;?php
 define('APPID', '公众号APPID ');//公众号APPID
@@ -187,7 +187,7 @@ function get_token() {
 </code></pre>
 </div>
 
-<h1 id="section-3">欢迎加入微信开发者小密圈</h1>
+<h1 id="欢迎加入微信开发者小密圈">欢迎加入微信开发者小密圈</h1>
 <blockquote>
   <p>微信开放平台拥有订阅号、服务号、小程序和企业号，吸引了一大批开发者，也形成了独特的生态圈。希望我们能吸收能量，交换信息，自由生长。</p>
 </blockquote>

@@ -68,7 +68,7 @@
 
 <p>这里介绍如何从零开始，完成 Phabricator 的安装配置，设置数据库和发送邮件配置，仅供参考。</p>
 
-<h1 id="section">前提条件</h1>
+<h1 id="前提条件">前提条件</h1>
 
 <p>Phabricator 的运行环境是 php，数据库采用 mysql，web服务器可选 nginx、apache、lighttpd等。</p>
 
@@ -76,12 +76,12 @@
 
 <p>这里安装 php5 (包括所需扩展)、nginx、mysql-server。</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>sudo apt-get update
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code>sudo apt-get update
 sudo apt-get install php5 php5-mysql php5-gd php5-dev php5-curl php-apc php5-cli php5-json nginx mysql-server
 </code></pre>
 </div>
 
-<h2 id="tipsphp-7-">Tips：PHP 7 的兼容性</h2>
+<h2 id="tipsphp-7-的兼容性">Tips：PHP 7 的兼容性</h2>
 
 <p>如果你的环境是PHP 7.0，那么恭喜你，Phabricator 无法运行在 PHP 7.0 下。</p>
 
@@ -91,13 +91,13 @@ sudo apt-get install php5 php5-mysql php5-gd php5-dev php5-curl php-apc php5-cli
 
 <p>使用 PHP 7.0 的用户，可以降级到 PHP 5 或升级到 PHP 7.1，或者用 Docker。</p>
 
-<h1 id="section-1">安装</h1>
+<h1 id="安装">安装</h1>
 
 <p>Phabricator 需要 3 个仓库的代码：arcanist、libphutil、phabricator。其中phabricator是项目的主体，arcanist 是 Phabricator 的命令行工具，libphutil 是Phabricator 的实用工具集，包括文件系统、markdown解析、守护进程等。</p>
 
 <p>假设 <code class="highlighter-rouge">webroot</code> 目录为 <code class="highlighter-rouge">/var/www</code>，则执行如下命令：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> /var/www
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> /var/www
 mkdir phabricator <span class="o">&amp;&amp;</span> <span class="nb">cd</span> <span class="nv">$_</span>
 git clone https://github.com/phacility/libphutil.git
 git clone https://github.com/phacility/arcanist.git
@@ -107,7 +107,7 @@ git clone https://github.com/phacility/phabricator.git
 
 <p>保证 arcanist、libphutil、phabricator 目录为并列关系。</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="gp">root@localhost:/var/www/phabricator# </span>ls
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">root@localhost:/var/www/phabricator# </span>ls
 arcanist  libphutil  phabricator
 </code></pre>
 </div>
@@ -116,7 +116,7 @@ arcanist  libphutil  phabricator
 
 <p>其中 root 指向 phabricator 目录的 webroot。</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">server</span> <span class="p">{</span>
+<div class="language-nginx highlighter-rouge"><pre class="highlight"><code><span class="k">server</span> <span class="p">{</span>
   <span class="kn">server_name</span> <span class="s">phabricator.example.com</span><span class="p">;</span>
   <span class="kn">root</span>        <span class="n">/var/www/phabricator/phabricator/webroot</span><span class="p">;</span>
 
@@ -150,13 +150,13 @@ arcanist  libphutil  phabricator
 </code></pre>
 </div>
 
-<h1 id="section-2">配置</h1>
+<h1 id="配置">配置</h1>
 
-<h2 id="section-3">数据库</h2>
+<h2 id="数据库">数据库</h2>
 
 <p>首先要设置用于 Phabricator 连接的数据库配置。</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> /var/www/phabricator/phabricator
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="nb">cd</span> /var/www/phabricator/phabricator
 phabricator/ <span class="nv">$ </span>./bin/config <span class="nb">set </span>mysql.host localhost
 phabricator/ <span class="nv">$ </span>./bin/config <span class="nb">set </span>mysql.user root
 phabricator/ <span class="nv">$ </span>./bin/config <span class="nb">set </span>mysql.pass 123456
@@ -165,21 +165,21 @@ phabricator/ <span class="nv">$ </span>./bin/config <span class="nb">set </span>
 
 <p>然后执行：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>phabricator/ <span class="nv">$ </span>./bin/storage upgrade
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code>phabricator/ <span class="nv">$ </span>./bin/storage upgrade
 </code></pre>
 </div>
 
-<h2 id="section-4">邮件</h2>
+<h2 id="邮件">邮件</h2>
 
 <p>Phabricator 支持的<a href="https://secure.phabricator.com/book/phabricator/article/configuring_outbound_email/">邮件系统</a>很多，如Mailgun、Amazon SES、SendGrid、SMTP。这里以 SMTP 为例。</p>
 
 <p>有两种方式配置邮件发送。</p>
 
-<h3 id="section-5">1. 配置文件</h3>
+<h3 id="1-配置文件">1. 配置文件</h3>
 
 <p>修改 conf/local/local.json ，加入如下配置：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nt">"phpmailer.smtp-protocol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SSL"</span><span class="p">,</span><span class="w">
   </span><span class="nt">"phpmailer.smtp-password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"密码"</span><span class="p">,</span><span class="w">
   </span><span class="nt">"phpmailer.smtp-user"</span><span class="p">:</span><span class="w"> </span><span class="s2">"邮箱地址"</span><span class="p">,</span><span class="w">
@@ -189,11 +189,11 @@ phabricator/ <span class="nv">$ </span>./bin/config <span class="nb">set </span>
 </span></code></pre>
 </div>
 
-<h3 id="section-6">2. 命令行</h3>
+<h3 id="2-命令行">2. 命令行</h3>
 
 <p>用 bin/config 命令进行设置，如：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>phabricator/ <span class="nv">$ </span>./bin/config <span class="nb">set </span>phpmailer.smtp-protocol ssl
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code>phabricator/ <span class="nv">$ </span>./bin/config <span class="nb">set </span>phpmailer.smtp-protocol ssl
 phabricator/ <span class="nv">$ </span>phabricator/ <span class="nv">$ </span>./bin/config <span class="nb">set </span>phpmailer.smtp-password 密码
 phabricator/ <span class="nv">$ </span>./bin/config <span class="nb">set </span>phpmailer.smtp-user 邮箱地址
 phabricator/ <span class="nv">$ </span>./bin/config <span class="nb">set </span>phpmailer.smtp-port 端口号
@@ -201,11 +201,11 @@ phabricator/ <span class="nv">$ </span>./bin/config <span class="nb">set </span>
 </code></pre>
 </div>
 
-<h3 id="section-7">验证</h3>
+<h3 id="验证">验证</h3>
 
 <p>配置完成后，可以用命令行测试邮件发送配置是否正确：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>phabricator/ <span class="nv">$ </span>./bin/mail list-outbound   <span class="c"># 列出所有邮件</span>
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code>phabricator/ <span class="nv">$ </span>./bin/mail list-outbound   <span class="c"># 列出所有邮件</span>
 phabricator/ <span class="nv">$ </span>./bin/mail show-outbound   <span class="c"># 显示某条邮件</span>
 phabricator/ <span class="nv">$ </span>./bin/mail send-test       <span class="c"># 发送测试邮件</span>
 </code></pre>
@@ -213,7 +213,7 @@ phabricator/ <span class="nv">$ </span>./bin/mail send-test       <span class="c
 
 <p>例如给 david 发送 主题为 hello 的邮件，正文在 body.txt 里：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>phabricator/ <span class="nv">$ </span>./bin/mail send-test --to david --subject <span class="s1">'hello'</span> &lt; ./body.txt
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code>phabricator/ <span class="nv">$ </span>./bin/mail send-test --to david --subject <span class="s1">'hello'</span> &lt; ./body.txt
 Reading message body from stdin...
 Mail sent! You can view details by running this <span class="nb">command</span>:
 

@@ -71,9 +71,9 @@ https://production/users
 
 <p>Postman 提供了环境变量（Environment Variable），来解决这个问题。</p>
 
-<h1 id="section">环境变量</h1>
+<h1 id="环境变量">环境变量</h1>
 
-<h2 id="section-1">管理</h2>
+<h2 id="管理">管理</h2>
 
 <p>Postman 环境变量相关按钮放置在Builder页面的右上角。</p>
 
@@ -87,7 +87,7 @@ https://production/users
 
 <p><img src="/images/2017/postman_env_lists.jpeg" alt="postman环境变量相关按钮" /></p>
 
-<h2 id="section-2">使用示例</h2>
+<h2 id="使用示例">使用示例</h2>
 
 <p>我们将环境切换为<code class="highlighter-rouge">dev</code>，在地址栏输入{{url}}/users，查看“Code”代码：</p>
 
@@ -100,13 +100,13 @@ Postman-Token: 9a0ae49e-8983-55f2-7585-a4ea721863da
 
 <p>可见，Postman 自动将{{url}}解析为<code class="highlighter-rouge">http://localhost</code>。</p>
 
-<h1 id="section-3">全局变量</h1>
+<h1 id="全局变量">全局变量</h1>
 
 <p>API测试时，也常有这样的场景：首先要进行登录，登录后获取用户名，而用户名将在后续请求中使用。</p>
 
 <p>Postman 提供了全局变量（Global Variable），来解决类似问题。</p>
 
-<h1 id="section-4">设置全局变量</h1>
+<h1 id="设置全局变量">设置全局变量</h1>
 
 <p>至少有三种方式来设置全局变量：</p>
 
@@ -127,11 +127,11 @@ Postman-Token: 9a0ae49e-8983-55f2-7585-a4ea721863da
 
 <p>其中方式2和方式3都可以用以下命令设置全局变量：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">postman</span><span class="p">.</span><span class="nx">setGlobalVariable</span><span class="p">(</span><span class="s2">"variable_key"</span><span class="p">,</span> <span class="s2">"variable_value"</span><span class="p">);</span>
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">postman</span><span class="p">.</span><span class="nx">setGlobalVariable</span><span class="p">(</span><span class="s2">"variable_key"</span><span class="p">,</span> <span class="s2">"variable_value"</span><span class="p">);</span>
 </code></pre>
 </div>
 
-<h1 id="section-5">示例</h1>
+<h1 id="示例">示例</h1>
 
 <p>我们首先通过上节的方式1添加一个全局变量：<code class="highlighter-rouge">leap_year_2016</code></p>
 
@@ -145,7 +145,7 @@ Postman-Token: 9a0ae49e-8983-55f2-7585-a4ea721863da
 
 <p>然后在Tests里添加如下代码：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">jsonData</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">responseBody</span><span class="p">);</span>
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">jsonData</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">responseBody</span><span class="p">);</span>
 <span class="nx">postman</span><span class="p">.</span><span class="nx">setGlobalVariable</span><span class="p">(</span><span class="s1">'leap_year_2016'</span><span class="p">,</span><span class="nx">jsonData</span><span class="p">.</span><span class="nx">leap</span><span class="p">)</span> <span class="p">;</span>
 </code></pre>
 </div>

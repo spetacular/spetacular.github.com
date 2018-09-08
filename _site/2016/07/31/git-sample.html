@@ -52,55 +52,59 @@
 
 			<div class="bd">
 				<div class="entry-content">
-					<h1 id="git-clone-">git clone 重命名文件夹</h1>
+					<h1 id="git-clone-重命名文件夹">git clone 重命名文件夹</h1>
 <div class="highlighter-rouge"><pre class="highlight"><code>git clone https://github.com/user/userApp.git name_you_want
 </code></pre>
 </div>
 
-<h1 id="git--push403">git 多账户下 push出现403错误</h1>
-<p>执行<code class="highlighter-rouge">git push origin master</code>时出现如下错误：
-&gt;remote: Permission to spetacular/asyntask.git denied to someone.
-&gt;fatal: unable to access ‘https://github.com/spetacular/asyntask.git/’: The requested URL returned error: 403</p>
+<h1 id="git-多账户下-push出现403错误">git 多账户下 push出现403错误</h1>
+<p>执行<code class="highlighter-rouge">git push origin master</code>时出现如下错误：</p>
+<blockquote>
+  <p>remote: Permission to spetacular/asyntask.git denied to someone.
+fatal: unable to access ‘https://github.com/spetacular/asyntask.git/’: The requested URL returned error: 403</p>
+</blockquote>
 
-<p>这是由于.git/config的[remote “origin”]配置错误。可以更改此处代码。格式可以为以下两种情况：
-<code class="highlighter-rouge">
-url=https://spetacular@github.com/spetacular/asyntask.git
+<p>这是由于.git/config的[remote “origin”]配置错误。可以更改此处代码。格式可以为以下两种情况：</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>url=https://spetacular@github.com/spetacular/asyntask.git
 url=ssh://git@github.com/spetacular/asyntask.git
-</code></p>
+</code></pre>
+</div>
 
-<p>如果不想更改全局配置，而只想临时使用：
-<code class="highlighter-rouge">
-git push https://spetacular@github.com/spetacular/asyntask.git master
-</code></p>
+<p>如果不想更改全局配置，而只想临时使用：</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>git push https://spetacular@github.com/spetacular/asyntask.git master
+</code></pre>
+</div>
 
-<h1 id="git-">git 设置和取消网络代理</h1>
-<p>可设置为shadowsocks代理：
-```
-git config –global https.proxy http://127.0.0.1:1080</p>
+<h1 id="git-设置和取消网络代理">git 设置和取消网络代理</h1>
+<p>可设置为shadowsocks代理：</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>git config --global https.proxy http://127.0.0.1:1080
 
-<p>git config –global https.proxy https://127.0.0.1:1080</p>
+git config --global https.proxy https://127.0.0.1:1080
 
-<p>git config –global –unset http.proxy</p>
+git config --global --unset http.proxy
 
-<p>git config –global –unset https.proxy
-```</p>
+git config --global --unset https.proxy
+</code></pre>
+</div>
 
-<h1 id="git-tag">git 更新特定tag</h1>
-<p>已经打过tag，但又发现需要微调，再次<code class="highlighter-rouge">git tag  1.0.0</code>时，会发生如下错误
-&gt;fatal: tag ‘1.0.0’ already exists</p>
+<h1 id="git-更新特定tag">git 更新特定tag</h1>
+<p>已经打过tag，但又发现需要微调，再次<code class="highlighter-rouge">git tag  1.0.0</code>时，会发生如下错误</p>
+<blockquote>
+  <p>fatal: tag ‘1.0.0’ already exists</p>
+</blockquote>
 
-<p>1.删除本地tag:
-<code class="highlighter-rouge">
- git tag -d 1.0.0
-</code>
-2.重新打tag：
- <code class="highlighter-rouge">
- git tag  1.0.0
-</code>
-3.push到服务器
- <code class="highlighter-rouge">
- git push --force origin refs/tags/1.0.0:refs/tags/1.0.0
-</code></p>
+<p>1.删除本地tag:</p>
+<div class="highlighter-rouge"><pre class="highlight"><code> git tag -d 1.0.0
+</code></pre>
+</div>
+<p>2.重新打tag：</p>
+<div class="highlighter-rouge"><pre class="highlight"><code> git tag  1.0.0
+</code></pre>
+</div>
+<p>3.push到服务器</p>
+<div class="highlighter-rouge"><pre class="highlight"><code> git push --force origin refs/tags/1.0.0:refs/tags/1.0.0
+</code></pre>
+</div>
 
 
 					<div class="meta">

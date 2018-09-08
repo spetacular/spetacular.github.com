@@ -142,9 +142,11 @@ Sticky是nginx的一个模块,通过分发和识别cookie，来使同一个客�
 <p>##客户端可能不带cookie##
 Android客户端发送请求时，一般不会带上所有的cookie，需要明确指定哪些cookie会带上。如果希望用sticky做负载均衡，请对Android开发说加上cookie。</p>
 
-<p>#注意事项
-* cookie名称不要和业务使用的cookie重名。Sticky默认的cookie名称是route，可以改成任何值。但切记，不可以与业务中使用的cookie重名。
-* 客户端发的第一个请求是不带cookie的。服务器下发的cookie，在客户端下一次请求时才能生效。</p>
+<p>#注意事项</p>
+<ul>
+  <li>cookie名称不要和业务使用的cookie重名。Sticky默认的cookie名称是route，可以改成任何值。但切记，不可以与业务中使用的cookie重名。</li>
+  <li>客户端发的第一个请求是不带cookie的。服务器下发的cookie，在客户端下一次请求时才能生效。</li>
+</ul>
 
 					<div class="meta">
 						<p class="date-publish">

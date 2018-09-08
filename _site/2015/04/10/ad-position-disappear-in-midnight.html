@@ -54,7 +54,7 @@
 				<div class="entry-content">
 					<p>旧文重发。这篇博客记录了Po主在<a href="http://t.qq.com" title="腾讯微博">腾讯微博</a>时的解决的一个Bug，不是大问题，但追查的过程很有意思。也以此纪念一下。</p>
 
-<h1 id="section">诡秘的空白广告位</h1>
+<h1 id="诡秘的空白广告位">诡秘的空白广告位</h1>
 <p>一碗水，放置一晚上，会发生什么呢？</p>
 
 <p>会蒸发，会流失，可能会被小猫喝掉，或被不注意的人踢翻。</p>
@@ -73,7 +73,7 @@
 
 <p><img src="http://spetacular.github.io/images/2015-04-10/bad-ad.png" alt="bad ad" /></p>
 
-<h1 id="section-1">找出真凶</h1>
+<h1 id="找出真凶">找出真凶</h1>
 <p>广告位原先存在，后来消失，一定是有什么改动了dom结构。</p>
 
 <p>经过观察，发现广告位消失的重现规则是这样的：</p>
@@ -88,7 +88,7 @@
 
 <p>于是我设想，在一个整晚，页面肯定通过超时或定时请求了某个js文件，而这个js文件会更改dom结构。</p>
 
-<h1 id="section-2">抓包</h1>
+<h1 id="抓包">抓包</h1>
 <p>只知道发生在晚上，但具体什么时候不清楚，所以我尝试用fiddler抓包。</p>
 
 <p>下班前，我打开腾讯微博首页和fiddler，看着一行行记录，我知道，第二天肯定会有些异常出现。</p>
@@ -152,14 +152,14 @@ Output completed (0 sec consumed) - Normal Termination
 
 <p><img src="http://spetacular.github.io/images/2015-04-10/json-result.png" alt="json result" /></p>
 
-<h1 id="section-3">原因分析</h1>
+<h1 id="原因分析">原因分析</h1>
 <p>mysidebar_n_new.php是一个JSONP，获取数据后将值传递给回调函数mySidebar，该函数负责将数据中的dom结构加载到相应的位置。</p>
 
 <p>广告位是app_ad和app_ad3_1。这里广告的逻辑是这样的，腾讯微博这边只输出dom结构，然后引用广告平台的一段js来填入内容。</p>
 
 <p>而这里的app_ad和app_ad3_1，不管页面逻辑如下，强行将dom结构替换，替换的同时没有去请求广告平台的js，导致有位置没内容，就出现了空白。</p>
 
-<h1 id="section-4">解决方案</h1>
+<h1 id="解决方案">解决方案</h1>
 <p>确定了原因是晚上0点加载了mysidebar_n_new.php但没有进行相应处理，那么可能的解决方案有以下几种：</p>
 
 <ul>
@@ -185,7 +185,7 @@ Output completed (0 sec consumed) - Normal Termination
   </li>
 </ul>
 
-<h1 id="section-5">总结</h1>
+<h1 id="总结">总结</h1>
 <p>这件事情很简单，就是晚上0点加载了一个文件，但没有进行相应处理，引起了广告位空白。
 这使我想起一段话：</p>
 

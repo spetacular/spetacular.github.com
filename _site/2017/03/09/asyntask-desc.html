@@ -52,14 +52,14 @@
 
 			<div class="bd">
 				<div class="entry-content">
-					<h1 id="phpasyntask">PHP异步任务队列管理器asyntask</h1>
+					<h1 id="php异步任务队列管理器asyntask">PHP异步任务队列管理器asyntask</h1>
 <p>asyntask是一个轻量级异步任务队列管理器，支持实时，定时，长时和周期任务。</p>
 
-<h2 id="section">项目由来</h2>
+<h2 id="项目由来">项目由来</h2>
 
 <p>本项目最初用于通知推送。例如用户发布评论，需要推送一条push给原作者。而到苹果的服务器的请求时间较长，如果等待苹果服务器的返回结果，则整个发布评论的接口的响应时间就太长了。因为推送push早1秒晚1秒对用户基本没影响，所以当用户发布评论时，只要数据到数据库，即可返回。与此同时创建一条异步任务，在1秒内给用户推送push。这样既保证了接口的响应速度，又不影响用户体验。该项目已经在线上环境运行1年多，执行了累计8千万条命令，运行稳定。</p>
 
-<h2 id="section-1">优点</h2>
+<h2 id="优点">优点</h2>
 
 <ul>
   <li>异步执行</li>
@@ -67,46 +67,46 @@
   <li>代码集成，可编程</li>
 </ul>
 
-<h2 id="section-2">缺点</h2>
+<h2 id="缺点">缺点</h2>
 
 <p>并非真正实时，秒级误差。</p>
 
-<h1 id="section-3">安装</h1>
-<p>## 下载源码</p>
+<h1 id="安装">安装</h1>
+<h2 id="下载源码">下载源码</h2>
 
-<p>直接使用：
-<code class="highlighter-rouge">
-git clone https://github.com/spetacular/asyntask.git
-</code>
-命令下载到本地。</p>
+<p>直接使用：</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>git clone https://github.com/spetacular/asyntask.git
+</code></pre>
+</div>
+<p>命令下载到本地。</p>
 
-<p>也可以点击 <a href="https://github.com/spetacular/asyntask/archive/master.zip">https://github.com/spetacular/asyntask/archive/master.zip</a> 下载最新内容的压缩包，然后解压。
-## 通过 composer 来安装</p>
+<p>也可以点击 <a href="https://github.com/spetacular/asyntask/archive/master.zip">https://github.com/spetacular/asyntask/archive/master.zip</a> 下载最新内容的压缩包，然后解压。</p>
+<h2 id="通过-composer-来安装">通过 composer 来安装</h2>
 
-<p>在你的 composer 项目中的 composer.json 文件中，添加这部分：
-<code class="highlighter-rouge"><span class="w">
-   </span><span class="p">{</span><span class="w">
+<p>在你的 composer 项目中的 composer.json 文件中，添加这部分：</p>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="w">   </span><span class="p">{</span><span class="w">
        </span><span class="nt">"require"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
            </span><span class="nt">"davidyan/asyntask"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&gt;=1.0"</span><span class="w">
        </span><span class="p">}</span><span class="w">
    </span><span class="p">}</span><span class="w">
-</span></code></p>
+</span></code></pre>
+</div>
 
-<p>然后执行<code class="highlighter-rouge">composer install</code>。调用示例如下：
-```
-include ‘./vendor/autoload.php’;
-$task = new AsynTask\Task();</p>
+<p>然后执行<code class="highlighter-rouge">composer install</code>。调用示例如下：</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>include './vendor/autoload.php';
+$task = new AsynTask\Task();
 
-<p>//添加单次任务
-$name = ‘单次任务’;
-$cmd = ‘php abcd.php’;
+//添加单次任务
+$name = '单次任务';
+$cmd = 'php abcd.php';
 $params = array(
-	‘params’=&gt;1
+	'params'=&gt;1
 );
 $task-&gt;add_once_task($name,$cmd,$params);
-```</p>
+</code></pre>
+</div>
 
-<h1 id="section-4">配置</h1>
+<h1 id="配置">配置</h1>
 <p>1.asyntask的数据默认存储在Mysql数据库里，因此需要更改config.php里的配置：</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>	'DB_HOST'=&gt;'127.0.0.1',
@@ -122,27 +122,26 @@ $task-&gt;add_once_task($name,$cmd,$params);
 将resource文件夹里的db.sql导入数据库中。</p>
 
 <p>3.配置健康检查脚本
-run.sh定期检查异步任务的运行状况，如果挂了，cron_asyn_task.php脚本。
-<code class="highlighter-rouge">
-chmod +x run.sh
-</code>
-然后配置CronTab。运行<code class="highlighter-rouge">crontab -e</code>，然后添加一行：
-<code class="highlighter-rouge">
-* * * * *  path-to/run.sh  &gt; /dev/null 2&gt;&amp;1
-</code>
-# 使用方式</p>
+run.sh定期检查异步任务的运行状况，如果挂了，cron_asyn_task.php脚本。</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>chmod +x run.sh
+</code></pre>
+</div>
+<p>然后配置CronTab。运行<code class="highlighter-rouge">crontab -e</code>，然后添加一行：</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>* * * * *  path-to/run.sh  &gt; /dev/null 2&gt;&amp;1
+</code></pre>
+</div>
+<h1 id="使用方式">使用方式</h1>
 
-<h2 id="section-5">管理后台</h2>
+<h2 id="管理后台">管理后台</h2>
 
 <p>自带管理后台，可以轻松添加、编辑、删除、搜索任务。代码在<a href="https://github.com/spetacular/asynadmin">https://github.com/spetacular/asynadmin</a>，请自行部署。
 <a href="https://github.com/spetacular/asynadmin/raw/master/asynadmin.jpeg"><img src="https://github.com/spetacular/asynadmin/raw/master/asynadmin.jpeg" alt="管理后台截图" /></a></p>
 
-<h2 id="section-6">编程方式</h2>
+<h2 id="编程方式">编程方式</h2>
 
 <p>可以集成到项目中，完整使用示例见<code class="highlighter-rouge">test.php</code>。
-例如添加周期任务：
-<code class="highlighter-rouge">
-$name = '周期任务';
+例如添加周期任务：</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>$name = '周期任务';
 $cmd = 'php abc.php';
 $params = array(
 	'params'=&gt;1
@@ -153,8 +152,9 @@ $timeOptions = array(
 	'minute'=&gt;3
 );
 $task-&gt;add_loop_task($name,$cmd,$params,$timeOptions);
-</code>
-## 周期任务示例</p>
+</code></pre>
+</div>
+<h2 id="周期任务示例">周期任务示例</h2>
 
 <p>每天执行：day 1 hour 0 minute 0 每天零点执行</p>
 

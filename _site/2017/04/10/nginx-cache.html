@@ -65,7 +65,7 @@
 
 <p>如果您碰巧使用Nginx Plus，它具有支持和额外的功能，这一点尤其如此。</p>
 
-<h1 id="section">用例</h1>
+<h1 id="用例">用例</h1>
 
 <p>Nginx自己处理静态内容。这是Web服务器的典型用例，而不是缓存服务器。然而，由于Nginx可以向其他Web服务器或应用程序（通过HTTP，FastCGI和uWSGI）代理请求，因此通常用于在向其他进程代理应用程序请求时提高服务静态文件的性能。</p>
 
@@ -87,7 +87,7 @@
 
 <p>在这里的例子中，我们使用Nginx处理静态站点，再在前面放置Nginx缓存服务器。</p>
 
-<h1 id="section-1">它如何工作</h1>
+<h1 id="它如何工作">它如何工作</h1>
 
 <p>首先你需要知道Origin Server是什么。</p>
 
@@ -108,10 +108,12 @@
   <p>一些较大的Web应用程序除了缓存服务器之外还使用负载平衡器，从而导致高度分层的基础架构。</p>
 </blockquote>
 
-<p>缓存服务器的职责：
-- 确定HTTP请求是否接受缓存响应，并且缓存中有一个新项目可以响应
-- 如果请求不应被缓存，或者缓存的项目是否过期，则向源服务器发送HTTP请求
-- 响应来自其缓存或源服务器的HTTP响应为适当的。</p>
+<p>缓存服务器的职责：</p>
+<ul>
+  <li>确定HTTP请求是否接受缓存响应，并且缓存中有一个新项目可以响应</li>
+  <li>如果请求不应被缓存，或者缓存的项目是否过期，则向源服务器发送HTTP请求</li>
+  <li>响应来自其缓存或源服务器的HTTP响应为适当的。</li>
+</ul>
 
 <p>最后说下<strong>客户端</strong>。客户端可以拥有自己的本地（私有）缓存 - 例如每个浏览器都有一个本地缓存。我们的浏览器可能会缓存一个响应本身（通常是图像，CSS和JS文件），因此，如果静态文件在其本地缓存中已经有新版本，那么浏览器根本不会向缓存服务器发送请求。</p>
 
@@ -123,7 +125,7 @@
   <li>决定从本地缓存中提取请求或发出HTTP请求以检索它们</li>
 </ul>
 
-<h1 id="section-2">源服务器</h1>
+<h1 id="源服务器">源服务器</h1>
 
 <p>源服务器最终负责提供文件和控制如何缓存文件。</p>
 
@@ -232,7 +234,7 @@ Cache-Control: public
 
 <p>至此，源服务器设置好了。</p>
 
-<h1 id="section-3">缓存服务器</h1>
+<h1 id="缓存服务器">缓存服务器</h1>
 
 <p>源服务器已经设置完毕，但是我们需要在源服务器前面放置一个缓存服务器。 在我们的场景中，缓存服务器将作为Web服务器来接收请求。 如果缓存服务器不能直接从缓存里命中文件，则它会将HTTP请求传递给源服务器。</p>
 
@@ -304,7 +306,7 @@ server {
 </div>
 <p>以下解释一下缓存指令。</p>
 
-<h2 id="proxycachepath">proxy_cache_path</h2>
+<h2 id="proxy_cache_path">proxy_cache_path</h2>
 
 <p>这是保存缓存文件的路径。 <code class="highlighter-rouge">levels</code>指令设置缓存文件如何保存到文件系统。如果没有定义，缓存文件直接保存在指定的路径中。如果这样定义（<code class="highlighter-rouge">1：2</code>），缓存文件将根据其md5哈希值保存在缓存路径的子目录中。</p>
 
@@ -314,7 +316,7 @@ server {
 
 <p>使用<code class="highlighter-rouge">inactive</code>使Nginx有机会“忘记”关于不常被请求的缓存资源。这样一来，Nginx缓存可以让您最大程度的降低成本 - 最需要的资源会保留在缓存中（并遵循愿服务器所指示的缓存规则）。</p>
 
-<h2 id="proxycachekey">proxy_cache_key</h2>
+<h2 id="proxy_cache_key">proxy_cache_key</h2>
 
 <p>这是用来区分缓存文件的key。 默认值为<code class="highlighter-rouge">$scheme$proxy_host$uri$is_args$args</code>，但是我们可以根据需要进行更改。</p>
 
@@ -324,7 +326,7 @@ server {
 
 <p>这意味着将Cookie并入key确实会降低缓存的有效性。 针对每个用户的缓存，是私有缓存（Web浏览器）的目的，而不是我们正在构建的“公共”缓存服务器的目的。 但是，在某种情景下确实需要引入Cookie，那么proxy_cache_key的这个选项就很有用了。</p>
 
-<h2 id="proxycache">proxy_cache</h2>
+<h2 id="proxy_cache">proxy_cache</h2>
 
 <p>在<code class="highlighter-rouge">location</code>块内，Nginx以<code class="highlighter-rouge">proxy_cache my_zone</code>指令定义缓存区域。</p>
 
@@ -396,7 +398,7 @@ X-Proxy-Cache: BYPASS  # ... is now bypassed when told to
 
 <p><code class="highlighter-rouge">proxy_cache_bypass</code>指令告知Nginx遵守HTTP请求中的<code class="highlighter-rouge">Cache-Control</code>请求头。</p>
 
-<h1 id="section-4">代理缓存</h1>
+<h1 id="代理缓存">代理缓存</h1>
 
 <p>Nginx的缓存功能强大！ 我们刚刚看到它可以缓存代理的HTTP请求，但是它也可以缓存FastCGI，uWSGI代理请求的结果，甚至缓存负载平衡请求（“upstream”）的结果。 这意味着我们可以缓存到动态应用程序的请求结果。</p>
 
@@ -464,7 +466,7 @@ X-Fastcgi-Cache: BYPASS
 </code></pre>
 </div>
 
-<h1 id="section-5">相关资源</h1>
+<h1 id="相关资源">相关资源</h1>
 
 <p>您可以使用缓存进行更多的操作，例如设置不进行缓存的情况（例如管理区域）以及清除缓存的方法。</p>
 

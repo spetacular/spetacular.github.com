@@ -84,7 +84,7 @@
 
 <p><img src="http://spetacular.github.io/images/2015-01-20/js_string_int.png" alt="用字符串处理" /></p>
 
-<h2 id="section">为啥动了我的数？</h2>
+<h2 id="为啥动了我的数">为啥动了我的数？</h2>
 <p>原来JS采用IEEE 754定义的双精度浮点数。当有效位数超过 52 位时，会存在精度丢失。</p>
 
 <p>IEEE 754表示的64位双精度数据的格式如下，其中52位的Significand是无符号整数。你可以将Significand左移或右移，移动的位数保存在Exponent里，11位可以表示+(2^10 -1) ~ -(2^10 -1)的范围。Sign表示正负。</p>

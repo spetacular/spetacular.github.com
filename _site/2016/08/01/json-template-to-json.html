@@ -52,10 +52,10 @@
 
 			<div class="bd">
 				<div class="entry-content">
-					<h2 id="section">项目地址</h2>
+					<h2 id="项目地址">项目地址</h2>
 <p><a href="https://github.com/spetacular/jsonout">Restful API中的JSON模板解析</a></p>
 
-<h2 id="json">为什么需要JSON模板解析</h2>
+<h2 id="为什么需要json模板解析">为什么需要JSON模板解析</h2>
 
 <p>Restful API的两个重要因素是输入和输出，一个好的API要求输入和输出都清晰可见。
 输入包括用户提交的方式、参数等，都是可预期的。尽量不要采用数组接收。例如以下的例子，</p>
@@ -76,7 +76,7 @@ echo $user-&gt;toJson();
 
 <p>这样的坏处一是输出的内容不清晰，只有知道数据表的结构才能了解输出的内容；二是可能一不小心把用户表敏感字段（密码，手机号）输出，造成信息泄漏。</p>
 
-<h2 id="jsonout">JSONOut库介绍</h2>
+<h2 id="jsonout库介绍">JSONOut库介绍</h2>
 
 <p>解决输出的方法，是采用JSON模板解析的方法。例如用户表有id,name,pass,avatar,phone字段，其中只有name,avatar是需要输出的。那么模板可以这样定义：</p>
 
@@ -147,7 +147,7 @@ echo $user-&gt;toJson();
 </code></pre>
 </div>
 
-<h2 id="section-1">测试代码</h2>
+<h2 id="测试代码">测试代码</h2>
 
 <p>测试代码如下：</p>
 

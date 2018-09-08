@@ -54,9 +54,9 @@
 				<div class="entry-content">
 					<p><a href="https://www.getpostman.com/">Postman</a> 是一款帮助开发者分享、测试、文档化、监控API接口的工具。它最开始是一个 <a href="https://chrome.google.com/webstore/detail/postman/fhbjgbiflinjbdggehcddcbncdddomop">Chrome插件</a> ，但现在提供了 Mac、Windwos、Linux、Chrome 全平台的支持。</p>
 
-<h1 id="section">简介</h1>
+<h1 id="简介">简介</h1>
 
-<h2 id="section-1">下载安装</h2>
+<h2 id="下载安装">下载安装</h2>
 
 <p>Postman 目前提供了全平台的版本，读者可以到以下地址进行下载安装。</p>
 
@@ -66,9 +66,9 @@
 
 <p><img src="/images/2017/postman_ui.jpeg" alt="postman界面" /></p>
 
-<h2 id="section-2">界面介绍</h2>
+<h2 id="界面介绍">界面介绍</h2>
 
-<h3 id="section-3">顶部</h3>
+<h3 id="顶部">顶部</h3>
 
 <p>Show/Hide Sidebar: 显示或隐藏边栏</p>
 
@@ -88,7 +88,7 @@
 
 <p>设置：设置，文档，官方支持中心</p>
 
-<h3 id="section-4">边栏</h3>
+<h3 id="边栏">边栏</h3>
 
 <p>Filter：搜索框，提供关键字检索</p>
 
@@ -128,9 +128,9 @@
   <li>Tests：对响应结果的单元测试。</li>
 </ol>
 
-<h1 id="section-5">功能</h1>
+<h1 id="功能">功能</h1>
 
-<h2 id="code">生成Code</h2>
+<h2 id="生成code">生成Code</h2>
 
 <p>Builder页面的右上角，有“Cookie”、”Code“字样，点击”Code“，可以查看各种语言生成的请求代码。</p>
 
@@ -138,13 +138,13 @@
 
 <p>目前支持大部分常用语言，包括HTTP、C、cURL、C#、Go、Java、Javascript、NodeJS、Object-C、OCaml、PHP、Python、Ruby、Shell、Swift等。</p>
 
-<h2 id="cookie">管理Cookie</h2>
+<h2 id="管理cookie">管理Cookie</h2>
 
 <p>Builder页面的右上角，有“Cookie”、”Code“字样，点击”Cookie“，可以进入管理Cookie页面。「注意：某些版本的postman还未集成此功能，如Chrome插件」</p>
 
 <p><img src="/images/2017/postman_cookie.jpeg" alt="管理Cookie" /></p>
 
-<h2 id="section-6">单元测试</h2>
+<h2 id="单元测试">单元测试</h2>
 
 <p>请求一个接口后，我们可能希望这个接口能满足一定的条件，如：</p>
 
@@ -160,7 +160,7 @@
 
 <p>代码：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="nx">tests</span><span class="p">[</span><span class="s2">"Status code is 200"</span><span class="p">]</span> <span class="o">=</span> <span class="nx">responseCode</span><span class="p">.</span><span class="nx">code</span> <span class="o">===</span> <span class="mi">200</span><span class="p">;</span>
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">tests</span><span class="p">[</span><span class="s2">"Status code is 200"</span><span class="p">]</span> <span class="o">=</span> <span class="nx">responseCode</span><span class="p">.</span><span class="nx">code</span> <span class="o">===</span> <span class="mi">200</span><span class="p">;</span>
 <span class="kd">var</span> <span class="nx">jsonData</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">responseBody</span><span class="p">);</span>
 <span class="nx">tests</span><span class="p">[</span><span class="s2">"2016 is a leap year"</span><span class="p">]</span> <span class="o">=</span> <span class="nx">jsonData</span><span class="p">.</span><span class="nx">leap</span> <span class="o">===</span> <span class="kc">true</span><span class="p">;</span>
 </code></pre>

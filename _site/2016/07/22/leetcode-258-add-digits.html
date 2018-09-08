@@ -52,22 +52,22 @@
 
 			<div class="bd">
 				<div class="entry-content">
-					<h2 id="section">题目名称</h2>
+					<h2 id="题目名称">题目名称</h2>
 
 <p>Add Digits （非负整数各位相加）</p>
 
-<h2 id="section-1">题目地址</h2>
+<h2 id="题目地址">题目地址</h2>
 
 <p><a href="https://leetcode.com/problems/add-digits">https://leetcode.com/problems/add-digits</a></p>
 
-<h2 id="section-2">题目描述</h2>
+<h2 id="题目描述">题目描述</h2>
 <p>英文：Given a non-negative integer num, repeatedly add all its digits until the result has only one digit.</p>
 
 <p>中文：有一个非负整数num，重复这样的操作：对该数字的各位数字求和，对这个和的各位数字再求和……直到最后得到一个仅1位的数字（即小于10的数字）。</p>
 
 <p>例如：num=38，3+8=11,1+1=2。因为2小于10，因此返回2。</p>
 
-<h2 id="section-3">解法1</h2>
+<h2 id="解法1">解法1</h2>
 <p>该算法有一个O(1)复杂度的<a href="http://my.oschina.net/Tsybius2014/blog/497645" title="LeetCode：Add Digits - 非负整数各位相加">《解法》</a>。其中的公式为 (num - 1) % 9 + 1。这里引用一下这个公式的推导过程：</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>假设输入的数字是一个5位数字num，则num的各位分别为a、b、c、d、e。有如下关系：num = a * 10000 + b * 1000 + c * 100 + d * 10 + e  
@@ -80,7 +80,7 @@
 
 <p>这个公式是正确的，但这个推导过程有待商榷。为什么要num要先减1，最后再加上1？</p>
 
-<h2 id="section-4">解法2</h2>
+<h2 id="解法2">解法2</h2>
 <p>其实还有一个更容易的理解的解法。推导过程如下：</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>假设输入的数字是一个5位数字num，则num的各位分别为a、b、c、d、e。有如下关系：num = a * 10000 + b * 1000 + c * 100 + d * 10 + e  
@@ -147,7 +147,7 @@
      
     	<li><a href="/tags.html#leetcode-ref">leetcode <span>5</span></a></li>
      
-    	<li><a href="/tags.html#算法-ref">算法 <span>5</span></a></li>
+    	<li><a href="/tags.html#算法-ref">算法 <span>6</span></a></li>
      
     	<li><a href="/tags.html#swift-ref">swift <span>6</span></a></li>
     
