@@ -44,6 +44,105 @@ Did you mean this?
 
 对于问题2，简单的方法是找一本英文书，分离出所有的单词，计算每个单词出现的次数。
 
+我做了个简单的demo。首先有一个单词表的文件 `words.txt`，列出一本书中出现的所有单词。示例如下：
+```
+the
+tha
+the
+```
+另外用于检查拼写的文件：
+```
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"log"
+	"os"
+)
+
+var model = make(map[string]int)
+var alphalet = "abcdefghijklmnopqrstuvwxyz"
+//找到所有编辑距离为1的单词集合
+func edit1(word string) []string {
+	s := make([]string, 1)
+	wordLen := len(word)
+	//add 1 word
+	for i := range word {
+		for _, c := range alphalet {
+			s = append(s, word[0:i]+string(c)+word[i:])
+		}
+	}
+
+	//delete 1 word
+	for i := range word {
+		s = append(s, word[0:i]+word[i+1:])
+	}
+
+	//change 1 word
+	for i := range word {
+		for _, c := range alphalet {
+			s = append(s, word[0:i]+string(c)+word[i+1:])
+		}
+	}
+
+	// change position
+	for i := range word[0 : wordLen-1] {
+		s = append(s, word[0:i]+string(word[i+1])+string(word[i])+word[i+2:])
+	}
+
+	return s
+}
+
+//计算所有的候选单词
+func candidates(word string) []string {
+	s := make([]string, 1)
+	s = append(s, word)
+	s1 := append(s, edit1(word)...)
+
+	return s1
+}
+
+//计算最优解
+func calc(word string) string {
+	words := candidates(word)
+	var maxProb = 1
+	var correctWord = word
+
+	for _, w := range words {
+		prob, prs := model[w]
+		if prs == true {
+			if prob > maxProb {
+				maxProb = prob
+				correctWord = w
+			}
+		}
+	}
+	return correctWord
+}
+
+func main() {
+	file, err := os.Open("./words.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		word := scanner.Text()
+		model[word]++
+	}
+
+	fmt.Println(calc("tae"))
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+}
+```
+当输入 `tha` 时，会自动纠正为 `the`。
+
 # 三、生日悖论
 在23人中，有2人生日相同的概率大于50%；若有50人，则概率增至97。这可能与人们的直觉相悖，因为一年有365天，两人同天生日，通常就是人们常说的“太巧了”。
 
