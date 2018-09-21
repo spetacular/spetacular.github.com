@@ -27,7 +27,11 @@ tags : [数学,go,算法,每周学习]
 
 代码实现见 [01packege](
 https://github.com/spetacular/weekly-learning/blob/master/ch2/package01.go)
-# 三、参考链接
+
+# 三、一点感触
+01背包问题，归根结底是一个选择问题。选择了一个物品，获取价值的同时必然要承担它的负重，也会放弃一些选择其它物品的机会。程序里选错了可以重选，人生里选错了就不能重来。
+
+# 四、参考链接
 [动态规划：背包问题](https://zhuanlan.zhihu.com/p/25299111)  
 
 [动态规划 之 0-1背包问题](https://blog.csdn.net/crayondeng/article/details/15784093)
