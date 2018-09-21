@@ -3,7 +3,7 @@ layout: post
 title: 每周学习第 1 期：贝叶斯定理、拼写纠正、生日悖论
 category : 数学
 tagline: "Supporting tagline"
-tags : [数学,go,算法]
+tags : [数学,go,算法,每周学习]
 ---
 本周天气非常好。
 ![african-blue-sky](/images/2018/african-blue.jpg)

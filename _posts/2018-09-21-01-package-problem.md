@@ -3,7 +3,7 @@ layout: post
 title: 每周学习第 2 期：01背包问题
 category : 数学
 tagline: "Supporting tagline"
-tags : [数学,go,算法]
+tags : [数学,go,算法,每周学习]
 ---
 
 # 一、定义
