@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 每周学习第 1 期：贝叶斯定理、拼写纠正、生日悖论
+title: 贝叶斯定理、拼写纠正、生日悖论
 category : 数学
 tagline: "Supporting tagline"
 tags : [数学,go,算法,每周学习]
@@ -198,7 +198,7 @@ The probability of same birthday in 50 persons is 0.973000
 ```
 
 与计算的值相差无几。
-# 四、参考链接
+# 四、参考链接
 [贝叶斯推断及其互联网应用（一）：定理简介](http://www.ruanyifeng.com/blog/2011/08/bayesian_inference_part_one.html)  
 
 [哈希碰撞与生日攻击](http://www.ruanyifeng.com/blog/2018/09/hash-collision-and-birthday-attack.html)
