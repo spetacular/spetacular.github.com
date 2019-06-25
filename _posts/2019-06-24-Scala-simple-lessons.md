@@ -9,7 +9,6 @@ tags : [scala]
 [TOC]
 
 
-
 # Scala 简介
 
 Scala 集成了面向对象编程和函数式编程语言的各种特性。Scala 的静态类型帮助减少复杂系统中的 bug，并且支持 JVM 和 JavaScript 运行环境，同时还提供丰富的类库可供使用。
@@ -164,12 +163,14 @@ Scala 的数据类型分为以下几类：
 | Int   | 32位有符号补码整数。数值区间为 -2147483648 到 2147483647     |
 | Long  | 64位有符号补码整数。数值区间为 -9223372036854775808 到 9223372036854775807 |
 
+
 ### 浮点数
 
 | 类型   | 说明                    |
 | ----- | ------------------------------------------------------------ |
 | Float  | 32 位, IEEE 754 标准的单精度浮点数 |
 | Double | 64 位 IEEE 754 标准的双精度浮点数  |
+
 
 ### 字符
 
@@ -178,11 +179,13 @@ Scala 的数据类型分为以下几类：
 | Char   | 16位无符号Unicode字符, 区间值为 U+0000 到 U+FFFF |
 | String | 字符序列                                         |
 
+
 ### 布尔
 
 | 类型   | 说明                    |
 | ----- | ------------------------------------------------------------ |
 | Boolean | true或false |
+
 
 ### 其它类型
 
@@ -193,6 +196,7 @@ Scala 的数据类型分为以下几类：
 | Nothing | Nothing类型在Scala的类层级的最低端；它是任何其他类型的子类型。 |
 | Any     | Any是所有其他类的超类                                        |
 | AnyRef  | AnyRef类是Scala里所有引用类(reference class)的基类           |
+
 
 ### 变量与常量
 
@@ -846,7 +850,6 @@ huh?
 15    helloActor ! "how are you"
 16    helloActor ! "Bonjour"
 17  }
-
 ```
 
 我们先看下调用示例图：
@@ -865,11 +868,234 @@ huh?
 
 这个例子演示了 akka 的 AkkaSystem、Actor、消息传递是如何交互的。但这个例子，仍然是串行处理的。我们将在下面的例子中，演示并行编程。
 
+## Akka Quickstart with Scala
+
+这个例子来自 Akka 官方示例，网址为 [Akka Quickstart with Scala](https://developer.lightbend.com/guides/akka-quickstart-scala/index.html) 。
+
+### 下载
+
+下载方法有两种：
+
+1. 在官网页面  [Lightbend Tech Hub](https://developer.lightbend.com/start/?group=akka&project=akka-quickstart-scala) 点击 `CREATE A PROJECT FOR ME` 
+2. 嫌速度慢可以下载 [Scala Simple Lesson]( https://github.com/spetacular/scala-simple-lesson) ，解压后 **akka-quickstart-scala** 目录即是示例代码。
+
+## 配置及运行
+
+解压后的代码，构建脚本可能没有运行权限，需要用 `chmod` 命令添加可运行权限。
+
+```shell
+$ cd akka-quickstart-scala
+$ chmod u+x ./sbt
+$ chmod u+x ./sbt-dist/bin/sbt
+```
+
+然后输入 `./sbt` 。这时会下载依赖的包，可能会持续一段时间。
+
+然后在 stb 输入提示符下，输入 `reStart` 来启动示例。类似的输出如下：
+
+```shell
+sbt:akka-quickstart-scala> reStart
+[info] Updating ...
+[info] Done updating.
+[info] Compiling 1 Scala source to /Users/didi/Documents/GitHub/scala-simple-lesson/akka-quickstart-scala/target/scala-2.12/classes ...
+[info] Done compiling.
+[info] Application akka-quickstart-scala not yet started
+[info] Starting application akka-quickstart-scala in the background ...
+akka-quickstart-scala Starting com.example.AkkaQuickstart.main()
+[success] Total time: 5 s, completed 2019-6-25 20:16:03
+sbt:akka-quickstart-scala> akka-quickstart-scala [INFO] [06/25/2019 20:16:04.502] [helloAkka-akka.actor.default-dispatcher-5] [akka://helloAkka/user/printerActor] Greeting received (from Actor[akka://helloAkka/user/helloGreeter#266661191]): Hello, Scala
+akka-quickstart-scala [INFO] [06/25/2019 20:16:04.502] [helloAkka-akka.actor.default-dispatcher-5] [akka://helloAkka/user/printerActor] Greeting received (from Actor[akka://helloAkka/user/howdyGreeter#1265860474]): Howdy, Akka
+akka-quickstart-scala [INFO] [06/25/2019 20:16:04.502] [helloAkka-akka.actor.default-dispatcher-5] [akka://helloAkka/user/printerActor] Greeting received (from Actor[akka://helloAkka/user/howdyGreeter#1265860474]): Howdy, Lightbend
+akka-quickstart-scala [INFO] [06/25/2019 20:16:04.502] [helloAkka-akka.actor.default-dispatcher-5] [akka://helloAkka/user/printerActor] Greeting received (from Actor[akka://helloAkka/user/goodDayGreeter#1928998630]): Good day, Play
+```
+
+### 代码解读
+
+完整代码如下：
+
+```scala
+1  //#full-example
+2  package com.example
+3  
+4  import akka.actor.{ Actor, ActorLogging, ActorRef, ActorSystem, Props }
+5  
+6  //#greeter-companion
+7  //#greeter-messages
+8  object Greeter {
+9    //#greeter-messages
+10    def props(message: String, printerActor: ActorRef): Props = Props(new Greeter(message, printerActor))
+11    //#greeter-messages
+12    final case class WhoToGreet(who: String)
+13    case object Greet
+14  }
+15  //#greeter-messages
+16  //#greeter-companion
+17  
+18  //#greeter-actor
+19  class Greeter(message: String, printerActor: ActorRef) extends Actor {
+20    import Greeter._
+21    import Printer._
+22  
+23    var greeting = ""
+24  
+25    def receive = {
+26      case WhoToGreet(who) =>
+27        greeting = message + ", " + who
+28      case Greet           =>
+29        //#greeter-send-message
+30        printerActor ! Greeting(greeting)
+31        //#greeter-send-message
+32    }
+33  }
+34  //#greeter-actor
+35  
+36  //#printer-companion
+37  //#printer-messages
+38  object Printer {
+39    //#printer-messages
+40    def props: Props = Props[Printer]
+41    //#printer-messages
+42    final case class Greeting(greeting: String)
+43  }
+44  //#printer-messages
+45  //#printer-companion
+46  
+47  //#printer-actor
+48  class Printer extends Actor with ActorLogging {
+49    import Printer._
+50  
+51    def receive = {
+52      case Greeting(greeting) =>
+53        log.info("Greeting received (from " + sender() + "): " + greeting)
+54    }
+55  }
+56  //#printer-actor
+57  
+58  //#main-class
+59  object AkkaQuickstart extends App {
+60    import Greeter._
+61  
+62    // Create the 'helloAkka' actor system
+63    val system: ActorSystem = ActorSystem("helloAkka")
+64  
+65    //#create-actors
+66    // Create the printer actor
+67    val printer: ActorRef = system.actorOf(Printer.props, "printerActor")
+68  
+69    // Create the 'greeter' actors
+70    val howdyGreeter: ActorRef =
+71      system.actorOf(Greeter.props("Howdy", printer), "howdyGreeter")
+72    val helloGreeter: ActorRef =
+73      system.actorOf(Greeter.props("Hello", printer), "helloGreeter")
+74    val goodDayGreeter: ActorRef =
+75      system.actorOf(Greeter.props("Good day", printer), "goodDayGreeter")
+76    //#create-actors
+77  
+78    //#main-send-messages
+79    howdyGreeter ! WhoToGreet("Akka")
+80    howdyGreeter ! Greet
+81    
+82    howdyGreeter ! WhoToGreet("Lightbend")
+83    howdyGreeter ! Greet
+84    
+85    helloGreeter ! WhoToGreet("Scala")
+86    helloGreeter ! Greet
+87  
+88    goodDayGreeter ! WhoToGreet("Play")
+89    goodDayGreeter ! Greet
+90    
+91    //#main-send-messages
+92  }
+93  //#main-class
+94  //#full-example
+```
+
+我们先直观地看下这个文件的大体框架，如下图所示。
+
+![akka demo 架构图](/images/2019/hello-akka-architecture.png)
+
+首先 main 类创建了ActorSystem 容器，然后创建了三个 Greeter Actor 实例和一个 Printer Actor 实例。
+
+![akka消息传递](/images/2019/hello-akka-messages.png)
+
+main 类首先将消息传递给三个 Greeter Actor，然后三个 Greeter Actor 分别再将消息传递给 Printer Actor，并由 Printer Actor 将消息打印出来。
+
+下面是详细解读。
+
+第 6 至 34 行，定义了 `Greeter` 的伴友类和伴友对象。注意 `Greeter` 是一个 `Actor`，其 `receive` 方法定义在第 25 至 32 行。
+
+第 12 行定义了 `WhoToGreet` 的样例类：`final case class WhoToGreet(who: String)`  。
+
+第 13 行定义了 `Greet` 的样例类：`case object Greet` 。
+
+`Greeter`、`WhoToGreet`、`Greet` 的关系是怎样的呢？
+
+`Greeter` 意思为礼仪人员。它接收的 `case class` 是 `WhoToGreet` 和 `Greet`。就是说礼仪人员有两个用途：一是组织根据人员组装合适的礼貌用语(WhoToGreet），另一个是将拼好的礼貌用语用嘴巴(Printer)说出去(Greet)。
+
+第 36 至 56 行定义了 `Printer` 的伴友类和伴友对象。
+
+第 41 行定义了 `Greeting` 样例类：`case class Greeting(greeting: String)` 。
+
+第 51 至 54 行定义了 `Printer` 的 `receive` 方法。它接收 `Greeting`，并将 `greeting` 内容打印出来。
+
+第 58 至 94 行为入口方法。
+
+第 63 行定义了名为 `helloAkka` 的 Actor System。
+
+第 69 至 76 行创建了三个 Greeter 的实例：`howdyGreeter`、`helloGreeter`、`goodDayGreeter`。他们会说不同的礼貌用语。
+
+第 78 至 91 行调用 Actor 进行并发处理。我们以第一个调用为例，看一下处理流程。
+
+```scala
+howdyGreeter ! WhoToGreet("Akka")
+howdyGreeter ! Greet
+```
+
+首先将 `WhoToGreet("Akka")` 的消息传递给 `howdyGreeter`，这时会激活如下语句：
+
+```scala
+26      case WhoToGreet(who) =>
+27        greeting = message + ", " + who
+```
+
+此时
+
+```scala
+message = "Howdy"
+who = "Akka"
+greeting = message + ", " + who = "Howdy, Akka"
+```
+
+然后将 Greet 的消息传递给 `howdyGreeter`，这时会激活如下语句：
+
+```scala
+28      case Greet           =>
+29        //#greeter-send-message
+30        printerActor ! Greeting(greeting)
+31        //#greeter-send-message
+```
+
+此时将 `Greet` 的消息通过 `Greeting` 传递给 `PrinterActor`。
+
+最后 PrintActor 收到消息后，将消息打印在日志上。
+
+```scala
+51    def receive = {
+52      case Greeting(greeting) =>
+53        log.info("Greeting received (from " + sender() + "): " + greeting)
+54    }
+```
+
+### 思考
+
+如果我们多次输入 `reStrart` 来运行该例子，会发现输出的礼貌用语的次序各不相同。这就是说程序是并发执行的。同时需要注意，无论怎么执行，`howdyGreeter` 的两次结果，`Akka` 始终在 `Lightbend` 之前。我们可以得出结论：
+
+* 不同的 `Actor` 直接是并发执行的。
+* 同一个 `Actor` 接收到的多个消息，是串行执行的。
 
 
 
-
-#参考文献
+# 参考文献
 
 [https://www.geeksforgeeks.org/scala-singleton-and-companion-objects/](https://www.geeksforgeeks.org/scala-singleton-and-companion-objects/)
 
