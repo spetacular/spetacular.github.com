@@ -6,7 +6,54 @@ tagline: "Supporting tagline"
 tags : [scala]
 ---
 
-[TOC]
+Table of Contents
+=================
+
+   * [Scala 简介](#scala-简介)
+      * [安装与配置](#安装与配置)
+         * [安装 Java](#安装-java)
+         * [安装 Scala](#安装-scala)
+         * [安装 sbt](#安装-sbt)
+      * [Hello World](#hello-world)
+         * [交互模式](#交互模式)
+         * [编译模式](#编译模式)
+         * [构建模式](#构建模式)
+   * [基本语法](#基本语法)
+      * [基本概念](#基本概念)
+      * [数据类型](#数据类型)
+         * [整数](#整数)
+         * [浮点数](#浮点数)
+         * [字符](#字符)
+         * [布尔](#布尔)
+         * [其它类型](#其它类型)
+         * [变量与常量](#变量与常量)
+      * [流程控制逻辑](#流程控制逻辑)
+         * [条件控制](#条件控制)
+         * [循环控制](#循环控制)
+         * [循环控制的 break 和 continue](#循环控制的-break-和-continue)
+   * [类和对象](#类和对象)
+      * [一个例子](#一个例子)
+      * [构造函数](#构造函数)
+         * [主构造函数](#主构造函数)
+         * [辅助构造函数](#辅助构造函数)
+         * [singleton objects](#singleton-objects)
+      * [伴生对象 Companion Object](#伴生对象-companion-object)
+      * [继承](#继承)
+         * [override](#override)
+         * [一个例子](#一个例子-1)
+   * [模式匹配](#模式匹配)
+      * [简单例子（整型数值匹配、温度判断）](#简单例子整型数值匹配温度判断)
+      * [case class](#case-class)
+      * [apply](#apply)
+      * [unapply](#unapply)
+   * [并发编程 Akka](#并发编程-akka)
+      * [Akka Hello World](#akka-hello-world)
+      * [Akka Quickstart with Scala](#akka-quickstart-with-scala)
+         * [下载](#下载)
+      * [配置及运行](#配置及运行)
+         * [代码解读](#代码解读)
+         * [思考](#思考)
+   * [参考文献](#参考文献)
 
 
 # Scala 简介
