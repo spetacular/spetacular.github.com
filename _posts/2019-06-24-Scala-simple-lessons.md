@@ -23,13 +23,13 @@ Scala 运行环境依赖于 JVM，所以要先安装 Java。之后再安装 Scal
 
 在 oracle 官网下载 JavaSE 1.5 以上的版本。下载地址如下：
 
-http://www.oracle.com/technetwork/java/javase/downloads/index.html
+[http://www.oracle.com/technetwork/java/javase/downloads/index.html](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 
 这里我选择 1.8 版本，根据自己的操作系统选择合适的下载包。
 
 ![JDk 1.8](/images/2019/jdk_18.png)
 
-设置环境变量的教程在这里：https://www.runoob.com/java/java-environment-setup.html
+设置环境变量的教程在这里：[https://www.runoob.com/java/java-environment-setup.html](https://www.runoob.com/java/java-environment-setup.html)
 
 设置完成后，我们可以在终端查看 `java` 和 `javac` 命令:
 
@@ -44,7 +44,7 @@ javac 1.8.0_181
 
 ### 安装 Scala
 
-Scala 的下载地址为 https://www.scala-lang.org/download/ 。可以根据自己的操作系统选择合适的下载包。
+Scala 的下载地址为 [https://www.scala-lang.org/download/](https://www.scala-lang.org/download/) 。可以根据自己的操作系统选择合适的下载包。
 
 如果操作系统为 Windows，可以查找 msi 的安装文件。
 
@@ -66,7 +66,7 @@ Scala code runner version 2.13.0 -- Copyright 2002-2019, LAMP/EPFL and Lightbend
 
 ### 安装 sbt
 
-sbt 的全称为 Simple Build Tool，用于管理 Scala 项目的依赖并进行构建，其地址就像 Maven 之于 Java。其下载地址为 https://www.scala-sbt.org/download.html。
+sbt 的全称为 Simple Build Tool，用于管理 Scala 项目的依赖并进行构建，其地址就像 Maven 之于 Java。其下载地址为 [https://www.scala-sbt.org/download.html](https://www.scala-sbt.org/download.html)。
 
 ## Hello World
 
