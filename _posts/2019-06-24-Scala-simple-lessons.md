@@ -1145,12 +1145,12 @@ greeting = message + ", " + who = "Howdy, Akka"
 
 [https://www.geeksforgeeks.org/scala-singleton-and-companion-objects/](https://www.geeksforgeeks.org/scala-singleton-and-companion-objects/)
 
-https://www.tutorialspoint.com/scala/index.htm
+[https://www.tutorialspoint.com/scala/index.htm](https://www.tutorialspoint.com/scala/index.htm)
 
-https://www.runoob.com/scala/scala-tutorial.html
+[https://www.runoob.com/scala/scala-tutorial.html](https://www.runoob.com/scala/scala-tutorial.html)
 
-https://blog.csdn.net/shenlei19911210/article/details/78538255
+[https://blog.csdn.net/shenlei19911210/article/details/78538255](https://blog.csdn.net/shenlei19911210/article/details/78538255)
 
-https://docs.scala-lang.org/zh-cn/tour/pattern-matching.html
+[https://docs.scala-lang.org/zh-cn/tour/pattern-matching.html](https://docs.scala-lang.org/zh-cn/tour/pattern-matching.html)
 
-https://developer.lightbend.com/guides/akka-quickstart-scala/
+[https://developer.lightbend.com/guides/akka-quickstart-scala/](https://developer.lightbend.com/guides/akka-quickstart-scala/)
