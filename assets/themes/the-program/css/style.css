@@ -676,7 +676,10 @@ pre {
   margin-left: 0;
   margin-right: 0;
 }
-.unit-article ul,
+.unit-article ul{
+  padding-left: auto;
+}
+
 .unit-article ol,
 .unit-article dl {
   padding-left: 0;
@@ -1491,10 +1494,10 @@ hr {
 
 /*MY 用于显示TOC，内容必须为table of contents*/
 
-h1#table-of-contents + ul {
+/*h1#table-of-contents + ul {
     padding-left: unset;
     margin-bottom: unset;
-}
+}*/
 /*ul ul {
     text-indent: 2em;
     padding-left: 2em;
