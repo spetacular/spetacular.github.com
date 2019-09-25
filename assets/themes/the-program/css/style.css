@@ -1493,3 +1493,14 @@ hr {
 ul ul {
     text-indent: 2em;
 }
+
+ul ul ul{
+    text-indent: 4em;
+}
+
+ul ul ul ul{
+    text-indent: 6em;
+}
+ul ul ul ul ul{
+    text-indent: 8em;
+}
