@@ -6,10 +6,6 @@ tagline: "Supporting tagline"
 tags : [https]
 ---
 
-[TOC]
-
-
-
 # 前言
 
 越来越多的网站使用 HTTPS 来确保安全。HTTPS 使用 SSL/TSL 技术来加密两个系统之间的通信。
@@ -146,7 +142,7 @@ SSL 证书是由 CA 颁发的数据文件。如上所述，SSL 使用非对称�
 
 打开的证书窗口如下图所示。
 
-![ssl-certificate](/Users/didi/Documents/GitHub/spetacular.github.com/images/2019/ssl-certificate.png)
+![ssl-certificate](https://spetacular.github.com/images/2019/ssl-certificate.png)
 
 <p style="text-align: center;">SSL 证书</p>
 
@@ -218,7 +214,7 @@ X.509 格式的 SSL 证书包括以下信息：
 
 下图说明了 X.509 证书的编码格式和文件扩展名。
 
-![ssl-certificate-format](//spetacular.github.com/images/2019/ssl-certificate-format.png)
+![ssl-certificate-format](https://spetacular.github.com/images/2019/ssl-certificate-format.png)
 
 <p style="text-align: center;">SSL 证书格式</p>
 
@@ -256,7 +252,7 @@ CA 提供以上任何格式的证书。
 
 # 结语
 
-本文主要讲解了 `HTTPS` 的原理、`SSL` 证书的工作原理、`SSL` 证书的分类和格式，可以作为入门教程。读完本文，相信读者会对 `HTTPS` 有一个概览式的了解。读者有兴趣的读者可以研究密码学，有需要安装证书的读者可以自行搜索安装方法。
+本文主要讲解了 HTTPS 的原理、SSL 证书的工作原理、SSL 证书的分类和格式，可以作为入门教程。读完本文，相信读者会对 HTTPS 有一个概览式的了解。读者有兴趣的读者可以研究密码学，有需要安装证书的读者可以自行搜索安装方法。
 
 # 参考文献
 
