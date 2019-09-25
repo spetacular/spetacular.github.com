@@ -1491,16 +1491,20 @@ hr {
 
 /*MY 用于显示TOC*/
 ul ul {
-    text-indent: 2em;
+    /*text-indent: 2em;*/
+    padding-left: 2em;
 }
 
 ul ul ul{
-    text-indent: 4em;
+    /*text-indent: 4em;*/
+    padding-left: 4em;
 }
 
 ul ul ul ul{
-    text-indent: 6em;
+    /*text-indent: 6em;*/
+    padding-left: 6em;
 }
 ul ul ul ul ul{
-    text-indent: 8em;
+    /*text-indent: 8em;*/
+    padding-left: 8em;
 }
