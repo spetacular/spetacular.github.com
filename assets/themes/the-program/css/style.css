@@ -680,15 +680,15 @@ pre {
   padding-left: auto;
 }
 
-.unit-article ol,
+.unit-article ol{
+  padding-left: 30px;/*修复正文中ol外出的问题*/
+  list-style: decimal;
+}
 .unit-article dl {
   padding-left: 0;
 }
 .unit-article ul {
   list-style: square;
-}
-.unit-article ol {
-  list-style: decimal;
 }
 .unit-article li h1,
 .unit-article dt h1,
