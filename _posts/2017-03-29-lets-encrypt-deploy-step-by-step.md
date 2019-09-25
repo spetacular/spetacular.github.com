@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 教程：配置 Let's Encrypt 免费HTTPS证书
+title: 教程：配置 Let's Encrypt 免费 HTTPS 证书
 category : 服务器
 tagline: "Supporting tagline"
 tags : [服务器,证书,HTTPS]

@@ -6,6 +6,42 @@ tagline: "Supporting tagline"
 tags : [https]
 ---
 
+Table of Contents
+=================
+
+- [前言](#%E5%89%8D%E8%A8%80)
+- [第 1 节 什么是HTTPS](#%E7%AC%AC-1-%E8%8A%82-%E4%BB%80%E4%B9%88%E6%98%AFhttps)
+  * [SSL 介绍](#ssl-%E4%BB%8B%E7%BB%8D)
+  * [HTTP 和 HTTPS 的比较](#http-%E5%92%8C-https-%E7%9A%84%E6%AF%94%E8%BE%83)
+  * [HTTPS 的优势](#https-%E7%9A%84%E4%BC%98%E5%8A%BF)
+- [第 2 节 SSL 的工作原理](#%E7%AC%AC-2-%E8%8A%82-ssl-%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86)
+  * [非对称密码学](#%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%AF%86%E7%A0%81%E5%AD%A6)
+  * [对称密码学](#%E5%AF%B9%E7%A7%B0%E5%AF%86%E7%A0%81%E5%AD%A6)
+  * [SSL 上的数据传输](#ssl-%E4%B8%8A%E7%9A%84%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93)
+    + [SSL 握手](#ssl-%E6%8F%A1%E6%89%8B)
+  * [数据传输](#%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93)
+  * [公共密钥基础架构](#%E5%85%AC%E5%85%B1%E5%AF%86%E9%92%A5%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84)
+- [第 3 节 什么是 SSL 证书?](#%E7%AC%AC-3-%E8%8A%82-%E4%BB%80%E4%B9%88%E6%98%AF-ssl-%E8%AF%81%E4%B9%A6)
+  * [X.509](#x509)
+  * [SSL 证书的类型](#ssl-%E8%AF%81%E4%B9%A6%E7%9A%84%E7%B1%BB%E5%9E%8B)
+  * [基于验证级别的 SSL 证书类型](#%E5%9F%BA%E4%BA%8E%E9%AA%8C%E8%AF%81%E7%BA%A7%E5%88%AB%E7%9A%84-ssl-%E8%AF%81%E4%B9%A6%E7%B1%BB%E5%9E%8B)
+    + [域验证证书（Domain Validated Certificates）](#%E5%9F%9F%E9%AA%8C%E8%AF%81%E8%AF%81%E4%B9%A6domain-validated-certificates)
+    + [组织验证证书（Organization Validated Certificates）](#%E7%BB%84%E7%BB%87%E9%AA%8C%E8%AF%81%E8%AF%81%E4%B9%A6organization-validated-certificates)
+    + [扩展验证证书（Extended Validated Certificates）](#%E6%89%A9%E5%B1%95%E9%AA%8C%E8%AF%81%E8%AF%81%E4%B9%A6extended-validated-certificates)
+  * [基于域名数目的 SSL 证书类型](#%E5%9F%BA%E4%BA%8E%E5%9F%9F%E5%90%8D%E6%95%B0%E7%9B%AE%E7%9A%84-ssl-%E8%AF%81%E4%B9%A6%E7%B1%BB%E5%9E%8B)
+    + [单域名证书（Single Domain Certificate）](#%E5%8D%95%E5%9F%9F%E5%90%8D%E8%AF%81%E4%B9%A6single-domain-certificate)
+    + [通配符证书（Wildcard SSL Certificate）](#%E9%80%9A%E9%85%8D%E7%AC%A6%E8%AF%81%E4%B9%A6wildcard-ssl-certificate)
+    + [统一SSL证书/多域SSL证书/ SAN证书（Unified SSL Certificate /Multi-Domain SSL Certificate/SAN Certificate）](#%E7%BB%9F%E4%B8%80ssl%E8%AF%81%E4%B9%A6%E5%A4%9A%E5%9F%9Fssl%E8%AF%81%E4%B9%A6-san%E8%AF%81%E4%B9%A6unified-ssl-certificate-multi-domain-ssl-certificatesan-certificate)
+- [第 4 节 SSL 证书格式](#%E7%AC%AC-4-%E8%8A%82-ssl-%E8%AF%81%E4%B9%A6%E6%A0%BC%E5%BC%8F)
+  * [PEM 格式](#pem-%E6%A0%BC%E5%BC%8F)
+  * [PKCS#7 格式](#pkcs%237-%E6%A0%BC%E5%BC%8F)
+  * [DER 格式](#der-%E6%A0%BC%E5%BC%8F)
+  * [PKCS#12 格式](#pkcs%2312-%E6%A0%BC%E5%BC%8F)
+- [结语](#%E7%BB%93%E8%AF%AD)
+- [参考文献](#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE)
+
+
+
 # 前言
 
 越来越多的网站使用 HTTPS 来确保安全。HTTPS 使用 SSL/TSL 技术来加密两个系统之间的通信。
