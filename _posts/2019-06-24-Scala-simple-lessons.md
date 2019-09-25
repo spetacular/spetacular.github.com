@@ -11,9 +11,9 @@ Table of Contents
 
 - [Scala 简介](#scala-简介)
 - [安装与配置](#安装与配置)
-   - [安装 Java](#安装-java)
-   - [安装 Scala](#安装-scala)
-   - [安装 sbt](#安装-sbt)
+  - [安装 Java](#安装-java)
+  - [安装 Scala](#安装-scala)
+  - [安装 sbt](#安装-sbt)
 - [Hello World](#hello-world)
    - [交互模式](#交互模式)
    - [编译模式](#编译模式)
