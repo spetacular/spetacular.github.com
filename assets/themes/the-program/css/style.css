@@ -458,7 +458,7 @@ ol,
 dl,
 img {
   margin-top: 0;
-  margin-bottom: 1.625em;
+  /*margin-bottom: 1.625em;*//*解决toc中多级ul下边框的问题*/
 }
 small,
 .small,
@@ -1489,9 +1489,11 @@ hr {
   float: right;
 }
 
-/*MY 用于显示TOC*/
-.my_toc{
-      padding-left: auto !important;
+/*MY 用于显示TOC，内容必须为table of contents*/
+
+h1#table-of-contents + ul {
+    padding-left: unset;
+    margin-bottom: unset;
 }
 /*ul ul {
     text-indent: 2em;
