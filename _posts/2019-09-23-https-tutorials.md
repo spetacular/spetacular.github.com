@@ -55,7 +55,6 @@ HTTPS 代表 Hyper Text Transfer Protocol Secure（超文本传输安全协议�
 
 ![https communication vs http communication](https://blog.text.wiki/images/2019/https-communication.png)
 <p style="text-align: center;">HTTP 和 HTTPS 的通信过程</p>
-
 如上图所示，[HTTP](https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol) 在浏览器和 web 服务器之间传输数据时，使用了明文的超文本格式；而 HTTPS 采用了加密的格式。HTTPS 阻止了攻击者在传输过程中来查看、修改数据的攻击行为。即使攻击者截获了通信消息，他们也无法使用，因为报文被加密了。
 
 HTTPS 在浏览器和 web 服务器之间建立了加密连接，使用的技术是 Secure Socket Layer (SSL) 或 Transport Layer Security (TLS) 协议。TLS 是 SSL 的新版本。
@@ -68,7 +67,6 @@ HTTPS 实质上是 HTTP over SSL。SSL 建立加密连接的方式，是使用�
 
 ![ssl-link](https://blog.text.wiki/images/2019/ssl-link.png)
 <p style="text-align: center;">SSL</p>
-
 ## HTTP 和 HTTPS 的比较
 
 | http                 | https              |
@@ -98,7 +96,7 @@ HTTPS 使用 SSL 协议来传输加密数据。我们来看下 SSL 的工作原�
 
 非对称密码学（又称为非对称加密或公钥加密）使用数学相关的密钥对来加密和解密数据。在密钥对中，其中一个密钥可以分享给任何人，这个密钥称为公钥（**Public Key**）；另外一个需要保持私密，称为私钥（**Private Key**）。
 
-在非对称加密中，可以使用私钥对数据进行签名，该私钥只能使用成对的相关公钥解密。
+在非对称加密中，可以使用私钥对数据进行签名，该私钥只能使用成对的相关公钥验证签名。
 
 ![asymmetric-cryptography](https://spetacular.github.com/images/2019/asymmetric-cryptography.png)
 <p style="text-align: center;">非对称加密原理图</p>
@@ -167,19 +165,16 @@ SSL 证书是由 CA 颁发的数据文件。如上所述，SSL 使用非对称�
 
 ![https-in-browser](https://spetacular.github.com/images/2019/https-in-browser.png)
 <p style="text-align: center;">浏览器中的 HTTPS</p>
-
 点击锁图样，然后在弹层点击证书，如下图所示：
 
 ![open-ssl-certificate](https://spetacular.github.com/images/2019/open-ssl-certificate.png)
 
 <p style="text-align: center;">打开 SSL 证书</p>
-
 打开的证书窗口如下图所示。
 
 ![ssl-certificate](https://spetacular.github.com/images/2019/ssl-certificate.png)
 
 <p style="text-align: center;">SSL 证书</p>
-
 在“通用（General）” Tab 下，显示了证书的签发对象、签发者和有效起止时间。“细节（Details）” Tab 下包括其它细节信息。“证书路径（Certificate Path）” 包含了所有中间证书和根 CA 证书的信息。
 
 ## X.509
@@ -250,7 +245,6 @@ X.509 格式的 SSL 证书包括以下信息：
 ![ssl-certificate-format](https://spetacular.github.com/images/2019/ssl-certificate-format.png)
 
 <p style="text-align: center;">SSL 证书格式</p>
-
 ## PEM 格式
 
 大多数 CA 提供格式为 PEM 、文件为 Base64 ASCII 编码的证书。证书文件类型有 .pem, .crt, .cer, 和 .key。
