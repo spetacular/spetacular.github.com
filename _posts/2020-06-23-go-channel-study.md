@@ -65,7 +65,7 @@ close(ch)
 信号通过通道发送和接收（sent/received）。不要说read/write 因为channel没有 I/O 操作。
 
 图 2 : 状态
-![状态](./images/86_state.png)
+![状态](https://spetacular.github.com/images/2020/86_state.png)
 当一个通道处于 nil 状态时，任何发送或接收都会被阻塞。    
 当一个通道处于 open 状态时，信号可以被发送或接收。    
 当一个通道处于 closed 状态时，不能发送，但仍然可以接收信号。    
