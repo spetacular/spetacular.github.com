@@ -9,6 +9,8 @@ tags : [restful , api , json]
 ## 项目地址
 [Restful API中的JSON模板解析](https://github.com/spetacular/jsonout)
 
+更新在2020-12-14:增加嵌套结构的支持。
+
 ## 为什么需要JSON模板解析
 
 Restful API的两个重要因素是输入和输出，一个好的API要求输入和输出都清晰可见。
@@ -80,14 +82,32 @@ Restful API的两个重要因素是输入和输出，一个好的API要求输入
 
 
 	    private static function array_intersect_key_recursive(array $array1, array $array2) {
-	        $array1 = array_intersect_key($array1, $array2);
+		if(self::is_indexed_array($array1)){//如果array1为索引数组，说明有多个元素，需要把array补充为相同数目
+			$diff = count($array1)-count($array2);
+			for($i=0;$i<$diff;$i++){
+				array_push($array2,$array2[0]);
+			}
+		}
+        	$array1 = array_intersect_key($array1, $array2);
 
-	        foreach ($array1 as $key => &$value) {
-	            if (is_array($value) && is_array($array2[$key])) {
-	                $value = $this->array_intersect_key_recursive($value, $array2[$key]);
-	            }
-	        }
-	        return $array1;
+
+		foreach ($array1 as $key => &$value) {
+		    if (is_array($value) && is_array($array2[$key])) {
+			$value = self::array_intersect_key_recursive($value, $array2[$key]);
+		    }
+		}
+		return $array1;
+	    }
+
+
+            /**
+	     * 判断数组是否为索引数组
+	    */
+    	    private static function is_indexed_array($arr){
+		if (is_array($arr)) {
+		    return count(array_filter(array_keys($arr), 'is_string')) === 0;
+		}
+		    return false;
 	    }
 	}
 
@@ -140,7 +160,7 @@ Restful API的两个重要因素是输入和输出，一个好的API要求输入
 	]
 
 
-##未来扩展
+## 未来扩展
 注意到JSON模板仅有key，没有value，未来可以在value上扩展，比如默认值，比如：
 	
 	{"gender":0}
