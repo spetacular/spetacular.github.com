@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>HTTPS 简明教程 - David&#039;s World</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="David&#039;s World"><meta name="msapplication-TileImage" content="g"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="David&#039;s World"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="Table of Contents 前言 第 1 节 什么是HTTPS SSL 介绍 HTTP 和 HTTPS 的比较 HTTPS 的优势   第 2 节 SSL 的工作原理 非对称密码学 对称密码学 SSL 上的数据传输 SSL 握手   数据传输 公共密钥基础架构   第 3 节 什么是 SSL 证书? X.509 SSL 证书的类型 基于验证级别的 SSL 证书类型 域验证证书（Domain"><meta property="og:type" content="blog"><meta property="og:title" content="David&#039;s World"><meta property="og:url" content="https://spetacular.github.io/"><meta property="og:site_name" content="David&#039;s World"><meta property="og:description" content="Table of Contents 前言 第 1 节 什么是HTTPS SSL 介绍 HTTP 和 HTTPS 的比较 HTTPS 的优势   第 2 节 SSL 的工作原理 非对称密码学 对称密码学 SSL 上的数据传输 SSL 握手   数据传输 公共密钥基础架构   第 3 节 什么是 SSL 证书? X.509 SSL 证书的类型 基于验证级别的 SSL 证书类型 域验证证书（Domain"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://spetacular.github.io/"><meta property="article:published_time" content="2019-09-22T16:00:00.000Z"><meta property="article:modified_time" content="2023-10-22T09:55:36.925Z"><meta property="article:author" content="David"><meta property="article:tag" content="https"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://spetacular.github.io/"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://example.com/2019/09/23/https-tutorials.html"},"headline":"David's World","image":["https://blog.text.wiki/images/2019/https-communication.png","https://blog.text.wiki/images/2019/ssl-link.png","http://example.com/images/2019/asymmetric-cryptography.png","http://example.com/images/2019/symmetric-cryptography.png","http://example.com/images/2019/ssl-communication.png","http://example.com/images/2019/ssl-handshack.png","http://example.com/images/2019/ssl-data-transfer.png","http://example.com/images/2019/https-in-browser.png","http://example.com/images/2019/open-ssl-certificate.png","http://example.com/images/2019/ssl-certificate.png","http://example.com/images/2019/ssl-certificate-format.png"],"datePublished":"2019-09-22T16:00:00.000Z","dateModified":"2023-10-22T09:55:36.925Z","author":{"@type":"Person","name":"David"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject"}},"description":"Table of Contents 前言 第 1 节 什么是HTTPS SSL 介绍 HTTP 和 HTTPS 的比较 HTTPS 的优势   第 2 节 SSL 的工作原理 非对称密码学 对称密码学 SSL 上的数据传输 SSL 握手   数据传输 公共密钥基础架构   第 3 节 什么是 SSL 证书? X.509 SSL 证书的类型 基于验证级别的 SSL 证书类型 域验证证书（Domain"}</script><link rel="canonical" href="http://example.com/2019/09/23/https-tutorials.html"><link rel="icon" href="/g"><meta name="referrer" content="no-referrer-when-downgrade"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/font-awesome/6.0.0/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css"><link rel="stylesheet" href="https://fonts.loli.net/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/font-awesome/5.12.0/css/all.min.css"><link rel="stylesheet" href="https://fonts.loli.net/css?family=Ubuntu:400,600|Source+Code+Pro|Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Microsoft YaHei:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&amp;amp;subset=latin,latin-ext|Inconsolata|Itim|Lobster.css"><script src="https://cdnjs.loli.net/ajax/libs/jquery/3.3.1/jquery.min.js"></script><script src="/js/globalUtils.js"></script><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" defer></script><!--!--><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/lightgallery/1.10.0/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/justifiedGallery/3.8.1/css/justifiedGallery.min.css"><script src="https://www.googletagmanager.com/gtag/js?id=UA-20318153-4" async></script><script>window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+    
+        gtag('config', 'UA-20318153-4');</script><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdnjs.loli.net/ajax/libs/pace/1.2.4/pace.min.js"></script><meta name="generator" content="Hexo 5.4.2"></head><body class="is-3-column has-navbar-fixed-top"><nav class="navbar navbar-main is-fixed-top"><div class="container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">David&#039;s World</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a><a class="navbar-item" id="night-nav" title="Night Mode" href="javascript:;"><i class="fas fa-moon" id="night-icon"></i></a></div></div></div></nav><script type="text/javascript" src="/js/theme-setting.js"></script><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-9-widescreen"><!--!--><div class="card"><article class="card-content article" role="article"><div class="article-meta size-small is-uppercase level is-mobile"><div class="level-left"><i class="far fa-calendar-plus"> </i>2019-09-23  <a class="commentCountImg" href="/2019/09/23/https-tutorials.html#comment-container"><span class="display-none-class">/2019/09/23/https-tutorials.html</span><i class="far fa-comment-dots"></i> <span class="commentCount" id="f55a7c8ec0675e81e0dc2a432a493aba">99+</span>  </a><span class="level-item"><i class="far fa-clock"> </i>32 分钟  <i class="fas fa-pencil-alt"> </i>4.8 k</span><span class="level-item" id="busuanzi_container_page_pv"><span id="busuanzi_value_page_pv">0</span>次访问</span></div></div><h1 class="title is-3 is-size-4-mobile">HTTPS 简明教程</h1><div class="content"><h1 id="Table-of-Contents"><a href="#Table-of-Contents" class="headerlink" title="Table of Contents"></a>Table of Contents</h1><ul>
+<li><a href="#%E5%89%8D%E8%A8%80">前言</a></li>
+<li><a href="#%E7%AC%AC-1-%E8%8A%82-%E4%BB%80%E4%B9%88%E6%98%AFhttps">第 1 节 什么是HTTPS</a><ul>
+<li><a href="#ssl-%E4%BB%8B%E7%BB%8D">SSL 介绍</a></li>
+<li><a href="#http-%E5%92%8C-https-%E7%9A%84%E6%AF%94%E8%BE%83">HTTP 和 HTTPS 的比较</a></li>
+<li><a href="#https-%E7%9A%84%E4%BC%98%E5%8A%BF">HTTPS 的优势</a></li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC-2-%E8%8A%82-ssl-%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86">第 2 节 SSL 的工作原理</a><ul>
+<li><a href="#%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%AF%86%E7%A0%81%E5%AD%A6">非对称密码学</a></li>
+<li><a href="#%E5%AF%B9%E7%A7%B0%E5%AF%86%E7%A0%81%E5%AD%A6">对称密码学</a></li>
+<li><a href="#ssl-%E4%B8%8A%E7%9A%84%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93">SSL 上的数据传输</a><ul>
+<li><a href="#ssl-%E6%8F%A1%E6%89%8B">SSL 握手</a></li>
+</ul>
+</li>
+<li><a href="#%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93">数据传输</a></li>
+<li><a href="#%E5%85%AC%E5%85%B1%E5%AF%86%E9%92%A5%E5%9F%BA%E7%A1%80%E6%9E%B6%E6%9E%84">公共密钥基础架构</a></li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC-3-%E8%8A%82-%E4%BB%80%E4%B9%88%E6%98%AF-ssl-%E8%AF%81%E4%B9%A6">第 3 节 什么是 SSL 证书?</a><ul>
+<li><a href="#x509">X.509</a></li>
+<li><a href="#ssl-%E8%AF%81%E4%B9%A6%E7%9A%84%E7%B1%BB%E5%9E%8B">SSL 证书的类型</a></li>
+<li><a href="#%E5%9F%BA%E4%BA%8E%E9%AA%8C%E8%AF%81%E7%BA%A7%E5%88%AB%E7%9A%84-ssl-%E8%AF%81%E4%B9%A6%E7%B1%BB%E5%9E%8B">基于验证级别的 SSL 证书类型</a><ul>
+<li><a href="#%E5%9F%9F%E9%AA%8C%E8%AF%81%E8%AF%81%E4%B9%A6domain-validated-certificates">域验证证书（Domain Validated Certificates）</a></li>
+<li><a href="#%E7%BB%84%E7%BB%87%E9%AA%8C%E8%AF%81%E8%AF%81%E4%B9%A6organization-validated-certificates">组织验证证书（Organization Validated Certificates）</a></li>
+<li><a href="#%E6%89%A9%E5%B1%95%E9%AA%8C%E8%AF%81%E8%AF%81%E4%B9%A6extended-validated-certificates">扩展验证证书（Extended Validated Certificates）</a></li>
+</ul>
+</li>
+<li><a href="#%E5%9F%BA%E4%BA%8E%E5%9F%9F%E5%90%8D%E6%95%B0%E7%9B%AE%E7%9A%84-ssl-%E8%AF%81%E4%B9%A6%E7%B1%BB%E5%9E%8B">基于域名数目的 SSL 证书类型</a><ul>
+<li><a href="#%E5%8D%95%E5%9F%9F%E5%90%8D%E8%AF%81%E4%B9%A6single-domain-certificate">单域名证书（Single Domain Certificate）</a></li>
+<li><a href="#%E9%80%9A%E9%85%8D%E7%AC%A6%E8%AF%81%E4%B9%A6wildcard-ssl-certificate">通配符证书（Wildcard SSL Certificate）</a></li>
+<li><a href="#%E7%BB%9F%E4%B8%80ssl%E8%AF%81%E4%B9%A6%E5%A4%9A%E5%9F%9Fssl%E8%AF%81%E4%B9%A6-san%E8%AF%81%E4%B9%A6unified-ssl-certificate-multi-domain-ssl-certificatesan-certificate">统一SSL证书&#x2F;多域SSL证书&#x2F; SAN证书（Unified SSL Certificate &#x2F;Multi-Domain SSL Certificate&#x2F;SAN Certificate）</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC-4-%E8%8A%82-ssl-%E8%AF%81%E4%B9%A6%E6%A0%BC%E5%BC%8F">第 4 节 SSL 证书格式</a><ul>
+<li><a href="#pem-%E6%A0%BC%E5%BC%8F">PEM 格式</a></li>
+<li><a href="#pkcs#7-%E6%A0%BC%E5%BC%8F">PKCS#7 格式</a></li>
+<li><a href="#der-%E6%A0%BC%E5%BC%8F">DER 格式</a></li>
+<li><a href="#pkcs#12-%E6%A0%BC%E5%BC%8F">PKCS#12 格式</a></li>
+</ul>
+</li>
+<li><a href="#%E7%BB%93%E8%AF%AD">结语</a></li>
+<li><a href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE">参考文献</a></li>
+</ul>
+<span id="more"></span>
+
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>越来越多的网站使用 HTTPS 来确保安全。HTTPS 使用 SSL&#x2F;TSL 技术来加密两个系统之间的通信。<br>这个教程将帮助读者逐步深入地理解 HTTPS 。本教材会分为几个章节，每个章节包含若干相关的主题。每个主题包含浅显易懂的解释和来自现实生活的例子。</p>
+<p>本教材可供想了解  HTTPS 的原理、了解如何在网站使用  HTTPS 的初学者和专业人士参考。</p>
+<h1 id="第-1-节-什么是HTTPS"><a href="#第-1-节-什么是HTTPS" class="headerlink" title="第 1 节 什么是HTTPS"></a>第 1 节 什么是HTTPS</h1><p>HTTPS 代表 Hyper Text Transfer Protocol Secure（超文本传输安全协议），它是一种为两个系统（例如浏览器和 web 服务器）之间的通信提供保护的协议。</p>
+<p>下面的图片表明了 HTTP  和 HTTPS 的通信过程的差别：</p>
+<p><img src="https://blog.text.wiki/images/2019/https-communication.png" alt="https communication vs http communication"></p>
+<p style="text-align: center;">HTTP 和 HTTPS 的通信过程</p>
+如上图所示，[HTTP](https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol) 在浏览器和 web 服务器之间传输数据时，使用了明文的超文本格式；而 HTTPS 采用了加密的格式。HTTPS 阻止了攻击者在传输过程中来查看、修改数据的攻击行为。即使攻击者截获了通信消息，他们也无法使用，因为报文被加密了。
+
+<p>HTTPS 在浏览器和 web 服务器之间建立了加密连接，使用的技术是 Secure Socket Layer (SSL) 或 Transport Layer Security (TLS) 协议。TLS 是 SSL 的新版本。</p>
+<h2 id="SSL-介绍"><a href="#SSL-介绍" class="headerlink" title="SSL 介绍"></a>SSL 介绍</h2><p>SSL 是两个系统之间建立加密连接的标准安全技术。适用范围包括浏览器到服务器、服务器到服务器、客户端到服务器等。SSL 保证了两个系统传输的数据保持加密和私密。</p>
+<p>HTTPS 实质上是 HTTP over SSL。SSL 建立加密连接的方式，是使用一种电子证书 — SSL 证书。</p>
+<p><img src="https://blog.text.wiki/images/2019/ssl-link.png" alt="ssl-link"></p>
+<p style="text-align: center;">SSL</p>
+## HTTP 和 HTTPS 的比较
+
+<table>
+<thead>
+<tr>
+<th>http</th>
+<th>https</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据以超文本格式传输</td>
+<td>数据以加密格式传输</td>
+</tr>
+<tr>
+<td>默认端口 80</td>
+<td>默认端口 443</td>
+</tr>
+<tr>
+<td>不安全</td>
+<td>使用 SSL 安全技术</td>
+</tr>
+<tr>
+<td>以 <code>http://</code> 开头</td>
+<td>以 <code>https://</code> 开头</td>
+</tr>
+</tbody></table>
+<h2 id="HTTPS-的优势"><a href="#HTTPS-的优势" class="headerlink" title="HTTPS 的优势"></a>HTTPS 的优势</h2><ul>
+<li><strong>安全通信:</strong> HTTPS 通过在两个系统之间建立加密连接来保证安全连接。</li>
+<li><strong>数据完整性:</strong> HTTPS 通过加密数据来保证数据完整性。即使攻击者捕获了数据，他们也无法查看或修改它。</li>
+<li><strong>隐私和安全:</strong> HTTPS 通过组织攻击者监听浏览器和服务器之间的通信过程，来保护网站用户的隐私和安全。</li>
+<li><strong>更快的性能:</strong> HTTPS 比 HTTP 具有更快的数据传输速率，因为数据进行了加密从而使体积减少。</li>
+<li><strong>搜索引擎优化:</strong> 使用 HTTPS 可以增加搜索引擎优化（SEO）的排名。在 Google Chrome 浏览器，如果使用 HTTP，网页会被标记为“<strong>不安全</strong>”。</li>
+<li><strong>未来:</strong> HTTPS 代表了 web 的未来，因为它使互联网更安全。</li>
+</ul>
+<h1 id="第-2-节-SSL-的工作原理"><a href="#第-2-节-SSL-的工作原理" class="headerlink" title="第 2 节 SSL 的工作原理"></a>第 2 节 SSL 的工作原理</h1><p>HTTPS 使用 SSL 协议来传输加密数据。我们来看下 SSL 的工作原理。SSL 使用以下概念：</p>
+<ol>
+<li>非对称密码学</li>
+<li>对称密码学</li>
+</ol>
+<h2 id="非对称密码学"><a href="#非对称密码学" class="headerlink" title="非对称密码学"></a>非对称密码学</h2><p>非对称密码学（又称为非对称加密或公钥加密）使用数学相关的密钥对来加密和解密数据。在密钥对中，其中一个密钥可以分享给任何人，这个密钥称为公钥（<strong>Public Key</strong>）；另外一个需要保持私密，称为私钥（<strong>Private Key</strong>）。</p>
+<p>在非对称加密中，可以使用私钥对数据进行签名，该私钥只能使用成对的相关公钥验证签名。</p>
+<p><img src="/images/2019/asymmetric-cryptography.png" alt="asymmetric-cryptography"></p>
+<p style="text-align: center;">非对称加密原理图</p>
+SSL 使用非对称加密来发起通信，这被称为 SSL 握手。 最常用的非对称密钥加密算法包括EIGamal，RSA，DSA，椭圆曲线技术和 PKCS。
+
+<h2 id="对称密码学"><a href="#对称密码学" class="headerlink" title="对称密码学"></a>对称密码学</h2><p>在对称密码学里，只有一个密钥来加密和解密数据。发送者和接收者都拥有这个密钥，并且应该只限于他们拥有，不能泄漏给第三方。</p>
+<p>发起握手之后，SSL 利用会话密钥（session key）来使用对称加密。使用最广泛的对称加密算法是 AES-128，AES-192 和 AES-256。</p>
+<p><img src="/images/2019/symmetric-cryptography.png" alt="symmetric-cryptography"></p>
+<p style="text-align: center;">对称加密原理图</p>
+## SSL 上的数据传输
+
+<p>SSL 使用非对称和对称加密来安全地传输数据。下图表明了SSL 通信的步骤:</p>
+<p><img src="/images/2019/ssl-communication.png" alt="ssl-communication"></p>
+<p style="text-align: center;">SSL 通信</p>
+如上图，SSL 通信被分为两个步骤：SSL 握手和实际的数据传输。
+
+<h3 id="SSL-握手"><a href="#SSL-握手" class="headerlink" title="SSL 握手"></a>SSL 握手</h3><p>SSL 上的通信通常由 SSL 握手开始。SSL 握手是一种非对称加密，允许浏览器在开始实际数据传输之前验证 web 服务器，获得公钥，建立安全连接。</p>
+<p>下图表明了 SSL 握手的步骤：</p>
+<p><img src="/images/2019/ssl-handshack.png" alt="ssl-handshack"></p>
+<p style="text-align: center;">SSL 握手</p>
+我们说明一下上图的步骤：
+
+<ol>
+<li>客户端发送 “client hello” 消息，其中包括客户端的 SSL 版本号，密码设置，会话专用数据以及服务器使用 SSL 与客户端通信需要的其它信息。</li>
+<li>服务器以 “server hello” 消息响应，其中包括服务器的 SSL 版本号，密码设置，会话专用数据，带有公共密钥的 SSL 证书以及客户端使用 SSL 与服务器通信需要的其它信息。</li>
+<li>客户端从 CA（证书颁发机构）验证服务器的 SSL 证书并鉴定服务器。如果身份鉴定失败，则客户端将拒绝 SSL 连接并抛出异常。如果认证成功，将继续执行步骤 4。</li>
+<li>客户端创建会话密钥，并使用服务器的公共密钥对其进行加密，然后将其发送到服务器。如果服务器已请求客户端身份鉴定（主要是在服务器到服务器的通信中），则客户端会将自己的证书发送到服务器。</li>
+<li>服务器使用其私钥解密会话密钥，并将确认消息发送给使用该会话密钥的客户端。</li>
+</ol>
+<p>这样在 SSL 握手结束时，客户端和服务器都具有有效的会话密钥，它们将用于加密或解密实际数据。此后将不再需要公钥和私钥。</p>
+<h2 id="数据传输"><a href="#数据传输" class="headerlink" title="数据传输"></a>数据传输</h2><p>现在客户端和服务器使用一个共享的会话密钥来加密和解密实际的数据，并传输之。由于两端使用同样的会话密钥，所以这是一个对称加密。实际数据传输采用对称加密，是因为对称加密的 CPU 消耗比非对称加密更少。</p>
+<p><img src="/images/2019/ssl-data-transfer.png" alt="ssl-data-transfer"></p>
+<p style="text-align: center;">SSL 数据传输</p>
+这样，SSL 使用了非对称加密和对称加密。在现实生活中，实现 SSL 通信的一些基础架构，称为“公共密钥基础架构”（Public Key Infrastructure）。
+
+<h2 id="公共密钥基础架构"><a href="#公共密钥基础架构" class="headerlink" title="公共密钥基础架构"></a>公共密钥基础架构</h2><p>公共密钥基础架构（<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Public_key_infrastructure">public key infrastructure (PKI)</a>）是创建、管理、分发、使用、储存、废弃电子证书和管理公钥加密的一系列角色、策略、程序的集合。</p>
+<p>PKI 包括以下元素：</p>
+<ul>
+<li>证书颁发机构: Certificate Authority，简称 CA。这个机构负责鉴定个人、计算机和其它实体的身份。</li>
+<li>注册机构: Registration Authority。CA 的一个子机构，代表根证书颁发机构，颁发证书用于特殊用途。</li>
+<li>SSL 证书: SSL Certificate。SSL 证书是一个包含公钥和其它信息的数据文件。</li>
+<li>证书管理系统: Certificate Management System。这个系统负责存储、校验、废弃证书。</li>
+</ul>
+<h1 id="第-3-节-什么是-SSL-证书"><a href="#第-3-节-什么是-SSL-证书" class="headerlink" title="第 3 节 什么是 SSL 证书?"></a>第 3 节 什么是 SSL 证书?</h1><p>SSL 证书，又叫作电子证书，在两系统的安全通信中扮演着重要的角色。</p>
+<p>SSL 证书是由 CA 颁发的数据文件。如上所述，SSL 使用非对称加密，利用一个密钥对（公钥和私钥）来建立两个系统之间的加密连接。SSL 证书包含所有者的公钥和其它细节信息。web 服务器通过 SSL 证书将公钥发送给浏览器，而浏览器则使用 SSL 证书来验证和鉴定web 服务器。</p>
+<p>读者可以打开任何 HTTPS 网站的证书。例如，在 Google Chrome 浏览器里打开  <a target="_blank" rel="noopener" href="https://www.google.com/">https://www.google.com</a> 来检查 google.com 的SSL 证书。如下图所示，任何 HTTPS 网站在地址栏都有一个锁的图样。</p>
+<p><img src="/images/2019/https-in-browser.png" alt="https-in-browser"></p>
+<p style="text-align: center;">浏览器中的 HTTPS</p>
+点击锁图样，然后在弹层点击证书，如下图所示：
+
+<p><img src="/images/2019/open-ssl-certificate.png" alt="open-ssl-certificate"></p>
+<p style="text-align: center;">打开 SSL 证书</p>
+打开的证书窗口如下图所示。
+
+<p><img src="/images/2019/ssl-certificate.png" alt="ssl-certificate"></p>
+<p style="text-align: center;">SSL 证书</p>
+在“通用（General）” Tab 下，显示了证书的签发对象、签发者和有效起止时间。“细节（Details）” Tab 下包括其它细节信息。“证书路径（Certificate Path）” 包含了所有中间证书和根 CA 证书的信息。
+
+<h2 id="X-509"><a href="#X-509" class="headerlink" title="X.509"></a>X.509</h2><p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/X.509">X.509</a> 是定义电子证书格式的标准。 SSL 使用 X.509 格式。换句话说，SSL 证书实际上是 X.509 证书。</p>
+<p>X.509 使用 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Abstract_Syntax_Notation_One">Abstract Syntax Notation One (ASN.1)</a> 的格式化语言来表示证书的数据结构。</p>
+<p>X.509 格式的 SSL 证书包括以下信息：</p>
+<ul>
+<li><strong>版本</strong>：Version。证书使用的数据格式采用 X.509 的哪个版本。 </li>
+<li><strong>序列号</strong>：Serial number。CA 为每个证书指定的唯一标识符。</li>
+<li><strong>公钥</strong>：Public Key。所有者的公钥。</li>
+<li><strong>主题</strong>：Subject。所有者的姓名、地址、国家和域名。</li>
+<li><strong>签发者</strong>：Issuer。签发该证书的 CA 的名字。</li>
+<li><strong>生效时间</strong>：Valid-From。证书开始生效的日期，在此之前无效。</li>
+<li><strong>过期时间</strong>：Valid-To。证书过期的日期，在此之后无效。</li>
+<li><strong>签名算法</strong>：Signature Algorithm。创建签名所使用的算法。</li>
+<li><strong>指纹</strong>：Thumbprint。证书的哈希值。</li>
+<li><strong>指纹算法</strong>：Thumbprint Algorithm。创建证书哈希值所使用的算法。</li>
+</ul>
+<h2 id="SSL-证书的类型"><a href="#SSL-证书的类型" class="headerlink" title="SSL 证书的类型"></a>SSL 证书的类型</h2><p>根据验证级别和域名数目，SSL 证书有多种类型可以选用。所有类型的证书，其加密级别都相同，但验证级别却不同。</p>
+<h2 id="基于验证级别的-SSL-证书类型"><a href="#基于验证级别的-SSL-证书类型" class="headerlink" title="基于验证级别的 SSL 证书类型"></a>基于验证级别的 SSL 证书类型</h2><p>网站使用 SSL 证书来与访客建立起信用等级（Trust Level）。不同的企业需要不同的信用等级。例如，收集用户重要信息的网站需要安全的传输。金融机构需要验证域真实性以及数据安全性。因此，CA 需要根据信用等级来验证网站所有者的信息。以下三种证书是基于验证级别的：</p>
+<h3 id="域验证证书（Domain-Validated-Certificates）"><a href="#域验证证书（Domain-Validated-Certificates）" class="headerlink" title="域验证证书（Domain Validated Certificates）"></a>域验证证书（Domain Validated Certificates）</h3><p>域验证（Domain Validated ，简写DV ）证书要求最低的验证级别，因为 DV 证书的主要用途是保护域名对应的 web 服务器和浏览器之间的通信安全。CA 只验证所有者是否拥有域名的控制权。</p>
+<h3 id="组织验证证书（Organization-Validated-Certificates）"><a href="#组织验证证书（Organization-Validated-Certificates）" class="headerlink" title="组织验证证书（Organization Validated Certificates）"></a>组织验证证书（Organization Validated Certificates）</h3><p>组织验证（Organization Validated ，简写OV ）证书要求中等级别的验证等级。在此等级下，CA 不但检查使用该域名的组织的权限，而且会检查组织的信息。OV 证书增强了组织和域名的信用等级。</p>
+<h3 id="扩展验证证书（Extended-Validated-Certificates）"><a href="#扩展验证证书（Extended-Validated-Certificates）" class="headerlink" title="扩展验证证书（Extended Validated Certificates）"></a>扩展验证证书（Extended Validated Certificates）</h3><p>扩展验证（Extended Validated ，简写EF ）证书要求高级别的验证等级。在此级别下，CA 根据准则对组织进行严格的背景检查。这包括对实体的法律、物理、经验状况的验证。</p>
+<h2 id="基于域名数目的-SSL-证书类型"><a href="#基于域名数目的-SSL-证书类型" class="headerlink" title="基于域名数目的 SSL 证书类型"></a>基于域名数目的 SSL 证书类型</h2><p>根据受保护的域名的数目，证书可以分为以下几类。</p>
+<h3 id="单域名证书（Single-Domain-Certificate）"><a href="#单域名证书（Single-Domain-Certificate）" class="headerlink" title="单域名证书（Single Domain Certificate）"></a>单域名证书（Single Domain Certificate）</h3><p>单域名证书只保护一个完整域名。例如针对 <a href="www.example.com">www.example.com</a> 的单域名证书，不能用于 <a href="mail.example.com">mail.example.com</a>。</p>
+<h3 id="通配符证书（Wildcard-SSL-Certificate）"><a href="#通配符证书（Wildcard-SSL-Certificate）" class="headerlink" title="通配符证书（Wildcard SSL Certificate）"></a>通配符证书（Wildcard SSL Certificate）</h3><p>通配符证书可以保护一个域名的无限数量的子域名。例如一个针对 example.com 的通配符证书，也可用于 mail.example.com、blog.example.com 等。</p>
+<h3 id="统一SSL证书-多域SSL证书-SAN证书（Unified-SSL-Certificate-Multi-Domain-SSL-Certificate-SAN-Certificate）"><a href="#统一SSL证书-多域SSL证书-SAN证书（Unified-SSL-Certificate-Multi-Domain-SSL-Certificate-SAN-Certificate）" class="headerlink" title="统一SSL证书&#x2F;多域SSL证书&#x2F; SAN证书（Unified SSL Certificate &#x2F;Multi-Domain SSL Certificate&#x2F;SAN Certificate）"></a>统一SSL证书&#x2F;多域SSL证书&#x2F; SAN证书（Unified SSL Certificate &#x2F;Multi-Domain SSL Certificate&#x2F;SAN Certificate）</h3><p>统一 SSL 证书使用 SAN 扩展之后，可以至多保护 100 个使用相同证书的域名。它专门用于保护 Microsoft Exchange 和 Office Communication 的通信环境。</p>
+<p>选择了合适的 SSL 证书类型之后，需要从知名 CA 购买证书。此操作与技术关系不大，不再赘述。如果读者想安装免费 SSL 证书，请参考笔者以前的博文 <a target="_blank" rel="noopener" href="https://blog.text.wiki/2017/03/29/lets-encrypt-deploy-step-by-step.html">《教程：配置 Let’s Encrypt 免费 HTTPS 证书》</a>。</p>
+<h1 id="第-4-节-SSL-证书格式"><a href="#第-4-节-SSL-证书格式" class="headerlink" title="第 4 节 SSL 证书格式"></a>第 4 节 SSL 证书格式</h1><p>前文讲过，SSL 证书使用 X.509 格式。X.509 证书有不同的格式，例如PEM, DER, PKCS#7 和 PKCS#12。PEM 和 PKCS#7 格式使用 Base64 ASCII 编码，DER 和 PKCS#12 使用二进制编码。根据不同的格式和编码方式，证书文件有不同的扩展名。</p>
+<p>下图说明了 X.509 证书的编码格式和文件扩展名。</p>
+<p><img src="/images/2019/ssl-certificate-format.png" alt="ssl-certificate-format"></p>
+<p style="text-align: center;">SSL 证书格式</p>
+## PEM 格式
+
+<p>大多数 CA 提供格式为 PEM 、文件为 Base64 ASCII 编码的证书。证书文件类型有 .pem, .crt, .cer, 和 .key。</p>
+<ul>
+<li>.pem 文件将服务器证书、中间证书和私钥包含在单个文件里。</li>
+<li>.crt 和 .cer 文件分别保存服务器证书和中间证书。</li>
+<li>.key 文件保存私钥。</li>
+</ul>
+<p>PEM 文件使用 ASCII 编码，因为读者可以使用任意文本编辑器打开它们。</p>
+<p>PEM 文件中的每个证书包含在 <code>---- BEGIN CERTIFICATE----</code> 和 <code>----END CERTIFICATE----</code> 之间。</p>
+<p>私钥文件包含在 <code>---- BEGIN RSA PRIVATE KEY-----</code> 和 <code>-----END RSA PRIVATE KEY----- </code>之间。</p>
+<p>CSR 包含在 <code>-----BEGIN CERTIFICATE REQUEST-----</code> 和 <code>-----END CERTIFICATE REQUEST-----</code> 之间。</p>
+<h2 id="PKCS-7-格式"><a href="#PKCS-7-格式" class="headerlink" title="PKCS#7 格式"></a>PKCS#7 格式</h2><p>PKCS#7 格式是加密消息语法标准（Cryptographic Message Syntax Standard）。PKCS#7 证书使用 Base64 ASCII 编码，文件扩展名为 .p7b 或 .p7c。只有证书以此格式保存，不包括私钥。P7B 证书包含在<code> -----BEGIN PKCS7-----</code> 和 <code>-----END PKCS7-----</code> 之间。</p>
+<h2 id="DER-格式"><a href="#DER-格式" class="headerlink" title="DER 格式"></a>DER 格式</h2><p>DER 证书是二进制格式，存储在 .der 或 .cer 文件里。这些证书主要用于 Java 开发的 web 服务器中。</p>
+<h2 id="PKCS-12-格式"><a href="#PKCS-12-格式" class="headerlink" title="PKCS#12 格式"></a>PKCS#12 格式</h2><p>PKCS#12 证书是二进制格式，存储在 .pfx 或 .p12 文件里。</p>
+<p>PKCS#12 将服务器证书、中间证书和私钥包含在单个 .pfx 后缀、用密码加密保护的文件里。这些证书主要用于 Windows 平台。</p>
+<p>CA 提供以上任何格式的证书。</p>
+<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>本文主要讲解了 HTTPS 的原理、SSL 证书的工作原理、SSL 证书的分类和格式，可以作为入门教程。读完本文，相信读者会对 HTTPS 有一个概览式的了解。读者有兴趣的读者可以研究密码学，有需要安装证书的读者可以自行搜索安装方法。</p>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>本文为笔者处于学习目的而翻译，原文在 <a target="_blank" rel="noopener" href="https://www.tutorialsteacher.com/https">HTTPS Tutorials</a> 。</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>HTTPS 简明教程</p><p><a href="http://example.com/2019/09/23/https-tutorials.html">http://example.com/2019/09/23/https-tutorials.html</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><a href="http://example.com"><p>David</p></a></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2019-09-23</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2023-10-22</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icon" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a><a class="icon" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a><a class="icon" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="recommend-area"><div class="recommend-post"><span class="is-size-6 has-text-grey has-mr-7"># 相关文章</span><br><span>  1.<a class="is-size-6" href="/2020/06/23/go-channel-study.html" target="_blank">Go 语言 Channel 简明教程</a><br></span></div></div><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/social-share.js/1.0.16/css/share.min.css"><div class="social-share"></div><script src="https://cdnjs.loli.net/ajax/libs/social-share.js/1.0.16/js/social-share.min.js"></script></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2020/06/23/go-channel-study.html"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Go 语言 Channel 简明教程</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2019/06/24/Scala-simple-lessons.html"><span class="level-item">Scala 简明教程</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1 is-sticky"><!--!--><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://i.weixinbook.net/logo.ico" alt="David"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">David</p><p class="is-size-6 is-block">我心光明亦复何言</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>地球</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives"><p class="title">58</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories"><p class="title">24</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags"><p class="title">59</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/ppoffice" target="_blank" rel="noopener">关注我</a></div><div class="level is-mobile"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/removeif"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Email" href="mailto:removeif@163.com"><i class="fa fa-envelope"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/atom.xml"><i class="fas fa-rss"></i></a></div><div><hr><p id="hitokoto">:D 一言句子获取中...</p><script type="text/javascript" defer>function getYiyan(){
+                                $.getJSON("https://v1.hitokoto.cn/", function (data) {
+                                if(data){
+                                    $('#hitokoto').html("");
+                                    $('#hitokoto').append("<strong style='color: #3273dc;'>"+data.hitokoto+"</strong>"+
+                                    "<p>"+"来源《"+data.from+"》</p><p>提供者-"+data.creator+"</p>");
+                                }});}
+                                $(function (){getYiyan();$('#hitokoto').click(function(){getYiyan();})});</script></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">链接</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://hexo.io" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">Hexo</span></span><span class="level-right"><span class="level-item tag">hexo.io</span></span></a></li></ul></div></div></div><!--!--><div class="card widget"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2021-01-10T16:00:00.000Z">2021-01-11</time></p><p class="title"><a href="/2021/01/11/cap.html">重新思考 CAP 定理</a></p><p class="categories"><a href="/categories/CAP/">CAP</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2020-06-22T16:00:00.000Z">2020-06-23</time></p><p class="title"><a href="/2020/06/23/go-channel-study.html">Go 语言 Channel 简明教程</a></p><p class="categories"><a href="/categories/https/">https</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2019-09-22T16:00:00.000Z">2019-09-23</time></p><p class="title"><a href="/2019/09/23/https-tutorials.html">HTTPS 简明教程</a></p><p class="categories"><a href="/categories/https/">https</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2019-06-23T16:00:00.000Z">2019-06-24</time></p><p class="title"><a href="/2019/06/24/Scala-simple-lessons.html">Scala 简明教程</a></p><p class="categories"><a href="/categories/scala/">scala</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2018-11-30T16:00:00.000Z">2018-12-01</time></p><p class="title"><a href="/2018/12/01/olap-12-rules.html">OLAP 的 12 条规则</a></p><p class="categories"><a href="/categories/mysql/">mysql</a></p></div></article></div></div><div class="card widget"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile is-marginless" href="/categories/CAP/"><span class="level-start"><span class="level-item">CAP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile is-marginless" href="/categories/PHP/"><span class="level-start"><span class="level-item">PHP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile is-marginless" href="/categories/api/"><span class="level-start"><span class="level-item">api</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile is-marginless" href="/categories/docker/"><span class="level-start"><span class="level-item">docker</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile is-marginless" href="/categories/git/"><span class="level-start"><span class="level-item">git</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile is-marginless" href="/categories/https/"><span class="level-start"><span class="level-item">https</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile is-marginless" href="/categories/js/"><span class="level-start"><span class="level-item">js</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile is-marginless" href="/categories/linux/"><span class="level-start"><span class="level-item">linux</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile is-marginless" href="/categories/mysql/"><span class="level-start"><span class="level-item">mysql</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile is-marginless" href="/categories/nginx/"><span class="level-start"><span class="level-item">nginx</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><a class="level is-mobile is-marginless" href="/categories/"><span class="level-start"><span class="level-item">查看全部&gt;&gt;</span></span></a></ul></div></div></div><div class="card widget"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile is-marginless" href="/archives/2021/01/"><span class="level-start"><span class="level-item">一月 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile is-marginless" href="/archives/2020/06/"><span class="level-start"><span class="level-item">六月 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile is-marginless" href="/archives/2019/09/"><span class="level-start"><span class="level-item">九月 2019</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile is-marginless" href="/archives/2019/06/"><span class="level-start"><span class="level-item">六月 2019</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile is-marginless" href="/archives/2018/12/"><span class="level-start"><span class="level-item">十二月 2018</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><a class="level is-mobile is-marginless" href="/archives/"><span class="level-start"><span class="level-item">查看全部&gt;&gt;</span></span></a></ul></div></div></div><div class="card widget"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/%E7%AE%97%E6%B3%95/"><span class="tag">算法</span><span class="tag is-grey-lightest">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/newman/"><span class="tag">newman</span><span class="tag is-grey-lightest">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/nodejs/"><span class="tag">nodejs</span><span class="tag is-grey-lightest">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/postman/"><span class="tag">postman</span><span class="tag is-grey-lightest">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/swift/"><span class="tag">swift</span><span class="tag is-grey-lightest">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/leetcode/"><span class="tag">leetcode</span><span class="tag is-grey-lightest">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/mysql/"><span class="tag">mysql</span><span class="tag is-grey-lightest">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/php/"><span class="tag">php</span><span class="tag is-grey-lightest">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/redis/"><span class="tag">redis</span><span class="tag is-grey-lightest">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/go/"><span class="tag">go</span><span class="tag is-grey-lightest">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%95%B0%E5%AD%A6/"><span class="tag">数学</span><span class="tag is-grey-lightest">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%AF%8F%E5%91%A8%E5%AD%A6%E4%B9%A0/"><span class="tag">每周学习</span><span class="tag is-grey-lightest">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/PHP/"><span class="tag">PHP</span><span class="tag is-grey-lightest">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/api/"><span class="tag">api</span><span class="tag is-grey-lightest">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/cache/"><span class="tag">cache</span><span class="tag is-grey-lightest">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/docker/"><span class="tag">docker</span><span class="tag is-grey-lightest">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/git/"><span class="tag">git</span><span class="tag is-grey-lightest">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/js/"><span class="tag">js</span><span class="tag is-grey-lightest">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/linux/"><span class="tag">linux</span><span class="tag is-grey-lightest">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/nginx/"><span class="tag">nginx</span><span class="tag is-grey-lightest">2</span></a></div></div><div class="field is-grouped is-grouped-multiline"><a class="tags has-addons" href="/tags/"><span class="tag">查看全部&gt;&gt;</span></a></div></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">订阅更新</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div><!--!--><div class="column-right-shadow is-hidden-widescreen"></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/">David&#039;s World</a><p class="size-small"><span>&copy; 2023 David</span>  Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a> &amp; <a href="https://github.com/removeif/hexo-theme-amazing" target="_blank">Amazing</a> <br><span>© 所有权利保留<br/></span><span><span id="statistic-times">loading...</span><script>function createTime(time) {
+            var n = new Date(time);
+            now.setTime(now.getTime() + 250),
+                days = (now - n) / 1e3 / 60 / 60 / 24,
+                dnum = Math.floor(days),
+                hours = (now - n) / 1e3 / 60 / 60 - 24 * dnum,
+                hnum = Math.floor(hours),
+            1 == String(hnum).length && (hnum = "0" + hnum),
+                minutes = (now - n) / 1e3 / 60 - 1440 * dnum - 60 * hnum,
+                mnum = Math.floor(minutes),
+            1 == String(mnum).length && (mnum = "0" + mnum),
+                seconds = (now - n) / 1e3 - 86400 * dnum - 3600 * hnum - 60 * mnum,
+                snum = Math.round(seconds),
+            1 == String(snum).length && (snum = "0" + snum),
+                document.getElementById("statistic-times").innerHTML = "❤️本站自 <strong>"+time.split(" ")[0].replace(/\//g,".")+"</strong> 已运行 <strong>" + dnum + "</strong> 天 <strong>" + hnum + "</strong> 小时 <strong>" + mnum + "</strong> 分 <strong>" + snum + "</strong> 秒！❤️";
+        }var now = new Date();setInterval("createTime('2014/10/10 00:00:00')", 250,"");</script><br></span><div class="size-small"><span>❤️感谢 <strong><span id="busuanzi_value_site_uv">99+</span></strong> 小伙伴的 <strong><span id="busuanzi_value_site_pv">99+</span></strong> 次光临！❤️</span></div></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/removeif/hexo-theme-amazing"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdnjs.loli.net/ajax/libs/moment.js/2.22.2/moment-with-locales.min.js"></script><script src="https://cdnjs.loli.net/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" async></script><script>moment.locale("zh-CN");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdnjs.loli.net/ajax/libs/lightgallery/1.10.0/js/lightgallery.min.js" defer></script><script src="https://cdnjs.loli.net/ajax/libs/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.js"></script><script type="text/javascript">var pjax = new Pjax({
+            elements: "a",//代表点击链接就更新
+            selectors: [  //代表要更新的节点
+                ".section",
+                "title"
+            ],
+            cache: true,
+            cacheBust:false
+        })
+
+        function loadBusuanzi(){
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js", function () {});
+        }
+
+        function loadMathJax() { //加载mathjax
+            $.getScript("//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML", function () {
+                MathJax.Hub.Config({ tex2jax: { inlineMath: [['$', '$'], ['\(', '\)']] } });
+                var math = document.getElementsByClassName("entry-content")[0];
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, math]);
+            });
+        };
+
+        // 开始 PJAX 执行的函数
+        document.addEventListener('pjax:send', function () {
+        });
+        
+        // PJAX 完成之后执行的函数，可以和上面的重载放在一起
+        document.addEventListener('pjax:complete', function () {
+            $(".section").css({opacity:1});
+            if(false){
+                $.getScript('/js/comment-issue-data.js',function(){loadIssueData('undefined','undefined','undefined','undefined',undefined);});
+            }
+            if(false){
+                loadMathJax();
+            }
+            loadMainJs(jQuery, window.moment, window.ClipboardJS, window.IcarusThemeSettings);
+            loadBackTop();
+            loadBusuanzi();
+            if(typeof loadBanner == 'function'){
+                loadBanner();
+            }
+        });</script></body></html>

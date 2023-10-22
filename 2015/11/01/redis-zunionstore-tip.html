@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Redis技巧:Sorted Set使用 - David&#039;s World</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="David&#039;s World"><meta name="msapplication-TileImage" content="g"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="David&#039;s World"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="有序集合(Sorted Set)是Redis一个很重要的数据结构，它用来保存需要排序的数据。例如排行榜，一个班的语文成绩，一个公司的员工工资，一个论坛的帖子等。有序集合中，每个元素都带有score（权重），以此来对元素进行排序。它有三个元素：key、member和score。以语文成绩为例，key是考试名称（期中考试、期末考试等），member是学生名字，score是成绩。"><meta property="og:type" content="blog"><meta property="og:title" content="David&#039;s World"><meta property="og:url" content="https://spetacular.github.io/"><meta property="og:site_name" content="David&#039;s World"><meta property="og:description" content="有序集合(Sorted Set)是Redis一个很重要的数据结构，它用来保存需要排序的数据。例如排行榜，一个班的语文成绩，一个公司的员工工资，一个论坛的帖子等。有序集合中，每个元素都带有score（权重），以此来对元素进行排序。它有三个元素：key、member和score。以语文成绩为例，key是考试名称（期中考试、期末考试等），member是学生名字，score是成绩。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://spetacular.github.io/"><meta property="article:published_time" content="2015-10-31T16:00:00.000Z"><meta property="article:modified_time" content="2023-10-22T03:35:47.818Z"><meta property="article:author" content="David"><meta property="article:tag" content="redis"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://spetacular.github.io/"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://example.com/2015/11/01/redis-zunionstore-tip.html"},"headline":"David's World","image":["http://spetacular.github.io/images/2015-11-01/inter-union.jpg","http://spetacular.github.io/images/2015-11-01/feed-timeline.jpg"],"datePublished":"2015-10-31T16:00:00.000Z","dateModified":"2023-10-22T03:35:47.818Z","author":{"@type":"Person","name":"David"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject"}},"description":"有序集合(Sorted Set)是Redis一个很重要的数据结构，它用来保存需要排序的数据。例如排行榜，一个班的语文成绩，一个公司的员工工资，一个论坛的帖子等。有序集合中，每个元素都带有score（权重），以此来对元素进行排序。它有三个元素：key、member和score。以语文成绩为例，key是考试名称（期中考试、期末考试等），member是学生名字，score是成绩。"}</script><link rel="canonical" href="http://example.com/2015/11/01/redis-zunionstore-tip.html"><link rel="icon" href="/g"><meta name="referrer" content="no-referrer-when-downgrade"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/font-awesome/6.0.0/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css"><link rel="stylesheet" href="https://fonts.loli.net/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/font-awesome/5.12.0/css/all.min.css"><link rel="stylesheet" href="https://fonts.loli.net/css?family=Ubuntu:400,600|Source+Code+Pro|Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Microsoft YaHei:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&amp;amp;subset=latin,latin-ext|Inconsolata|Itim|Lobster.css"><script src="https://cdnjs.loli.net/ajax/libs/jquery/3.3.1/jquery.min.js"></script><script src="/js/globalUtils.js"></script><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" defer></script><!--!--><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/lightgallery/1.10.0/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/justifiedGallery/3.8.1/css/justifiedGallery.min.css"><script src="https://www.googletagmanager.com/gtag/js?id=UA-20318153-4" async></script><script>window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+    
+        gtag('config', 'UA-20318153-4');</script><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdnjs.loli.net/ajax/libs/pace/1.2.4/pace.min.js"></script><meta name="generator" content="Hexo 5.4.2"></head><body class="is-3-column has-navbar-fixed-top"><nav class="navbar navbar-main is-fixed-top"><div class="container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">David&#039;s World</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a><a class="navbar-item" id="night-nav" title="Night Mode" href="javascript:;"><i class="fas fa-moon" id="night-icon"></i></a></div></div></div></nav><script type="text/javascript" src="/js/theme-setting.js"></script><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-9-widescreen"><!--!--><div class="card"><article class="card-content article" role="article"><div class="article-meta size-small is-uppercase level is-mobile"><div class="level-left"><i class="far fa-calendar-plus"> </i>2015-11-01  <a class="commentCountImg" href="/2015/11/01/redis-zunionstore-tip.html#comment-container"><span class="display-none-class">/2015/11/01/redis-zunionstore-tip.html</span><i class="far fa-comment-dots"></i> <span class="commentCount" id="e5edaab86d6b31d6e1124636b91ea483">99+</span>  </a><span class="level-item"><i class="far fa-clock"> </i>11 分钟  <i class="fas fa-pencil-alt"> </i>1.6 k</span><span class="level-item" id="busuanzi_container_page_pv"><span id="busuanzi_value_page_pv">0</span>次访问</span></div></div><h1 class="title is-3 is-size-4-mobile">Redis技巧:Sorted Set使用</h1><div class="content"><p>有序集合(Sorted Set)是Redis一个很重要的数据结构，它用来保存需要排序的数据。例如排行榜，一个班的语文成绩，一个公司的员工工资，一个论坛的帖子等。有序集合中，每个元素都带有score（权重），以此来对元素进行排序。它有三个元素：key、member和score。以语文成绩为例，key是考试名称（期中考试、期末考试等），member是学生名字，score是成绩。</p>
+<span id="more"></span>
+
+<p>有序集合有两大基本用途：排序和聚合，以下用几个例子分别说明。</p>
+<h1 id="排序"><a href="#排序" class="headerlink" title="排序"></a>排序</h1><p>假设老师需要处理期中考试的语文成绩，他做的第一件事是将学生成绩录入系统。</p>
+<pre><code>  Li Lei成绩70分
+  127.0.0.1:6379&gt; ZADD mid_test 70 &quot;Li Lei&quot;
+  (integer) 1
+
+  Han Meimei成绩70分
+  127.0.0.1:6379&gt; ZADD mid_test 70 &quot;Han Meimei&quot;
+  (integer) 1
+
+  tom成绩99.5分
+  127.0.0.1:6379&gt; ZADD mid_test 99.5 &quot;Tom&quot;
+  (integer) 1
+</code></pre>
+<h2 id="排行榜"><a href="#排行榜" class="headerlink" title="排行榜"></a>排行榜</h2><p>有序集合天然就是做排行榜的利器。只需将带score的member塞到有序集合里，就可以正序或倒序取出数据。这要用到ZREVRANGE（倒序）和ZRANGE（正序）。     </p>
+<pre><code>  分数排行榜
+  127.0.0.1:6379&gt; ZREVRANGE mid_test 0 -1 WITHSCORES
+  1) &quot;Tom&quot;
+  2) &quot;99.5&quot;
+  3) &quot;Li Lei&quot;
+  4) &quot;70&quot;
+  5) &quot;Han Meimei&quot;
+  6) &quot;70&quot;
+</code></pre>
+<h2 id="分段统计"><a href="#分段统计" class="headerlink" title="分段统计"></a>分段统计</h2><p>有序集合还支持按score区间来查询：ZREVRANGEBYSCORE为倒序查询，ZRANGEBYSCORE为正序。例如要知道90分以上的学霸：</p>
+<pre><code>  127.0.0.1:6379&gt; ZREVRANGEBYSCORE mid_test 100 90 WITHSCORES
+  1) &quot;Tom&quot;
+  2) &quot;99.5&quot;
+</code></pre>
+<h1 id="聚合"><a href="#聚合" class="headerlink" title="聚合"></a>聚合</h1><p>有序集合，其本质是集合，当然会有交集（<a target="_blank" rel="noopener" href="http://redisdoc.com/sorted_set/zinterstore.html" title="ZINTERSTORE">ZINTERSTORE</a>）和并集（<a target="_blank" rel="noopener" href="http://redisdoc.com/sorted_set/zunionstore.html" title="ZUNIONSTORE">ZUNIONSTORE</a>）运算。</p>
+<img src="http://spetacular.github.io/images/2015-11-01/inter-union.jpg" alt="交集和并集" width="100%"/>
+
+<h2 id="交集"><a href="#交集" class="headerlink" title="交集"></a>交集</h2><p><a target="_blank" rel="noopener" href="http://redisdoc.com/sorted_set/zinterstore.html" title="ZINTERSTORE">ZINTERSTORE</a>取所有集合的交集。以两个集合A和B为例，要取交集C，是这样的逻辑：</p>
+<ul>
+<li>A和B中共有的member，会加入到C中，其score等于A、B中score之和。</li>
+<li>不同时在A和B的member，不会加到C中。</li>
+</ul>
+<p>某班又进行了期末考试，同时来了个新同学Jerry。</p>
+<pre><code>  127.0.0.1:6379&gt; ZADD fin_test 88 &quot;Li Lei&quot;
+  (integer) 1
+  127.0.0.1:6379&gt; ZADD fin_test 75 &quot;Han Meimei&quot;
+  (integer) 1
+  127.0.0.1:6379&gt; ZADD fin_test 99.5 &quot;Tom&quot;
+  (integer) 1
+  127.0.0.1:6379&gt; ZADD fin_test 100 &quot;Jerry&quot;
+  (integer) 1
+</code></pre>
+<p>老师要按期中考试和期末考试的总成绩来排座位，就对mid_test和fin_test做了个交集。</p>
+<pre><code>  127.0.0.1:6379&gt; ZINTERSTORE sum_point 2 mid_test fin_test
+  (integer) 3
+  127.0.0.1:6379&gt; ZREVRANGE sum_point 0 -1 WITHSCORES
+  1) &quot;Tom&quot;
+  2) &quot;199&quot;
+  3) &quot;Li Lei&quot;
+  4) &quot;158&quot;
+  5) &quot;Han Meimei&quot;
+  6) &quot;145&quot;
+</code></pre>
+<p>结果显示了学生的总成绩。<br>但结果中没有新来的Jerry同学（尽管TA考了100分）。这是坑一。</p>
+<h2 id="并集"><a href="#并集" class="headerlink" title="并集"></a>并集</h2><p><a target="_blank" rel="noopener" href="http://redisdoc.com/sorted_set/zunionstore.html" title="ZUNIONSTORE">ZUNIONSTORE</a>计算所有集合的并集。以两个集合A和B为例，要取并集C，是这样的逻辑：</p>
+<ul>
+<li>A的所有member会加到C中，其score与A中相等</li>
+<li>B的所有member会加到C中，其score与B中相等</li>
+<li>A和B中共有的member，其score等于A、B中score之和。</li>
+</ul>
+<p>假设某公司要核算工资总支出，先由各部门独自核算，再由财务统一处理。</p>
+<p>程序员工资</p>
+<pre><code>  127.0.0.1:6379&gt; zadd programmer 2000 peter
+  (integer) 1
+  127.0.0.1:6379&gt; zadd programmer 3500 jack
+  (integer) 1
+  127.0.0.1:6379&gt; zadd programmer 5000 tom
+  (integer) 1
+</code></pre>
+<p>经理工资</p>
+<pre><code>  127.0.0.1:6379&gt; zadd manager 2000 herry
+  (integer) 1
+  127.0.0.1:6379&gt; zadd manager 3500 mary
+  (integer) 1
+  127.0.0.1:6379&gt; zadd manager 4000 tom
+  (integer) 1
+</code></pre>
+<p>财务统一处理。</p>
+<pre><code>  127.0.0.1:6379&gt; zunionstore salary 2 programmer manager
+  (integer) 5
+  127.0.0.1:6379&gt; zrange salary 0 -1 withscores
+   1) &quot;herry&quot;
+   2) &quot;2000&quot;
+   3) &quot;peter&quot;
+   4) &quot;2000&quot;
+   5) &quot;jack&quot;
+   6) &quot;3500&quot;
+   7) &quot;mary&quot;
+   8) &quot;3500&quot;
+   9) &quot;tom&quot;
+  10) &quot;9000&quot;
+</code></pre>
+<p>结果显示了总工资支出情况。</p>
+<p>但结果中程序员tom和经理tom是两个人，但工资算在了一起。这是坑二。</p>
+<h1 id="避免踩坑"><a href="#避免踩坑" class="headerlink" title="避免踩坑"></a>避免踩坑</h1><p>还记得上面说的坑一和坑二吗？</p>
+<p>坑一：</p>
+<p>当进行ZINTERSTORE操作时，如果进行聚合操作的源集合中元素不同，则聚合后的结果集仅为交集。如果发现聚合后少了一些元素，请查看源集合元素是否相同。</p>
+<p>坑二：</p>
+<p>当进行ZUNIONSTORE操作时，如果进行聚合操作的源集合中有相同元素，则聚合后的结果集中，相同元素的score等于源集合元素的score之和。如果发现聚合后某些元素的score异常，请查看源集合是否有相同元素。</p>
+<p>我踩过的坑：</p>
+<p>做用户的feed（timeline）时，需要将我关注的人和我自己发表的信息聚合起来。</p>
+<img src="http://spetacular.github.io/images/2015-11-01/feed-timeline.jpg" alt="timeline & feed" width="100%"/>
+
+<p>应该用ZUNIONSTORE将所有信息聚合到一起。</p>
+<p>后来有用户反馈说timeline排序错误，自己发表发布的信息永远在最上面。后来查明原因，由于早期的bug，自己竟然可以关注自己，导致关注人和自己重复聚合。踩到了坑二。</p>
+<h1 id="为什么踩坑"><a href="#为什么踩坑" class="headerlink" title="为什么踩坑"></a>为什么踩坑</h1><p>以坑二为例，为什么有相同元素时，score就会变成原来元素的和？</p>
+<p>因为ZINTERSTORE和ZUNIONSTORE有个参数为AGGREGATE，表示结果集的聚合方式，可取SUM、MIN、MAX其中之一。默认值为SUM。</p>
+<p>所以不指定聚合方式时，缺省值为SUM，即求和。</p>
+<blockquote>
+  默认使用的参数 SUM ，可以将所有集合中某个成员的 score 值之 和 作为结果集中该成员的 score 值；使用参数 MIN ，可以将所有集合中某个成员的 最小 score 值作为结果集中该成员的 score 值；而参数 MAX 则是将所有集合中某个成员的 最大 score 值作为结果集中该成员的 score 值。
+</blockquote>
+
+<p>文档如上。</p>
+<h1 id="有序集合之总结"><a href="#有序集合之总结" class="headerlink" title="有序集合之总结"></a>有序集合之总结</h1><p>使用场景：排行榜，有序列表，聚合；</p>
+<p>算法复杂度：</p>
+<ul>
+<li>增删：O(M*log(N))， N 为有序集的基数， M 为被成功操作（新增、移除）的成员的数量。</li>
+<li>查询：O(log(N)+M)， N 为有序集的基数，而 M 为结果集的基数。</li>
+<li>聚合：O(N)+O(M log(M))， N 为给定有序集基数的总和， M 为结果集的基数。</li>
+<li>总数：O(1)</li>
+</ul>
+<p>注意事项：</p>
+<ul>
+<li>ZINTERSTORE操作时,如果发现聚合后少了一些元素，请查看源集合元素是否相同。</li>
+<li>ZUNIONSTORE操作时,如果发现聚合后某些元素的score异常，请查看源集合是否有相同元素。</li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Redis技巧:Sorted Set使用</p><p><a href="http://example.com/2015/11/01/redis-zunionstore-tip.html">http://example.com/2015/11/01/redis-zunionstore-tip.html</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><a href="http://example.com"><p>David</p></a></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2015-11-01</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2023-10-22</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icon" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a><a class="icon" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a><a class="icon" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="recommend-area"><div class="recommend-post"><span class="is-size-6 has-text-grey has-mr-7"># 相关文章</span><br><span>  1.<a class="is-size-6" href="/2016/01/29/install-and-upgrade-phpredis-extions.html" target="_blank">Redis技巧:phpredis扩展安装与升级</a><br></span><span>  2.<a class="is-size-6" href="/2015/09/20/redis-hash-tag.html" target="_blank">Redis技巧:分片技术和Hash Tag</a><br></span><span>  3.<a class="is-size-6" href="/2015/04/09/use-sorted-set-to-storage-dynamically-changing-list.html" target="_blank">Redis Tips -- Use Sorted Set To Storage A Dynamically Changing List</a><br></span></div></div><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/social-share.js/1.0.16/css/share.min.css"><div class="social-share"></div><script src="https://cdnjs.loli.net/ajax/libs/social-share.js/1.0.16/js/social-share.min.js"></script></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2016/01/29/install-and-upgrade-phpredis-extions.html"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Redis技巧:phpredis扩展安装与升级</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2015/09/20/redis-hash-tag.html"><span class="level-item">Redis技巧:分片技术和Hash Tag</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1 is-sticky"><!--!--><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar is-rounded" src="https://i.weixinbook.net/logo.ico" alt="David"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">David</p><p class="is-size-6 is-block">我心光明亦复何言</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>地球</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives"><p class="title">58</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories"><p class="title">24</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags"><p class="title">59</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/ppoffice" target="_blank" rel="noopener">关注我</a></div><div class="level is-mobile"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/removeif"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Email" href="mailto:removeif@163.com"><i class="fa fa-envelope"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/atom.xml"><i class="fas fa-rss"></i></a></div><div><hr><p id="hitokoto">:D 一言句子获取中...</p><script type="text/javascript" defer>function getYiyan(){
+                                $.getJSON("https://v1.hitokoto.cn/", function (data) {
+                                if(data){
+                                    $('#hitokoto').html("");
+                                    $('#hitokoto').append("<strong style='color: #3273dc;'>"+data.hitokoto+"</strong>"+
+                                    "<p>"+"来源《"+data.from+"》</p><p>提供者-"+data.creator+"</p>");
+                                }});}
+                                $(function (){getYiyan();$('#hitokoto').click(function(){getYiyan();})});</script></div></div></div><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">链接</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://hexo.io" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">Hexo</span></span><span class="level-right"><span class="level-item tag">hexo.io</span></span></a></li></ul></div></div></div><!--!--><div class="card widget"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2021-01-10T16:00:00.000Z">2021-01-11</time></p><p class="title"><a href="/2021/01/11/cap.html">重新思考 CAP 定理</a></p><p class="categories"><a href="/categories/CAP/">CAP</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2020-06-22T16:00:00.000Z">2020-06-23</time></p><p class="title"><a href="/2020/06/23/go-channel-study.html">Go 语言 Channel 简明教程</a></p><p class="categories"><a href="/categories/https/">https</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2019-09-22T16:00:00.000Z">2019-09-23</time></p><p class="title"><a href="/2019/09/23/https-tutorials.html">HTTPS 简明教程</a></p><p class="categories"><a href="/categories/https/">https</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2019-06-23T16:00:00.000Z">2019-06-24</time></p><p class="title"><a href="/2019/06/24/Scala-simple-lessons.html">Scala 简明教程</a></p><p class="categories"><a href="/categories/scala/">scala</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2018-11-30T16:00:00.000Z">2018-12-01</time></p><p class="title"><a href="/2018/12/01/olap-12-rules.html">OLAP 的 12 条规则</a></p><p class="categories"><a href="/categories/mysql/">mysql</a></p></div></article></div></div><div class="card widget"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile is-marginless" href="/categories/CAP/"><span class="level-start"><span class="level-item">CAP</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile is-marginless" href="/categories/PHP/"><span class="level-start"><span class="level-item">PHP</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile is-marginless" href="/categories/api/"><span class="level-start"><span class="level-item">api</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile is-marginless" href="/categories/docker/"><span class="level-start"><span class="level-item">docker</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile is-marginless" href="/categories/git/"><span class="level-start"><span class="level-item">git</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile is-marginless" href="/categories/https/"><span class="level-start"><span class="level-item">https</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile is-marginless" href="/categories/js/"><span class="level-start"><span class="level-item">js</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile is-marginless" href="/categories/linux/"><span class="level-start"><span class="level-item">linux</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile is-marginless" href="/categories/mysql/"><span class="level-start"><span class="level-item">mysql</span></span><span class="level-end"><span class="level-item tag">5</span></span></a></li><li><a class="level is-mobile is-marginless" href="/categories/nginx/"><span class="level-start"><span class="level-item">nginx</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><a class="level is-mobile is-marginless" href="/categories/"><span class="level-start"><span class="level-item">查看全部&gt;&gt;</span></span></a></ul></div></div></div><div class="card widget"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile is-marginless" href="/archives/2021/01/"><span class="level-start"><span class="level-item">一月 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile is-marginless" href="/archives/2020/06/"><span class="level-start"><span class="level-item">六月 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile is-marginless" href="/archives/2019/09/"><span class="level-start"><span class="level-item">九月 2019</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile is-marginless" href="/archives/2019/06/"><span class="level-start"><span class="level-item">六月 2019</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile is-marginless" href="/archives/2018/12/"><span class="level-start"><span class="level-item">十二月 2018</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><a class="level is-mobile is-marginless" href="/archives/"><span class="level-start"><span class="level-item">查看全部&gt;&gt;</span></span></a></ul></div></div></div><div class="card widget"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/%E7%AE%97%E6%B3%95/"><span class="tag">算法</span><span class="tag is-grey-lightest">8</span></a></div><div class="control"><a class="tags has-addons" href="/tags/newman/"><span class="tag">newman</span><span class="tag is-grey-lightest">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/nodejs/"><span class="tag">nodejs</span><span class="tag is-grey-lightest">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/postman/"><span class="tag">postman</span><span class="tag is-grey-lightest">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/swift/"><span class="tag">swift</span><span class="tag is-grey-lightest">6</span></a></div><div class="control"><a class="tags has-addons" href="/tags/leetcode/"><span class="tag">leetcode</span><span class="tag is-grey-lightest">5</span></a></div><div class="control"><a class="tags has-addons" href="/tags/mysql/"><span class="tag">mysql</span><span class="tag is-grey-lightest">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/php/"><span class="tag">php</span><span class="tag is-grey-lightest">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/redis/"><span class="tag">redis</span><span class="tag is-grey-lightest">4</span></a></div><div class="control"><a class="tags has-addons" href="/tags/go/"><span class="tag">go</span><span class="tag is-grey-lightest">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%95%B0%E5%AD%A6/"><span class="tag">数学</span><span class="tag is-grey-lightest">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%AF%8F%E5%91%A8%E5%AD%A6%E4%B9%A0/"><span class="tag">每周学习</span><span class="tag is-grey-lightest">3</span></a></div><div class="control"><a class="tags has-addons" href="/tags/PHP/"><span class="tag">PHP</span><span class="tag is-grey-lightest">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/api/"><span class="tag">api</span><span class="tag is-grey-lightest">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/cache/"><span class="tag">cache</span><span class="tag is-grey-lightest">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/docker/"><span class="tag">docker</span><span class="tag is-grey-lightest">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/git/"><span class="tag">git</span><span class="tag is-grey-lightest">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/js/"><span class="tag">js</span><span class="tag is-grey-lightest">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/linux/"><span class="tag">linux</span><span class="tag is-grey-lightest">2</span></a></div><div class="control"><a class="tags has-addons" href="/tags/nginx/"><span class="tag">nginx</span><span class="tag is-grey-lightest">2</span></a></div></div><div class="field is-grouped is-grouped-multiline"><a class="tags has-addons" href="/tags/"><span class="tag">查看全部&gt;&gt;</span></a></div></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">订阅更新</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="订阅"></div></div></form></div></div></div><!--!--><div class="column-right-shadow is-hidden-widescreen"></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/">David&#039;s World</a><p class="size-small"><span>&copy; 2023 David</span>  Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a> &amp; <a href="https://github.com/removeif/hexo-theme-amazing" target="_blank">Amazing</a> <br><span>© 所有权利保留<br/></span><span><span id="statistic-times">loading...</span><script>function createTime(time) {
+            var n = new Date(time);
+            now.setTime(now.getTime() + 250),
+                days = (now - n) / 1e3 / 60 / 60 / 24,
+                dnum = Math.floor(days),
+                hours = (now - n) / 1e3 / 60 / 60 - 24 * dnum,
+                hnum = Math.floor(hours),
+            1 == String(hnum).length && (hnum = "0" + hnum),
+                minutes = (now - n) / 1e3 / 60 - 1440 * dnum - 60 * hnum,
+                mnum = Math.floor(minutes),
+            1 == String(mnum).length && (mnum = "0" + mnum),
+                seconds = (now - n) / 1e3 - 86400 * dnum - 3600 * hnum - 60 * mnum,
+                snum = Math.round(seconds),
+            1 == String(snum).length && (snum = "0" + snum),
+                document.getElementById("statistic-times").innerHTML = "❤️本站自 <strong>"+time.split(" ")[0].replace(/\//g,".")+"</strong> 已运行 <strong>" + dnum + "</strong> 天 <strong>" + hnum + "</strong> 小时 <strong>" + mnum + "</strong> 分 <strong>" + snum + "</strong> 秒！❤️";
+        }var now = new Date();setInterval("createTime('2014/10/10 00:00:00')", 250,"");</script><br></span><div class="size-small"><span>❤️感谢 <strong><span id="busuanzi_value_site_uv">99+</span></strong> 小伙伴的 <strong><span id="busuanzi_value_site_pv">99+</span></strong> 次光临！❤️</span></div></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/removeif/hexo-theme-amazing"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdnjs.loli.net/ajax/libs/moment.js/2.22.2/moment-with-locales.min.js"></script><script src="https://cdnjs.loli.net/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" async></script><script>moment.locale("zh-CN");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdnjs.loli.net/ajax/libs/lightgallery/1.10.0/js/lightgallery.min.js" defer></script><script src="https://cdnjs.loli.net/ajax/libs/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.js"></script><script type="text/javascript">var pjax = new Pjax({
+            elements: "a",//代表点击链接就更新
+            selectors: [  //代表要更新的节点
+                ".section",
+                "title"
+            ],
+            cache: true,
+            cacheBust:false
+        })
+
+        function loadBusuanzi(){
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js", function () {});
+        }
+
+        function loadMathJax() { //加载mathjax
+            $.getScript("//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML", function () {
+                MathJax.Hub.Config({ tex2jax: { inlineMath: [['$', '$'], ['\(', '\)']] } });
+                var math = document.getElementsByClassName("entry-content")[0];
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, math]);
+            });
+        };
+
+        // 开始 PJAX 执行的函数
+        document.addEventListener('pjax:send', function () {
+        });
+        
+        // PJAX 完成之后执行的函数，可以和上面的重载放在一起
+        document.addEventListener('pjax:complete', function () {
+            $(".section").css({opacity:1});
+            if(false){
+                $.getScript('/js/comment-issue-data.js',function(){loadIssueData('undefined','undefined','undefined','undefined',undefined);});
+            }
+            if(false){
+                loadMathJax();
+            }
+            loadMainJs(jQuery, window.moment, window.ClipboardJS, window.IcarusThemeSettings);
+            loadBackTop();
+            loadBusuanzi();
+            if(typeof loadBanner == 'function'){
+                loadBanner();
+            }
+        });</script></body></html>
