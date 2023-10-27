@@ -135,10 +135,10 @@ search:
     type: insight
 # Comment plugin configurations
 # https://ppoffice.github.io/hexo-theme-icarus/categories/Plugins/Comment/
-#comment:
-#    type: disqus
-#    # Disqus shortname
-#    shortname: ''
+comment:
+   type: disqus
+   # Disqus shortname
+   shortname: 'davidblogs'
 # Comment plugin configurations
 # https://ppoffice.github.io/hexo-theme-icarus/categories/Plugins/Comment/
 # comment:
@@ -341,7 +341,7 @@ plugins:
     # https://tongji.baidu.com
     baidu_analytics:
         # Baidu Analytics tracking ID
-        tracking_id: 
+        tracking_id: 39e8e1ef75d97052b7da575082dccf48
     # BuSuanZi site/page view counter
     # https://busuanzi.ibruce.info
     busuanzi: true
