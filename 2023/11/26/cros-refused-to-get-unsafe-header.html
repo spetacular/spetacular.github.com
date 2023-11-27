@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>DNS 基础知识 - David&#039;s World</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="David&#039;s World"><meta name="msapplication-TileImage" content="g"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="David&#039;s World"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="在排查一些DNS 问题时，顺便学了些DNS的基础知识，记录一下。 什么是根、顶级、权威、本地域名服务？域名解析过程涉及4个DNS服务器，分别如下：    分类 作用    根DNS服务器 英文：Root nameserver。本地域名服务器在本地查询不到解析结果时，则第一步会向它进行查询，并获取顶级域名服务器的IP地址。   顶级域名服务器 英文：Tld nameserver。负责管理在该顶级域名"><meta property="og:type" content="blog"><meta property="og:title" content="David&#039;s World"><meta property="og:url" content="https://blog.weixinbook.net/"><meta property="og:site_name" content="David&#039;s World"><meta property="og:description" content="在排查一些DNS 问题时，顺便学了些DNS的基础知识，记录一下。 什么是根、顶级、权威、本地域名服务？域名解析过程涉及4个DNS服务器，分别如下：    分类 作用    根DNS服务器 英文：Root nameserver。本地域名服务器在本地查询不到解析结果时，则第一步会向它进行查询，并获取顶级域名服务器的IP地址。   顶级域名服务器 英文：Tld nameserver。负责管理在该顶级域名"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://blog.weixinbook.net/"><meta property="article:published_time" content="2023-11-23T16:00:00.000Z"><meta property="article:modified_time" content="2023-11-25T10:35:38.535Z"><meta property="article:author" content="David"><meta property="article:tag" content="DNS"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://blog.weixinbook.net/"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.weixinbook.net/2023/11/24/dns-basic-knowledge.html"},"headline":"David's World","image":["https://blog.weixinbook.net/img/og_image.png"],"datePublished":"2023-11-23T16:00:00.000Z","dateModified":"2023-11-25T10:35:38.535Z","author":{"@type":"Person","name":"David"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject"}},"description":"在排查一些DNS 问题时，顺便学了些DNS的基础知识，记录一下。 什么是根、顶级、权威、本地域名服务？域名解析过程涉及4个DNS服务器，分别如下：    分类 作用    根DNS服务器 英文：Root nameserver。本地域名服务器在本地查询不到解析结果时，则第一步会向它进行查询，并获取顶级域名服务器的IP地址。   顶级域名服务器 英文：Tld nameserver。负责管理在该顶级域名"}</script><link rel="canonical" href="https://blog.weixinbook.net/2023/11/24/dns-basic-knowledge.html"><link rel="icon" href="/g"><meta name="referrer" content="no-referrer-when-downgrade"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/font-awesome/6.0.0/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css"><link rel="stylesheet" href="https://fonts.loli.net/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/font-awesome/5.12.0/css/all.min.css"><link rel="stylesheet" href="https://fonts.loli.net/css?family=Ubuntu:400,600|Source+Code+Pro|Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Microsoft YaHei:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&amp;amp;subset=latin,latin-ext|Inconsolata|Itim|Lobster.css"><script src="https://cdnjs.loli.net/ajax/libs/jquery/3.3.1/jquery.min.js"></script><script src="/js/globalUtils.js"></script><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><script>var _hmt = _hmt || [];
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>跨域请求获取不到特定 header 头的解决办法 - David&#039;s World</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="David&#039;s World"><meta name="msapplication-TileImage" content="g"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="David&#039;s World"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="一个需求是这样：要用 js 来读 ajax 接口中的header头的某个字段，例如 Etag。这时有可能出现两种报错信息。第一：全部 Response 字段里获取不到指定字段。 12345console.log(xhr.getAllResponseHeaders());&amp;#x2F;*content-length: 44content-type: application&amp;#x2F;json; charset&amp;#x3D;utf-8"><meta property="og:type" content="blog"><meta property="og:title" content="David&#039;s World"><meta property="og:url" content="https://blog.weixinbook.net/"><meta property="og:site_name" content="David&#039;s World"><meta property="og:description" content="一个需求是这样：要用 js 来读 ajax 接口中的header头的某个字段，例如 Etag。这时有可能出现两种报错信息。第一：全部 Response 字段里获取不到指定字段。 12345console.log(xhr.getAllResponseHeaders());&amp;#x2F;*content-length: 44content-type: application&amp;#x2F;json; charset&amp;#x3D;utf-8"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://blog.weixinbook.net/"><meta property="article:published_time" content="2023-11-25T16:00:00.000Z"><meta property="article:modified_time" content="2023-11-27T14:23:53.250Z"><meta property="article:author" content="David"><meta property="article:tag" content="javascript"><meta property="article:tag" content="gateway"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://blog.weixinbook.net/"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.weixinbook.net/2023/11/26/cros-refused-to-get-unsafe-header.html"},"headline":"David's World","image":["https://blog.weixinbook.net/img/og_image.png"],"datePublished":"2023-11-25T16:00:00.000Z","dateModified":"2023-11-27T14:23:53.250Z","author":{"@type":"Person","name":"David"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject"}},"description":"一个需求是这样：要用 js 来读 ajax 接口中的header头的某个字段，例如 Etag。这时有可能出现两种报错信息。第一：全部 Response 字段里获取不到指定字段。 12345console.log(xhr.getAllResponseHeaders());&#x2F;*content-length: 44content-type: application&#x2F;json; charset&#x3D;utf-8"}</script><link rel="canonical" href="https://blog.weixinbook.net/2023/11/26/cros-refused-to-get-unsafe-header.html"><link rel="icon" href="/g"><meta name="referrer" content="no-referrer-when-downgrade"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/font-awesome/6.0.0/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/highlight.js/9.12.0/styles/atom-one-light.min.css"><link rel="stylesheet" href="https://fonts.loli.net/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/font-awesome/5.12.0/css/all.min.css"><link rel="stylesheet" href="https://fonts.loli.net/css?family=Ubuntu:400,600|Source+Code+Pro|Monda:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Microsoft YaHei:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&amp;amp;subset=latin,latin-ext|Inconsolata|Itim|Lobster.css"><script src="https://cdnjs.loli.net/ajax/libs/jquery/3.3.1/jquery.min.js"></script><script src="/js/globalUtils.js"></script><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><script>var _hmt = _hmt || [];
         (function() {
             var hm = document.createElement("script");
             hm.src = "//hm.baidu.com/hm.js?39e8e1ef75d97052b7da575082dccf48";
@@ -9,114 +9,20 @@
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
     
-        gtag('config', 'UA-20318153-4');</script><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdnjs.loli.net/ajax/libs/pace/1.2.4/pace.min.js"></script><meta name="generator" content="Hexo 5.4.2"></head><body class="is-3-column has-navbar-fixed-top"><nav class="navbar navbar-main is-fixed-top"><div class="container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">David&#039;s World</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a><a class="navbar-item" id="night-nav" title="Night Mode" href="javascript:;"><i class="fas fa-moon" id="night-icon"></i></a></div></div></div></nav><script type="text/javascript" src="/js/theme-setting.js"></script><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-9-widescreen"><!--!--><div class="card"><article class="card-content article" role="article"><div class="article-meta size-small is-uppercase level is-mobile"><div class="level-left"><i class="far fa-calendar-plus"> </i>2023-11-24  <a class="commentCountImg" href="/2023/11/24/dns-basic-knowledge.html#comment-container"><span class="display-none-class">/2023/11/24/dns-basic-knowledge.html</span><i class="far fa-comment-dots"></i> <span class="commentCount" id="c1a49ce4a45f6ac91a826a70f7108102">99+</span>  </a><span class="level-item"><i class="far fa-clock"> </i>14 分钟  <i class="fas fa-pencil-alt"> </i>2.1 k</span><span class="level-item" id="busuanzi_container_page_pv"><span id="busuanzi_value_page_pv">0</span>次访问</span></div></div><h1 class="title is-3 is-size-4-mobile">DNS 基础知识</h1><div class="content"><p>在排查一些DNS 问题时，顺便学了些DNS的基础知识，记录一下。</p>
-<h1 id="什么是根、顶级、权威、本地域名服务？"><a href="#什么是根、顶级、权威、本地域名服务？" class="headerlink" title="什么是根、顶级、权威、本地域名服务？"></a>什么是根、顶级、权威、本地域名服务？</h1><p>域名解析过程涉及4个DNS服务器，分别如下：</p>
-<table>
-<thead>
-<tr>
-<th>分类</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>根DNS服务器</td>
-<td>英文：Root nameserver。本地域名服务器在本地查询不到解析结果时，则第一步会向它进行查询，并获取顶级域名服务器的IP地址。</td>
-</tr>
-<tr>
-<td>顶级域名服务器</td>
-<td>英文：Tld nameserver。负责管理在该顶级域名服务器下注册的二级域名，例如 <a target="_blank" rel="noopener" href="http://www.example.com,.com则是顶级域名服务器,在向它查询时,可以返回一级域名“example.com”所在的权威域名服务器地址./">www.example.com，.com则是顶级域名服务器，在向它查询时，可以返回一级域名“example.com”所在的权威域名服务器地址。</a></td>
-</tr>
-<tr>
-<td>权威域名服务器</td>
-<td>英文：authoritative nameserver。在特定区域内具有唯一性，负责维护该区域内的域名与IP地址之间的对应关系，例如云解析DNS。</td>
-</tr>
-<tr>
-<td>本地域名服务器</td>
-<td>英文：DNS resolver或Local DNS。本地域名服务器是响应来自客户端的递归请求，并最终跟踪直到获取到解析结果的DNS服务器。例如用户本机自动分配的DNS、运营商ISP分配的DNS、谷歌&#x2F;114公共DNS等。</td>
-</tr>
-</tbody></table>
+        gtag('config', 'UA-20318153-4');</script><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdnjs.loli.net/ajax/libs/pace/1.2.4/pace.min.js"></script><meta name="generator" content="Hexo 5.4.2"></head><body class="is-3-column has-navbar-fixed-top"><nav class="navbar navbar-main is-fixed-top"><div class="container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">David&#039;s World</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a></div><div class="navbar-end"><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a><a class="navbar-item" id="night-nav" title="Night Mode" href="javascript:;"><i class="fas fa-moon" id="night-icon"></i></a></div></div></div></nav><script type="text/javascript" src="/js/theme-setting.js"></script><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-9-widescreen"><!--!--><div class="card"><article class="card-content article" role="article"><div class="article-meta size-small is-uppercase level is-mobile"><div class="level-left"><i class="far fa-calendar-plus"> </i>2023-11-26  <a class="commentCountImg" href="/2023/11/26/cros-refused-to-get-unsafe-header.html#comment-container"><span class="display-none-class">/2023/11/26/cros-refused-to-get-unsafe-header.html</span><i class="far fa-comment-dots"></i> <span class="commentCount" id="80e32b1b9194ce00f41e303938e83a4b">99+</span>  </a><span class="level-item"><i class="far fa-clock"> </i>1 分钟  <i class="fas fa-pencil-alt"> </i>0.2 k</span><span class="level-item" id="busuanzi_container_page_pv"><span id="busuanzi_value_page_pv">0</span>次访问</span></div></div><h1 class="title is-3 is-size-4-mobile">跨域请求获取不到特定 header 头的解决办法</h1><div class="content"><p>一个需求是这样：要用 js 来读 ajax 接口中的header头的某个字段，例如 <code>Etag</code>。<br>这时有可能出现两种报错信息。<br>第一：全部 Response 字段里获取不到指定字段。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">console.log(xhr.getAllResponseHeaders());</span><br><span class="line">/*</span><br><span class="line">content-length: 44</span><br><span class="line">content-type: application/json; charset=utf-8</span><br><span class="line">*/</span><br></pre></td></tr></table></figure>
+<p>发现没有 <code>Etag</code> 这个字段。</p>
 <span id="more"></span>
-<h1 id="什么是-FQDN-Fully-qualified-domain-name-？"><a href="#什么是-FQDN-Fully-qualified-domain-name-？" class="headerlink" title="什么是 FQDN(Fully qualified domain name)？"></a>什么是 FQDN(Fully qualified domain name)？</h1><p>FQDN是完整域名。以.结束的域名是FQDN，例如example.com.是FQDN，但example.com不是。<br>对FQDN，操作系统会直接查询DNS server。那么非FQDN呢？需要做一番操作，使其变为 FQDN之后发起查询。接着就用到search和ndots了。</p>
-<h1 id="什么是search和ndots？"><a href="#什么是search和ndots？" class="headerlink" title="什么是search和ndots？"></a>什么是search和ndots？</h1><p>查看一下 &#x2F;etc&#x2F;resolv.conf 文件，大概内容如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nameserver xx.xx.0.10</span><br><span class="line">search kube-system.svc.cluster.local svc.cluster.local cluster.local</span><br><span class="line">options ndots:5</span><br></pre></td></tr></table></figure>
-
-<p>要查一个域名，例如查找 pod-1.namespace-1，会拼接pod-1.namespace-1.svc.cluster.local 再进行查询。</p>
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>nameserver</td>
-<td>定义DNS服务器的IP地址。</td>
-</tr>
-<tr>
-<td>search</td>
-<td>设置域名的查找后缀规则，查找配置越多，说明域名解析查找匹配次数越多。ACK集群匹配有kube-system.svc.cluster.local、svc.cluster.local、cluster.local3个后缀，最多进行8次查询才能得到正确解析结果，因为集群里面进行IPV4和IPV6查询各四次。</td>
-</tr>
-<tr>
-<td>options</td>
-<td>定义域名解析配置文件选项，支持多个KV值。例如该参数设置成ndots:5，说明如果访问的域名字符串内的点字符数量超过ndots值，则认为是完整域名，并被直接解析；如果不足ndots值，则追加search段后缀再进行查询。</td>
-</tr>
-</tbody></table>
-<h1 id="rcode-表示什么意思？"><a href="#rcode-表示什么意思？" class="headerlink" title="rcode 表示什么意思？"></a>rcode 表示什么意思？</h1><p>DNS返回值。rcode枚举值如下：<br>Rcode&#x3D;0（无错误条件）<br>Rcode&#x3D;3（名称错误）、1（格式错误）、2（服务器故障）、4（未实现）或5（拒绝）查询没有有效答案。</p>
-<h1 id="DNS日志格式参考"><a href="#DNS日志格式参考" class="headerlink" title="DNS日志格式参考"></a>DNS日志格式参考</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;src_port&quot;: &quot;53&quot;,</span><br><span class="line">  &quot;dst_addr&quot;: &quot;10.10.11.12&quot;,</span><br><span class="line">  &quot;dst_port&quot;: &quot;54017&quot;,</span><br><span class="line">  &quot;transport&quot;: &quot;UDP&quot;,</span><br><span class="line">  &quot;dns_msg_id&quot;: &quot;12095&quot;,</span><br><span class="line">  &quot;query_type&quot;: &quot;AAAA&quot;,</span><br><span class="line">  &quot;dns_msg_flags&quot;: &quot;QR RD&quot;,</span><br><span class="line">  &quot;query_name&quot;: &quot;demo.example.com.&quot;,</span><br><span class="line">  &quot;rcode&quot;: &quot;2&quot;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-<h1 id="query-type什么意思？"><a href="#query-type什么意思？" class="headerlink" title="query_type什么意思？"></a>query_type什么意思？</h1><p>query_type是解析记录类型，就是常见的A记录、CNAME记录等类型。</p>
-<table>
-<thead>
-<tr>
-<th>解析记录类型</th>
-<th>场景</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>A记录</td>
-<td>添加 A 记录可实现将域名指向 IPv4 地址。</td>
-</tr>
-<tr>
-<td>CNAME记录</td>
-<td>当需要将域名指向另一个域名，再由另一个域名提供 IP 地址，就需要添加 CNAME 记录，最常用到 CNAME 的场景包括做 CDN、企业邮箱、全局流量管理等。</td>
-</tr>
-<tr>
-<td>MX记录</td>
-<td>设置邮箱时，让邮箱能收到邮件，就需要添加 MX 记录。MX全称为mail exchanger，用于电子邮件系统发邮件时根据收信人的地址后缀来定位邮件服务器。例如，当有人发邮件给“<a href="mailto:&#97;&#98;&#99;&#64;&#x65;&#120;&#97;&#109;&#112;&#108;&#101;&#x2e;&#x63;&#x6f;&#x6d;">&#97;&#98;&#99;&#64;&#x65;&#120;&#97;&#109;&#112;&#108;&#101;&#x2e;&#x63;&#x6f;&#x6d;</a>”时，系统将对“example.com”进行DNS中的MX记录解析。如果MX记录存在，系统就根据MX记录的优先级，将邮件转发到与该MX相应的邮件服务器上。</td>
-</tr>
-<tr>
-<td>AAAA记录</td>
-<td>当预期是实现访问者通过 IPv6 地址访问网站，可以使用 AAAA 记录实现。</td>
-</tr>
-<tr>
-<td>TXT记录</td>
-<td>如果希望对域名进行标识和说明，可以使用 TXT 记录， TXT 记录多用来做 SPF 记录（反垃圾邮件）。</td>
-</tr>
-<tr>
-<td>URL显性&#x2F;隐性转发</td>
-<td>将一个域名指向另外一个已经存在的站点时，需要添加 URL 记录。</td>
-</tr>
-<tr>
-<td>NS记录</td>
-<td>如果需要把子域名交给其他DNS服务商解析，就需要添加NS记录。</td>
-</tr>
-<tr>
-<td>SRV记录</td>
-<td>SRV 记录用来标识某台服务器使用了某个服务，常见于微软系统的目录管理。</td>
-</tr>
-<tr>
-<td>CAA记录</td>
-<td>CAA（Certificate Authority Authorization），即证书颁发机构授权。是一项新的可以添加到DNS记录中的额外字段，通过DNS机制创建CAA资源记录，可以限定域名颁发的证书和CA（证书颁发机构）之间的联系。未经授权的第三方尝试通过其他CA注册获取用于该域名的SSL&#x2F;TLS证书将被拒绝。域名设置 CAA 记录，使网站所有者，可授权指定CA机构为自己的域名颁发证书，以防止HTTPS证书错误签发，从而提高网站安全性。</td>
-</tr>
-<tr>
-<td>PTR记录</td>
-<td>反向解析则是指将IP地址映射到域名上，需要您与IDC机房或主机服务商联系实现。</td>
-</tr>
-</tbody></table>
-<h1 id="dns-msg-flags什么意思？"><a href="#dns-msg-flags什么意思？" class="headerlink" title="dns_msg_flags什么意思？"></a>dns_msg_flags什么意思？</h1><p>DNS信息Flags，有如下枚举值：</p>
-<p>●QR（Response）：查询请求&#x2F;响应的标志信息。查询请求时，值为 0；响应时，值为 1。<br>●Opcode：操作码。其中，0 表示标准查询；1 表示反向查询；2 表示服务器状态请求。<br>●AA（Authoritative）：授权应答，该字段在响应报文中有效。值为 1 时，表示名称服务器是权威服务器；值为 0 时，表示不是权威服务器。<br>●TC（Truncated）：表示是否被截断。值为 1 时，表示响应已超过 512 字节并已被截断，只返回前 512 个字节。<br>●RD（Recursion Desired）：期望递归。该字段能在一个查询中设置，并在响应中返回。该标志告诉名称服务器必须处理这个查询，这种方式被称为一个递归查询。如果该位为 0，且被请求的名称服务器没有一个授权回答，它将返回一个能解答该查询的其他名称服务器列表。这种方式被称为迭代查询。<br>●RA（Recursion Available）：可用递归。该字段只出现在响应报文中。当值为 1 时，表示服务器支持递归查询。<br>●Z：保留字段，在所有的请求和应答报文中，它的值必须为 0。<br>●rcode（Reply code）：返回码字段，表示响应的差错状态。当值为 0 时，表示没有错误；当值为 1 时，表示报文格式错误（Format error），服务器不能理解请求的报文；当值为 2 时，表示域名服务器失败（Server failure），因为服务器的原因导致没办法处理这个请求；当值为 3 时，表示名字错误（Name Error），只有对授权域名解析服务器有意义，指出解析的域名不存在；当值为 4 时，表示查询类型不支持（Not Implemented），即域名服务器不支持查询类型；当值为 5 时，表示拒绝（Refused），一般是服务器由于设置的策略拒绝给出应答，如服务器不希望对某些请求者给出应答。</p>
-</div><div class="article-licensing box"><div class="licensing-title"><p>DNS 基础知识</p><p><a href="https://blog.weixinbook.net/2023/11/24/dns-basic-knowledge.html">https://blog.weixinbook.net/2023/11/24/dns-basic-knowledge.html</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><a href="https://blog.weixinbook.net"><p>David</p></a></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2023-11-24</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2023-11-25</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icon" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a><a class="icon" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a><a class="icon" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="recommend-area"><div class="recommend-post"><span class="is-size-6 has-text-grey has-mr-7"># 相关文章</span><br><span>  1.<a class="is-size-6" href="/2023/11/23/coredns-usage-hosts-templeate-file-plugins.html" target="_blank">CoreDNS 的 template、hosts、file 插件使用方法</a><br></span></div></div><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/social-share.js/1.0.16/css/share.min.css"><div class="social-share"></div><script src="https://cdnjs.loli.net/ajax/libs/social-share.js/1.0.16/js/social-share.min.js"></script></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2023/11/26/cros-refused-to-get-unsafe-header.html"><i class="level-item fas fa-chevron-left"></i><span class="level-item">跨域请求获取不到特定 header 头的解决办法</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2023/11/23/coredns-usage-hosts-templeate-file-plugins.html"><span class="level-item">CoreDNS 的 template、hosts、file 插件使用方法</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--><div class="card"><div class="card-content"><div class="title is-5">评论</div><div id="disqus_thread"><noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div><script>var disqus_config = function () {
-            this.page.url = 'https://blog.weixinbook.net/2023/11/24/dns-basic-knowledge.html';
-            this.page.identifier = '2023/11/24/dns-basic-knowledge.html';
+<p>第二：获取指定字段时提示错误(Cross Domain Resource Sharing GET: ‘refused to get unsafe header “xxx”‘ from Response)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">xhr.getResponseHeader(&#x27;Etag&#x27;)</span><br><span class="line">VM172:1 Refused to get unsafe header &quot;Etag&quot;</span><br></pre></td></tr></table></figure>
+<p>这是因为跨域请求中，不能随意去读取 Response 中的字段，需要在网关（nginx、apache）等加上如下字段：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Access-Control-Expose-Headers: ETag</span><br></pre></td></tr></table></figure>
+<p>显式地把字段暴露出来，才能在 ajax 请求中使用。</p>
+<p>加上以上字段之后，发现可以获取到了：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">console.log(xhr.getAllResponseHeaders());</span><br><span class="line">/*</span><br><span class="line">content-length: 44</span><br><span class="line">content-type: application/json; charset=utf-8</span><br><span class="line">Etag:xxxx</span><br><span class="line">*/</span><br></pre></td></tr></table></figure>
+</div><div class="article-licensing box"><div class="licensing-title"><p>跨域请求获取不到特定 header 头的解决办法</p><p><a href="https://blog.weixinbook.net/2023/11/26/cros-refused-to-get-unsafe-header.html">https://blog.weixinbook.net/2023/11/26/cros-refused-to-get-unsafe-header.html</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><a href="https://blog.weixinbook.net"><p>David</p></a></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2023-11-26</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2023-11-27</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icon" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a><a class="icon" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a><a class="icon" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="recommend-area"></div><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/social-share.js/1.0.16/css/share.min.css"><div class="social-share"></div><script src="https://cdnjs.loli.net/ajax/libs/social-share.js/1.0.16/js/social-share.min.js"></script></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2023/11/24/dns-basic-knowledge.html"><span class="level-item">DNS 基础知识</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--><div class="card"><div class="card-content"><div class="title is-5">评论</div><div id="disqus_thread"><noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div><script>var disqus_config = function () {
+            this.page.url = 'https://blog.weixinbook.net/2023/11/26/cros-refused-to-get-unsafe-header.html';
+            this.page.identifier = '2023/11/26/cros-refused-to-get-unsafe-header.html';
         };
         (function() {
             var d = document, s = d.createElement('script');  
