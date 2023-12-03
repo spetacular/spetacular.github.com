@@ -279,6 +279,7 @@ widgets:
         # Names and URLs of the sites
         links:
             Hexo: 'https://hexo.io'
+            AI小工具: 'https://xiaoai.me'
     # Latest comment widget configurations
     -
         # Where should the widget be placed, left sidebar or right sidebar
